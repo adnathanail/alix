@@ -53,6 +53,7 @@
     pkgs.python3
     pkgs.uv
     pkgs.nodejs
+    pkgs.pnpm
     pkgs.gh
     pkgs.postgresql
     pkgs.ghidra
