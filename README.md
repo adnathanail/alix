@@ -54,6 +54,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Ghidra
 - UTM
 - Anki
+- Private Internet Access (VPN)
 
 ### Configuration/Tools
 
