@@ -55,6 +55,7 @@
     pkgs.nodejs
     pkgs.gh
     pkgs.postgresql
+    pkgs.ghidra
     (pkgs.writeShellScriptBin "nix-switch" ''
       exec sudo darwin-rebuild switch --flake ~/.config/nix-darwin "$@"
     '')
