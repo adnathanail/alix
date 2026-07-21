@@ -55,6 +55,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - UTM
 - Anki
 - Private Internet Access (VPN)
+- Telegram
 
 ### Configuration/Tools
 
