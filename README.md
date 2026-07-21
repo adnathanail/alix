@@ -53,6 +53,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - GIMP
 - Ghidra
 - UTM
+- Anki
 
 ### Configuration/Tools
 
