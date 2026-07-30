@@ -55,6 +55,7 @@
     pkgs.nodejs
     pkgs.pnpm
     pkgs.gh
+    pkgs.doctl
     pkgs.postgresql
     pkgs.ghidra
     (pkgs.writeShellScriptBin "nix-switch" ''

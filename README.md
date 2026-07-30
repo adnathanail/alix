@@ -76,6 +76,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - node
 - pnpm (Node package manager)
 - gh (GitHub)
+- doctl (DigitalOcean)
 - op (1Password)
 - Rocq (with std++ library)
 - psql (PostgreSQL client)
