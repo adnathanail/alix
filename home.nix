@@ -111,6 +111,7 @@
           "markdown" = false;
           "scminput" = false;
         };
+        "workbench.browser.openLocalhostLinks" = false;  # Don't open links in VS Code browser
       };
       keybindings = [
         { key = "cmd+s"; command = "workbench.action.files.saveAll"; }
