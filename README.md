@@ -58,6 +58,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Telegram
 - Signal
 - Brave Browser
+- Little Snitch
 
 ### Configuration/Tools
 
