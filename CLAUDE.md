@@ -248,14 +248,23 @@ a Flexibits account; sign in for paid features. Registers a menu-bar item.
 Sandboxed bundle with a built-in Sparkle updater that can't write into the Nix store. The
 Homebrew cask refresh on rebuild keeps it current.
 
-### Xcode `(Mac App Store via `mas`)`
-Apple only distributes Xcode through the App Store — no Homebrew cask, not in nixpkgs. The
-whole App-Store install path lives in `extra/appdev.nix` (imported from `flake.nix`): it adds
-`Xcode = 497799835` to `homebrew.masApps` and pins `mas` in `homebrew.brews` so
-`cleanup = "zap"` doesn't remove the CLI that `masApps` needs. Both options merge with the
-main `homebrew` block. Activation runs `mas install 497799835` (or `upgrade` on subsequent
-rebuilds), landing the app at `/Applications/Xcode.app`. Add other App Store apps to that same
-file — look up IDs with `mas search <name>`.
+### Xcode + other Mac App Store apps `(Mac App Store via `mas`)`
+Apple only distributes Xcode (and Office, iMovie, etc.) through the App Store — no Homebrew
+casks, not in nixpkgs. `mas` (the App Store CLI) is pinned in `homebrew.brews` in `flake.nix`
+so `cleanup = "zap"` doesn't remove it; the App Store apps themselves are split across three
+peer files under `extra/`, all imported from `flake.nix`, all feeding the same
+`homebrew.masApps` attrset (which merges):
+
+- `extra/appdev.nix` — Xcode.
+- `extra/macapps.nix` — Office (Word/Excel/PowerPoint), iMovie, and other regular apps.
+- `extra/safariexts.nix` — Safari App Extension containers (1Password for Safari, Save to
+  Raindrop.io). Enabling the extension in Safari → Settings → Extensions is a manual per-user
+  step.
+
+The three files are deliberately independent — none imports or relies on the others. Adding
+another Mac-App-Store-only app is a one-line addition to whichever file fits the category.
+Activation runs `mas install <id>` (or `upgrade` on subsequent rebuilds), landing apps at
+`/Applications/<Name>.app`. Look up IDs with `mas search <name>`.
 
 **Requires being signed into the App Store first** — modern `mas` cannot sign in from the CLI.
 If activation reports `Not signed in`, open the App Store app, sign in, then re-run `ns`.

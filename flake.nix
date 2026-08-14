@@ -48,6 +48,12 @@
         # ── iOS/Android app dev tooling ───────────────
         ./extra/appdev.nix
 
+        # ── Mac App Store apps (Office, iMovie, …) ─────
+        ./extra/macapps.nix
+
+        # ── Safari extensions (from the App Store) ─────
+        ./extra/safariexts.nix
+
         # ── system ──────────────────────────────────────────────
         ({ pkgs, ... }: {
           nixpkgs.hostPlatform = "aarch64-darwin"; # "x86_64-darwin" on Intel
@@ -152,6 +158,9 @@
               cleanup = "zap";  # Uninstalls everything not declared here
             };
             casks = [ "1password" "1password-cli" "orbstack" "raycast" "bartender" "ghostty" "microsoft-outlook" "slack" "todoist-app" "fantastical" "spotify" "whatsapp" "google-drive" "steam" "discord" "capcut" "zoom" "audacity" "vlc" "gimp" "utm" "anki" "private-internet-access" "telegram" "signal" "brave-browser" "little-snitch" "micro-snitch" ];
+            # `mas` is the Mac App Store CLI; needed for `homebrew.masApps`.
+            # Explicit so `cleanup = "zap"` doesn't uninstall it.
+            brews = [ "mas" ];
           };
         })
 
