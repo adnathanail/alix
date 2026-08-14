@@ -261,3 +261,13 @@ Mostly disabling self-updaters; the read-only store would break them anyway.
   (`homebrew.onActivation.upgrade = true`).
 - After a PyCharm minor-version bump (e.g. `2026.1 → 2026.2`): update the version-pinned keymap
   symlink path in `home.nix`, otherwise the keymap silently lands in the old unused directory.
+- Bump the `nx` CLI: `nx` is not in nixpkgs, so it's built via `buildNpmPackage` from the
+  wrapper project at `nx/` (see `extra/nx.nix`). Edit `nx/package.json` to the new version,
+  then regenerate the lockfile and hash — flake input updates won't touch it:
+  ```bash
+  (cd nx && npm install --package-lock-only --ignore-scripts)
+  nix run nixpkgs#prefetch-npm-deps -- nx/package-lock.json
+  ```
+  Paste the printed `sha256-…` into `npmDepsHash` in `extra/nx.nix` and bump `version` there
+  to match `package.json`. Commit `nx/package.json`, `nx/package-lock.json`, and
+  `extra/nx.nix` together.

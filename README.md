@@ -1,5 +1,7 @@
 # ALix
 
+Alex Nathanail's nix-darwin config
+
 ## Rebuilding
 
 Rebuild `nix-darwin` config
@@ -76,6 +78,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - uv (Python package/project manager) (uv tools added to path)
 - node
 - pnpm (Node package manager)
+- nx (Nx monorepo CLI)
 - gh (GitHub)
 - doctl (DigitalOcean)
 - op (1Password)

@@ -1,0 +1,9 @@
+{
+  "name": "nx-cli-wrapper",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pins nx CLI for buildNpmPackage; bin resolved from node_modules/.bin/nx by the Nix wrapper.",
+  "dependencies": {
+    "nx": "23.1.1"
+  }
+}

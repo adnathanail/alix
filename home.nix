@@ -4,6 +4,7 @@
   imports = [
     ./extra/rocq.nix
     ./extra/eleventy.nix
+    ./extra/nx.nix
   ];
 
   home.stateVersion = "25.11";
