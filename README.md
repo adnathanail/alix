@@ -62,6 +62,8 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Brave Browser
 - Little Snitch
 - Micro Snitch
+- Xcode
+    - *First use*: sign into the Mac App Store (App Store app → Sign In) **before** the first `ns`, otherwise the `mas install` step will fail. Downloads ~15 GB on first activation.
 
 ### Configuration/Tools
 

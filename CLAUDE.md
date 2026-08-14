@@ -248,11 +248,32 @@ a Flexibits account; sign in for paid features. Registers a menu-bar item.
 Sandboxed bundle with a built-in Sparkle updater that can't write into the Nix store. The
 Homebrew cask refresh on rebuild keeps it current.
 
+### Xcode `(Mac App Store via `mas`)`
+Apple only distributes Xcode through the App Store — no Homebrew cask, not in nixpkgs. The
+whole App-Store install path lives in `extra/appdev.nix` (imported from `flake.nix`): it adds
+`Xcode = 497799835` to `homebrew.masApps` and pins `mas` in `homebrew.brews` so
+`cleanup = "zap"` doesn't remove the CLI that `masApps` needs. Both options merge with the
+main `homebrew` block. Activation runs `mas install 497799835` (or `upgrade` on subsequent
+rebuilds), landing the app at `/Applications/Xcode.app`. Add other App Store apps to that same
+file — look up IDs with `mas search <name>`.
+
+**Requires being signed into the App Store first** — modern `mas` cannot sign in from the CLI.
+If activation reports `Not signed in`, open the App Store app, sign in, then re-run `ns`.
+First install downloads ~15 GB; expect the rebuild to take a long time and hold the network.
+Version follows whatever the App Store currently ships — pinning to a specific Xcode requires
+`xcodes` (a different tool) instead.
+
+After first install, run `sudo xcodebuild -license accept` once, and
+`sudo xcode-select -s /Applications/Xcode.app/Contents/Developer` to point CLT invocations at
+Xcode's toolchain instead of the standalone Command Line Tools bundle.
+
 ## First-use setup
 
 Run through these on a fresh machine after the first `darwin-rebuild switch`.
 
 ### Sign-ins
+- **App Store** — Apple ID. Sign in **before** the first `ns`, or `homebrew.masApps` will
+  fail with `Not signed in` and Xcode won't install.
 - **1Password** — account; then *Settings → Developer → Integrate with 1Password CLI*.
 - **Microsoft Outlook** — Microsoft 365 account.
 - **Slack** — workspaces.
@@ -260,6 +281,8 @@ Run through these on a fresh machine after the first `darwin-rebuild switch`.
 - **PyCharm Professional** — JetBrains licence.
 - **Fantastical** — Flexibits account (only needed for paid features).
 - **Spotify** — Spotify account.
+- **Xcode** — after first install, run `sudo xcodebuild -license accept` and
+  `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`.
 
 ### System permissions (System Settings → Privacy & Security)
 - **Accessibility:** Rectangle, Raycast, Bartender.

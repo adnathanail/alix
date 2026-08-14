@@ -45,6 +45,9 @@
         # ── secrets (agenix) ────────────────────────────────────
         (import ./extra/secrets.nix { inherit agenix username; })
 
+        # ── iOS/Android app dev tooling ───────────────
+        ./extra/appdev.nix
+
         # ── system ──────────────────────────────────────────────
         ({ pkgs, ... }: {
           nixpkgs.hostPlatform = "aarch64-darwin"; # "x86_64-darwin" on Intel
