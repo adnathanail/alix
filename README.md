@@ -120,6 +120,13 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 ### CLIs
 
 - git
+    - Commits and tags are SSH-signed by default, with 1Password holding the private key
+      and `op-ssh-sign` doing the signing (biometric prompt per signature)
+    - *First use on a fresh machine*: 1Password → Settings → Developer → **Use the SSH
+      agent**, and add the public key to GitHub under **Settings → SSH and GPG keys** as a
+      **Signing key** (a key added only as an Authentication key won't mark commits verified)
+    - Rotating the key = update `programs.git.signing.key` and the `allowed_signers` line in
+      `home.nix`, then `ns`
 - prek
 - python
 - uv (Python package/project manager) (uv tools added to path)

@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, config, ... }: {
   # Optional feature modules. Comment a line to disable that feature on
   # the next `ns` rebuild.
   imports = [
@@ -33,6 +33,17 @@
   programs.git = {
     enable = true;
     lfs.enable = true;
+    # SSH commit signing through 1Password. The signer is 1Password's own
+    # binary (Homebrew cask, see flake.nix), which prompts for biometrics
+    # and holds the private key — nothing secret lands on disk or in Nix.
+    # `key` is the *public* key literal; git accepts that in place of a
+    # path when gpg.format = "ssh". signByDefault also signs tags.
+    signing = {
+      format = "ssh";
+      signer = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign";
+      key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAJsvq2utLp2Y8KEL1xZPi9fggjoJDGiVcL8EjYRo4FJ";
+      signByDefault = true;
+    };
     settings = {
       user = {
         name = "Alex Nathanail";
@@ -40,8 +51,17 @@
       };
       init.defaultBranch = "main";
       pull.rebase = true;
+      # Lets `git log --show-signature` verify your own commits locally;
+      # without it git can sign but reports "No signature" on verify.
+      gpg.ssh.allowedSignersFile = "${config.xdg.configHome}/git/allowed_signers";
     };
   };
+
+  # Trusted signing keys for local verification. Add other people's keys
+  # here as `<email> <key type> <public key>` lines if you need to verify
+  # their commits too.
+  xdg.configFile."git/allowed_signers".text =
+    "7809723+adnathanail@users.noreply.github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAJsvq2utLp2Y8KEL1xZPi9fggjoJDGiVcL8EjYRo4FJ\n";
 
   # Rectangle — Magnet-style window snapping. Configure keybindings/snap
   # areas in Rectangle's own preferences UI; it persists them to
