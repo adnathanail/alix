@@ -38,6 +38,10 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
     - *First use*:
         - Disable in-app updater
         - Set keymap to `ALix keymap`
+- GitButler
+    - Homebrew cask — the nixpkgs build is unfree (FSL-1.1-MIT), so it's never in the
+      binary cache and would compile the whole Tauri/Rust app locally
+    - The cask is `auto_updates`, so GitButler updates itself rather than through `ns`
 - Orbstack
 - Ghostty
 - Outlook
