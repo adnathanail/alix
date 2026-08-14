@@ -102,13 +102,21 @@ which survives macOS updates. Does **not** work inside tmux without the `pam_rea
 Encrypted secrets live under `secrets/*.age` (age-encrypted, safe to commit). Recipients
 declared in `secrets/secrets.nix`. Decryption happens at activation using the age identity at
 `~/.config/age/keys.txt` (path set via `age.identityPaths` in `flake.nix`); the plaintext lands
-at `/run/agenix/<name>` owned by the user. Shell-facing secrets are re-exported from
-`programs.zsh.initContent` in `home.nix` (e.g. `NPM_TOKEN`).
+at `/run/agenix/<name>` owned by the user.
+
+Shell-facing tokens are then materialised into `~/.config/nix-secrets.env` by
+`system.activationScripts.postActivation` (also in `flake.nix`) — a plain file of
+`export FOO='...'` lines, rewritten on every `ns`. `programs.zsh.initContent` in `home.nix`
+just `.`-sources that file so `$NPM_*_TOKEN` etc. are available in shells. Adding another
+env-var secret means: encrypt it under `secrets/`, add an `age.secrets.<name>` block, add a
+`write <VAR> /run/agenix/<name>` line to the activation script — no `home.nix` change needed.
 
 Dedicated age key rather than the user's SSH key so activation never hits a passphrase prompt
 and secret access is decoupled from SSH identity. The private key at `~/.config/age/keys.txt`
-is **not** Nix-managed — back it up to 1Password. Lose it and every `.age` file in the repo is
-unrecoverable.
+is **not** Nix-managed; it's backed up to 1Password as a document titled `nix-darwin age key`
+(Private vault). Fresh-machine bootstrap: `nix-restore-age-key` (a helper defined in
+`home.nix`) pulls it back from 1Password. If you ever rotate the key, re-run
+`op document edit "nix-darwin age key" ~/.config/age/keys.txt` so the backup matches.
 
 ## Conventions
 

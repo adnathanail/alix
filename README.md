@@ -73,25 +73,33 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Secrets management (agenix)
     - Currently exposed as env vars: `$NPM_FONT_AWESOME_TOKEN`,
       `$NPM_GITHUB_PACKAGES_TOKEN`.
-    - *First use*:
+    - *First use on a brand-new key* (once ever):
         1. `mkdir -p ~/.config/age && age-keygen -o ~/.config/age/keys.txt`
-           (back this file up to 1Password — losing it makes every `.age`
-           file in the repo unrecoverable).
-        2. `age-keygen -y ~/.config/age/keys.txt` and paste the `age1...`
+        2. Back the key up to 1Password:
+           `op document create ~/.config/age/keys.txt --title "nix-darwin age key" --vault Private`
+           (rotate the item with `op document edit "nix-darwin age key" ~/.config/age/keys.txt`
+           if you regenerate the key later).
+        3. `age-keygen -y ~/.config/age/keys.txt` and paste the `age1...`
            output into `secrets/secrets.nix` in place of the placeholder.
-        3. For each secret listed in `secrets/secrets.nix`, run
-           `cd secrets && EDITOR=vim agenix -e <name>.age` — editor opens,
-           paste the value, save, quit. `git add` the `.age` file so the
-           flake sees it.
-        4. `ns` — secrets are decrypted to `/run/agenix/<name>` and
-           re-exported in the shell by `programs.zsh.initContent` in
-           `home.nix`.
+        4. For each secret listed in `secrets/secrets.nix`, run
+           `cd secrets && EDITOR=vim agenix -e <name>.age`. `git add` the
+           `.age` file so the flake sees it.
+        5. `ns` — secrets decrypt to `/run/agenix/<name>` and are exported
+           in the shell by `programs.zsh.initContent` in `home.nix`.
+    - *First use on a fresh machine* (key already in 1Password):
+        1. Bootstrap up to the point where `op` is on PATH (see top of
+           this file).
+        2. `nix-restore-age-key` — pulls the key from 1Password to
+           `~/.config/age/keys.txt` with mode 0600.
+        3. `ns`.
     - Add another secret:
         1. Declare `age.secrets.<name>` in `flake.nix`.
         2. Add it to `secrets/secrets.nix`.
         3. `cd secrets && agenix -e <name>.age`, then `git add` it.
-        4. Add a `"<VAR>:/run/agenix/<name>"` pair to the loop in
-           `home.nix` if you want it in the shell environment.
+        4. If you want it as a shell env var, add a
+           `write <VAR> /run/agenix/<name>` line to
+           `system.activationScripts.postActivation` in `flake.nix` — the
+           value lands in `~/.config/nix-secrets.env` on rebuild.
         5. `ns`.
 
 ### CLIs

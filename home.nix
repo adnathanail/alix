@@ -28,20 +28,11 @@
     shellAliases = {
       ns = "nix-switch";
     };
-    # Load agenix-decrypted secrets into the environment. Each secret is a
-    # file at /run/agenix/<name>, readable only by this user (owner set in
-    # flake.nix). Guard on readability so a shell still starts if activation
-    # hasn't run yet (e.g. mid-bootstrap). Add new secrets to the list.
+    # Load secrets that were materialised at rebuild time (see
+    # `system.activationScripts.postActivation` in flake.nix). The file is
+    # rewritten on every `ns`; it contains `export FOO='...'` lines.
     initContent = ''
-      for pair in \
-        "NPM_FONT_AWESOME_TOKEN:/run/agenix/npm-font-awesome-token" \
-        "NPM_GITHUB_PACKAGES_TOKEN:/run/agenix/npm-github-packages-token"; do
-        var="''${pair%%:*}"
-        path="''${pair##*:}"
-        # $(<file) is a zsh/bash builtin — no subprocess, so this works
-        # even before /usr/bin is on PATH.
-        [ -r "$path" ] && export "$var=$(<"$path")"
-      done
+      [ -r "$HOME/.config/nix-secrets.env" ] && . "$HOME/.config/nix-secrets.env"
     '';
   };
 
@@ -76,6 +67,21 @@
     pkgs.ghidra
     (pkgs.writeShellScriptBin "nix-switch" ''
       exec sudo darwin-rebuild switch --flake ~/.config/nix-darwin "$@"
+    '')
+    # Fetches the agenix identity from 1Password on a fresh machine.
+    # Refuses to overwrite an existing key. See README → agenix for the
+    # upload command run once after key generation.
+    (pkgs.writeShellScriptBin "nix-restore-age-key" ''
+      set -euo pipefail
+      key="$HOME/.config/age/keys.txt"
+      if [ -e "$key" ]; then
+        echo "Refusing to overwrite existing $key — move it aside first." >&2
+        exit 1
+      fi
+      mkdir -p "$(dirname "$key")"
+      op document get "nix-darwin age key" --vault Private --out-file "$key"
+      chmod 600 "$key"
+      echo "Restored age key to $key"
     '')
   ];
 
