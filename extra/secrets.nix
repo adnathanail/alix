@@ -15,7 +15,7 @@
 { pkgs, ... }: {
   imports = [ agenix.darwinModules.default ];
 
-  environment.systemPackages = [ agenix.packages.${pkgs.system}.default ];
+  environment.systemPackages = [ agenix.packages.${pkgs.stdenv.hostPlatform.system}.default ];
 
   # Decryption uses the age key at the path below (generate with
   # `age-keygen -o ~/.config/age/keys.txt`, no passphrase). Recipients
