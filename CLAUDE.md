@@ -168,7 +168,7 @@ Pulled from unstable because release-25.11 won't backport JetBrains minor-versio
 `~/Applications/Home Manager Apps/PyCharm Professional Edition.app`.
 
 **Keymap** at `pycharm/custom-keymap.xml` is symlinked into
-`~/Library/Application Support/JetBrains/PyCharm2026.1/keymaps/` via `home.file`. Edits inside
+`~/Library/Application Support/JetBrains/PyCharm2026.2/keymaps/` via `home.file`. Edits inside
 PyCharm fail silently (read-only store target) — edit the XML in the repo. The destination path
 is **version-pinned**, so after a JetBrains minor-version bump (e.g. `PyCharm2026.1` →
 `PyCharm2026.2`) update the path in `home.nix` or the symlink lands in the wrong directory.
