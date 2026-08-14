@@ -99,24 +99,30 @@ Enabled via `security.pam.services.sudo_local.touchIdAuth = true` — writes `/e
 which survives macOS updates. Does **not** work inside tmux without the `pam_reattach` module.
 
 ### Secrets via agenix
+**All the secrets machinery lives in `extra/secrets.nix`** — imported from `flake.nix` as
+`(import ./extra/secrets.nix { inherit agenix username; })`. That single file owns: the
+agenix darwin module, the `agenix` CLI, `age.identityPaths`, every `age.secrets.<name>`
+block, the postActivation env-file writer, the zsh `source` line, and the
+`nix-restore-age-key` helper. If you're touching secrets, edit that file — do not scatter
+changes back into `flake.nix` / `home.nix`.
+
 Encrypted secrets live under `secrets/*.age` (age-encrypted, safe to commit). Recipients
 declared in `secrets/secrets.nix`. Decryption happens at activation using the age identity at
-`~/.config/age/keys.txt` (path set via `age.identityPaths` in `flake.nix`); the plaintext lands
-at `/run/agenix/<name>` owned by the user.
+`~/.config/age/keys.txt`; the plaintext lands at `/run/agenix/<name>` owned by the user.
 
-Shell-facing tokens are then materialised into `~/.config/nix-secrets.env` by
-`system.activationScripts.postActivation` (also in `flake.nix`) — a plain file of
-`export FOO='...'` lines, rewritten on every `ns`. `programs.zsh.initContent` in `home.nix`
-just `.`-sources that file so `$NPM_*_TOKEN` etc. are available in shells. Adding another
-env-var secret means: encrypt it under `secrets/`, add an `age.secrets.<name>` block, add a
-`write <VAR> /run/agenix/<name>` line to the activation script — no `home.nix` change needed.
+Shell-facing tokens are then materialised into `~/.config/nix-secrets.env` by the
+postActivation script — a plain file of `export FOO=...` lines (values bash-`%q`-quoted),
+rewritten on every `ns`. Zsh sources that file so `$NPM_*_TOKEN` etc. are available in
+interactive shells. Adding another env-var secret means: encrypt it under `secrets/`, add an
+`age.secrets.<name>` block, add a `write <VAR> /run/agenix/<name>` line to the activation
+script — all three changes in `extra/secrets.nix`.
 
 Dedicated age key rather than the user's SSH key so activation never hits a passphrase prompt
 and secret access is decoupled from SSH identity. The private key at `~/.config/age/keys.txt`
 is **not** Nix-managed; it's backed up to 1Password as a document titled `nix-darwin age key`
-(Private vault). Fresh-machine bootstrap: `nix-restore-age-key` (a helper defined in
-`home.nix`) pulls it back from 1Password. If you ever rotate the key, re-run
-`op document edit "nix-darwin age key" ~/.config/age/keys.txt` so the backup matches.
+(Private vault). Fresh-machine bootstrap: `nix-restore-age-key` pulls it back from 1Password.
+If you ever rotate the key, re-run `op document edit "nix-darwin age key" ~/.config/age/keys.txt`
+so the backup matches.
 
 ## Conventions
 

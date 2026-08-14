@@ -28,12 +28,6 @@
     shellAliases = {
       ns = "nix-switch";
     };
-    # Load secrets that were materialised at rebuild time (see
-    # `system.activationScripts.postActivation` in flake.nix). The file is
-    # rewritten on every `ns`; it contains `export FOO='...'` lines.
-    initContent = ''
-      [ -r "$HOME/.config/nix-secrets.env" ] && . "$HOME/.config/nix-secrets.env"
-    '';
   };
 
   programs.git = {
@@ -67,21 +61,6 @@
     pkgs.ghidra
     (pkgs.writeShellScriptBin "nix-switch" ''
       exec sudo darwin-rebuild switch --flake ~/.config/nix-darwin "$@"
-    '')
-    # Fetches the agenix identity from 1Password on a fresh machine.
-    # Refuses to overwrite an existing key. See README → agenix for the
-    # upload command run once after key generation.
-    (pkgs.writeShellScriptBin "nix-restore-age-key" ''
-      set -euo pipefail
-      key="$HOME/.config/age/keys.txt"
-      if [ -e "$key" ]; then
-        echo "Refusing to overwrite existing $key — move it aside first." >&2
-        exit 1
-      fi
-      mkdir -p "$(dirname "$key")"
-      op document get "nix-darwin age key" --vault Private --out-file "$key"
-      chmod 600 "$key"
-      echo "Restored age key to $key"
     '')
   ];
 

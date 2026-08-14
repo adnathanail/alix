@@ -92,14 +92,16 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
         2. `nix-restore-age-key` — pulls the key from 1Password to
            `~/.config/age/keys.txt` with mode 0600.
         3. `ns`.
-    - Add another secret:
-        1. Declare `age.secrets.<name>` in `flake.nix`.
+    - All the machinery is in `extra/secrets.nix` (imported from
+      `flake.nix`). Add another secret:
+        1. Declare `age.secrets.<name>` in `extra/secrets.nix`.
         2. Add it to `secrets/secrets.nix`.
         3. `cd secrets && agenix -e <name>.age`, then `git add` it.
         4. If you want it as a shell env var, add a
            `write <VAR> /run/agenix/<name>` line to
-           `system.activationScripts.postActivation` in `flake.nix` — the
-           value lands in `~/.config/nix-secrets.env` on rebuild.
+           `system.activationScripts.postActivation` in
+           `extra/secrets.nix` — the value lands in
+           `~/.config/nix-secrets.env` on rebuild.
         5. `ns`.
 
 ### CLIs
