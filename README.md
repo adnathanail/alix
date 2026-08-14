@@ -61,6 +61,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Signal
 - Brave Browser
 - Little Snitch
+- Micro Snitch
 
 ### Configuration/Tools
 
