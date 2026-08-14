@@ -28,11 +28,12 @@
       let
         unstable = import nixpkgs-unstable {
           system = prev.stdenv.hostPlatform.system;
-          config.allowUnfree = true;   # claude-code, pycharm are unfree
+          config.allowUnfree = true;   # claude-code, pycharm, vscode are unfree
         };
       in {
         claude-code = unstable.claude-code;
         prek = unstable.prek;
+        vscode = unstable.vscode;
         # Merge so other jetbrains.* attrs keep coming from stable.
         jetbrains = prev.jetbrains // {
           pycharm = unstable.jetbrains.pycharm;

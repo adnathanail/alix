@@ -52,9 +52,9 @@ fixes but rarely new modules — a brand-new HM module may exist only on `master
 
 ### Selective unstable overlay
 `unstableOverlay` in `flake.nix` pulls **specific** packages from `nixpkgs-unstable`, leaving
-everything else on stable: `claude-code`, `prek`, `jetbrains.pycharm`. `jetbrains` is merged
-(`prev.jetbrains // { … }`) so other JetBrains IDEs still come from stable. Reuse this pattern for
-anything that needs to be fresher than the pin.
+everything else on stable: `claude-code`, `prek`, `vscode`, `jetbrains.pycharm`. `jetbrains` is
+merged (`prev.jetbrains // { … }`) so other JetBrains IDEs still come from stable. Reuse this
+pattern for anything that needs to be fresher than the pin.
 
 `nixpkgs.config.allowUnfree = true` is required for `claude-code`, `vscode`, `jetbrains.pycharm`.
 
@@ -116,7 +116,9 @@ Nix-managed unless noted.
   `home.sessionVariables.DISABLE_AUTOUPDATER = "1"`. The `claude symlink points to an invalid
   binary` warning is a harmless false positive (Nix wraps it as a script). The VS Code extension
   and PyCharm plugin update independently of the CLI.
-- **VS Code** *(Nix, Nix-managed config + extensions)* — `programs.vscode`, `profiles.default`.
+- **VS Code** *(Nix, unstable overlay, Nix-managed config + extensions)* — `programs.vscode`,
+  `profiles.default`. Only the `vscode` attr is on unstable; `pkgs.vscode-extensions` still comes
+  from stable, which is fine (a newer editor runs older extensions).
   `settings.json` is Nix-owned: edit `userSettings` in `home.nix`, not in-app.
   `mutableExtensionsDir = false` means HM fully owns `~/.vscode/extensions`, so extensions can
   **only** be added by editing `home.nix` (or `extra/rocq.nix` / `extra/eleventy.nix`) and
