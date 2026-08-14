@@ -98,6 +98,18 @@ Options: `enableRosetta = false`, `onActivation.upgrade = true`, `onActivation.a
 Enabled via `security.pam.services.sudo_local.touchIdAuth = true` — writes `/etc/pam.d/sudo_local`,
 which survives macOS updates. Does **not** work inside tmux without the `pam_reattach` module.
 
+### Secrets via agenix
+Encrypted secrets live under `secrets/*.age` (age-encrypted, safe to commit). Recipients
+declared in `secrets/secrets.nix`. Decryption happens at activation using the age identity at
+`~/.config/age/keys.txt` (path set via `age.identityPaths` in `flake.nix`); the plaintext lands
+at `/run/agenix/<name>` owned by the user. Shell-facing secrets are re-exported from
+`programs.zsh.initContent` in `home.nix` (e.g. `NPM_TOKEN`).
+
+Dedicated age key rather than the user's SSH key so activation never hits a passphrase prompt
+and secret access is decoupled from SSH identity. The private key at `~/.config/age/keys.txt`
+is **not** Nix-managed — back it up to 1Password. Lose it and every `.age` file in the repo is
+unrecoverable.
+
 ## Conventions
 
 These apply to every tool unless its note says otherwise:

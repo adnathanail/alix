@@ -28,6 +28,21 @@
     shellAliases = {
       ns = "nix-switch";
     };
+    # Load agenix-decrypted secrets into the environment. Each secret is a
+    # file at /run/agenix/<name>, readable only by this user (owner set in
+    # flake.nix). Guard on readability so a shell still starts if activation
+    # hasn't run yet (e.g. mid-bootstrap). Add new secrets to the list.
+    initContent = ''
+      for pair in \
+        "NPM_FONT_AWESOME_TOKEN:/run/agenix/npm-font-awesome-token" \
+        "NPM_GITHUB_PACKAGES_TOKEN:/run/agenix/npm-github-packages-token"; do
+        var="''${pair%%:*}"
+        path="''${pair##*:}"
+        # $(<file) is a zsh/bash builtin — no subprocess, so this works
+        # even before /usr/bin is on PATH.
+        [ -r "$path" ] && export "$var=$(<"$path")"
+      done
+    '';
   };
 
   programs.git = {

@@ -12,9 +12,13 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
+
+    agenix.url = "github:ryantm/agenix";
+    agenix.inputs.nixpkgs.follows = "nixpkgs";
+    agenix.inputs.home-manager.follows = "home-manager";
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, nixpkgs-unstable, home-manager, nix-homebrew }:
+  outputs = inputs@{ self, nix-darwin, nixpkgs, nixpkgs-unstable, home-manager, nix-homebrew, agenix }:
   let
     username = "adnathanail";        # `whoami`
     hostname = "Alexs-MacBook-Pro";  # `scutil --get LocalHostName`
@@ -37,6 +41,9 @@
   in {
     darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
       modules = [
+
+        # ── agenix ──────────────────────────────────────────────
+        agenix.darwinModules.default
 
         # ── system ──────────────────────────────────────────────
         ({ pkgs, ... }: {
@@ -127,7 +134,24 @@
           # Enable Touch ID for sudo
           security.pam.services.sudo_local.touchIdAuth = true;
 
-          environment.systemPackages = [ ];
+          environment.systemPackages = [ agenix.packages.${pkgs.system}.default ];
+
+          # agenix — encrypted secrets in the repo, decrypted at activation to
+          # /run/agenix/<name>. Recipients live in ./secrets/secrets.nix.
+          # Decryption uses the age key at the path below (generate with
+          # `age-keygen -o ~/.config/age/keys.txt`, no passphrase). Add new
+          # secrets by declaring another `age.secrets.<name>` block here.
+          age.identityPaths = [ "/Users/${username}/.config/age/keys.txt" ];
+          age.secrets.npm-font-awesome-token = {
+            file = ./secrets/npm-font-awesome-token.age;
+            owner = username;
+            mode = "0400";
+          };
+          age.secrets.npm-github-packages-token = {
+            file = ./secrets/npm-github-packages-token.age;
+            owner = username;
+            mode = "0400";
+          };
 
           # Homebrew — used only for GUI casks that don't tolerate the
           # Nix store layout (e.g. 1Password's anti-tamper check refuses
