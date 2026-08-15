@@ -83,6 +83,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - 1Password for Safari
 - Microsoft Word / Excel / PowerPoint
 - iMovie
+- Reeder (RSS/media reader — the 2024 rewrite, not Reeder Classic)
 - Save to Raindrop.io
 
 ### Configuration/Tools
