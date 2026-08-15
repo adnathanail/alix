@@ -33,6 +33,10 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Claude Code
 - VS Code (w/ plugins)
     - Tracks `nixpkgs-unstable`; the 26.05 pin lags several releases behind
+    - TikZiT (`alekskissinger.vstikzit`) — graphical editor for `.tikz` /
+      `.tikzstyles` files. Editing works out of the box; PDF/SVG preview shells out to
+      `pdflatex` and `dvisvgm`, which aren't installed — add a TeX Live package if you
+      need it
 - 1Password
 - PyCharm
     - *First use*:
@@ -42,6 +46,11 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
     - Homebrew cask — the nixpkgs build is unfree (FSL-1.1-MIT), so it's never in the
       binary cache and would compile the whole Tauri/Rust app locally
     - The cask is `auto_updates`, so GitButler updates itself rather than through `ns`
+    - The `but` CLI comes with the cask — it's a Binary artifact symlinked to
+      `/opt/homebrew/bin/but`, so it tracks the app version. Don't use the GUI's
+      "Install CLI" button or `curl -fsSL https://gitbutler.com/install.sh | sh`;
+      both add a second, unmanaged copy
+    - *First use*: `but setup` in each repo you want GitButler to manage
 - Orbstack
 - Ghostty
 - Outlook

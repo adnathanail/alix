@@ -114,6 +114,16 @@
         tomoki1207.pdf
         tamasfe.even-better-toml
         leanprover.lean4
+      ] ++ [
+        # TikZiT — graphical editor for TikZ diagrams (.tikz files). Not in
+        # the prebuilt nixpkgs extension set, so it comes straight from the
+        # marketplace; bump version + sha256 together.
+        (pkgs.vscode-utils.extensionFromVscodeMarketplace {
+          publisher = "alekskissinger";
+          name = "vstikzit";
+          version = "0.5.2";
+          sha256 = "sha256-+Xnv6RT7xxGmQItzR0k7Xp0N3Bu6Em214LEHSZud20M=";
+        })
       ];
       userSettings = {
         "nix.enableLanguageServer" = true;
