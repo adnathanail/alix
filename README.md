@@ -93,19 +93,6 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 #### Secrets management (agenix)
 
 - Env vars: `$NPM_FONT_AWESOME_TOKEN`, `$NPM_GITHUB_PACKAGES_TOKEN`.
-- MailMate account config: `mailmate-sources`, `mailmate-identities`, `mailmate-submission`
-  - Activation copies them into `~/Library/Application Support/MailMate/` **only if the file is absent**
-
-To adopt settings you've changed in the GUI, re-encrypt from the live files:
-```bash
-cd ~/.config/nix-darwin/secrets
-for f in sources:Sources identities:Identities submission:Submission; do
-  agenix -e "mailmate-${f%%:*}.age" -i ~/.config/age/keys.txt \
-    < ~/Library/Application\ Support/MailMate/"${f##*:}".plist
-done
-```
-_Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new content from stdin instead — which is what the redirect above relies on._
-
 - *First use on a brand-new key* (once ever):
     1. `mkdir -p ~/.config/age && age-keygen -o ~/.config/age/keys.txt`
     2. Back the key up to 1Password:
@@ -125,15 +112,19 @@ _Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new con
     2. `nix-restore-age-key` — pulls the key from 1Password to
         `~/.config/age/keys.txt` with mode 0600.
     3. `ns`.
-- All the machinery is in `extra/secrets.nix` (imported from
-  `flake.nix`). Add another secret:
-    1. Declare `age.secrets.<name>` in `extra/secrets.nix`.
-    2. Add it to `secrets/secrets.nix`.
-    3. `cd secrets && agenix -e <name>.age`, then `git add` it.
+- Shared machinery is in `extra/agenix.nix`; **secrets live with whatever uses them** —
+  `extra/envvars.nix` for shell tokens. Add another secret:
+    1. Declare `age.secrets.<name>` in the module that consumes it (a new
+        `extra/<feature>.nix` if it's a new feature — add it to `modules` in `flake.nix`).
+    2. Add it to `secrets/secrets.nix` — that file is read by the `agenix` CLI, so it stays
+        one flat list regardless of which module uses the secret.
+    3. `cd secrets && agenix -e <name>.age -i ~/.config/age/keys.txt < plaintext`,
+        then `git add` it. Flakes only see git-tracked files, so an unstaged `.age`
+        is invisible to `ns`.
     4. If you want it as a shell env var, add a
         `write <VAR> /run/agenix/<name>` line to
         `system.activationScripts.postActivation` in
-        `extra/secrets.nix` — the value lands in
+        `extra/envvars.nix` — the value lands in
         `~/.config/nix-secrets.env` on rebuild.
     5. `ns`.
 

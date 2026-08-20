@@ -43,8 +43,11 @@
     darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
       modules = [
 
-        # ── secrets (agenix) ────────────────────────────────────
-        (import ./extra/secrets.nix { inherit agenix username; })
+        # ── agenix machinery (secrets themselves live with their users)
+        (import ./agenix.nix { inherit agenix username; })
+
+        # ── secrets exposed as shell env vars ───────────────────
+        (import ./extra/envvars.nix { inherit username; })
 
         # ── iOS/Android app dev tooling ───────────────
         ./extra/appdev.nix

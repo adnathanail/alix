@@ -26,7 +26,8 @@ living at `~/.config/nix-darwin/`.
 | --- | --- |
 | `flake.nix` | inputs, unstable overlay, `system.defaults`, Homebrew casks/brews, nix-homebrew + HM wiring |
 | `home.nix` | Home Manager user config (packages, git, zsh, VS Code, PyCharm keymap, Ghostty config) |
-| `extra/secrets.nix` | **all** agenix machinery (darwin module) |
+| `agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`, `nix-restore-age-key`. Declares **no** secrets |
+| `extra/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
 | `extra/appdev.nix`, `extra/macapps.nix`, `extra/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge); deliberately independent of each other |
 | `extra/rocq.nix`, `extra/eleventy.nix`, `extra/nx.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
 | `secrets/*.age`, `secrets/secrets.nix` | encrypted secrets + their recipients |
@@ -87,19 +88,32 @@ designated-requirement signature (Nix's wrap step invalidates it, and HM install
   Homebrew itself with `nix flake update nix-homebrew`), `enableRosetta = false`.
 
 ### Secrets via agenix
-**All the machinery is in `extra/secrets.nix`** — the agenix module, the `agenix` CLI,
-`age.identityPaths`, every `age.secrets.<name>` block, the postActivation env-file writer, the
-zsh `source` line, and `nix-restore-age-key`. Edit that one file; don't scatter changes into
-`flake.nix` / `home.nix`.
+**Secrets live with their users, not in one secrets file.** `agenix.nix` holds only the
+shared machinery — the agenix module, the `agenix` CLI, `age.identityPaths`, and
+`nix-restore-age-key` — and declares no `age.secrets.<name>` blocks itself. Each consuming module
+owns its own — `extra/envvars.nix` for the shell tokens. A new secret-using feature gets its
+own `extra/<feature>.nix` rather than an entry in a shared file.
+
+This works because `age.secrets`, `homebrew.casks` and `system.activationScripts.<name>.text`
+all merge across modules rather than conflicting.
 
 Encrypted secrets live in `secrets/*.age` (safe to commit), recipients in `secrets/secrets.nix`.
 Activation decrypts them to `/run/agenix/<name>` using the age identity at
 `~/.config/age/keys.txt`, then writes shell-facing tokens into `~/.config/nix-secrets.env` as
 bash-`%q`-quoted `export` lines (rewritten every `ns`); zsh sources that file.
 
-Adding an env-var secret = three edits in `extra/secrets.nix` (`age.secrets.<name>` block, a
+Adding an env-var secret = two edits in `extra/envvars.nix` (`age.secrets.<name>` block, a
 `write <VAR> /run/agenix/<name>` line in the activation script) plus an entry in
 `secrets/secrets.nix` and the encrypted file itself. Operator steps are in the README.
+`secrets/secrets.nix` is read by the `agenix` **CLI**, not the module system, so it stays a
+single flat map of filename → publicKeys and can't be split up per-feature.
+
+**Encrypting non-interactively:** `agenix -e` **ignores `$EDITOR` when stdin isn't a TTY** and
+substitutes `cp -- /dev/stdin`, so pipe the content in — `agenix -e <name>.age -i
+~/.config/age/keys.txt < plaintext`. Setting `EDITOR="cp src"` silently yields a **200-byte
+empty** secret that only fails at activation. `agenix` also can't find the age identity on its
+own (it looks for `~/.ssh/id_*`), so pass `-i ~/.config/age/keys.txt` for both `-e` and `-d`.
+Sanity-check any new secret by decrypting it and diffing against the source.
 
 A dedicated age key (not the SSH key) means activation never hits a passphrase prompt. The
 private key is **not** Nix-managed; it's backed up to 1Password as document `nix-darwin age key`
