@@ -133,6 +133,16 @@
           version = "2026.8.9";
           sha256 = "sha256-E9kb7pKuR5Ds9h863tWR1Ls184KEyXdecXbq6OglxUE=";
         })
+        # Set Window Color & Name — per-workspace title-bar colour and window
+        # title, so multiple VS Code windows stay distinguishable. Not in the
+        # prebuilt nixpkgs extension set, so it comes straight from the
+        # marketplace; bump version + sha256 together.
+        (pkgs.vscode-utils.extensionFromVscodeMarketplace {
+          publisher = "lennardv";
+          name = "set-window-color-name";
+          version = "2.1.2";
+          sha256 = "sha256-CqE/vejphHOmhr4gGOhpJ7gUOjUWhIKWddjMGETuZWg=";
+        })
       ];
       userSettings = {
         "nix.enableLanguageServer" = true;
