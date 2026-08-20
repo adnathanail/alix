@@ -9,4 +9,9 @@ let
 in {
   "npm-font-awesome-token.age".publicKeys = [ alex ];
   "npm-github-packages-token.age".publicKeys = [ alex ];
+
+  # # MailMate account config - encrypted because they contain personal email addresses
+  "mailmate-sources.age".publicKeys = [ alex ];
+  "mailmate-identities.age".publicKeys = [ alex ];
+  "mailmate-submission.age".publicKeys = [ alex ];
 }

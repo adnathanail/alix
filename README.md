@@ -43,12 +43,13 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Orbstack
 - Ghostty
 - Outlook
-- MailMate
-    - Homebrew cask — macOS-only proprietary IMAP client, not in nixpkgs
-    - The cask is `auto_updates`, so MailMate updates itself (Sparkle) rather than through `ns`
-    - Ships an `emate` CLI at `/Applications/MailMate.app/Contents/Resources/emate`
-    - *First use*: add accounts (App-specific password for iCloud/Gmail-style 2FA accounts);
-      unlicensed use falls back to the free/limited mode after the trial
+- MailMate (2.0 beta)
+  - Includes `emate` CLI at `/Applications/MailMate.app/Contents/Resources/emate`
+  - Account config lives in three small files: `~/Library/Application Support/MailMate/` — `Sources.plist` (IMAP), `Submission.plist` (SMTP), `Identities.plist` (from-addresses).
+    - Just email address/config no passwords, will ask for auth on first use
+  - Outlook.com/Hotmail needs OAuth on **both** IMAP and SMTP, and both hosts must be
+    `*.office365.com` — the setup wizard gets the SMTP host wrong. See CLAUDE.md →
+    *Per-tool notes* → MailMate before touching account settings
 - Todoist
 - Slack
 - Fantastical
@@ -93,6 +94,19 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 #### Secrets management (agenix)
 
 - Env vars: `$NPM_FONT_AWESOME_TOKEN`, `$NPM_GITHUB_PACKAGES_TOKEN`.
+- MailMate account config: `mailmate-sources`, `mailmate-identities`, `mailmate-submission`
+  - Activation copies them into `~/Library/Application Support/MailMate/` **only if the file is absent**
+
+To adopt settings you've changed in the GUI, re-encrypt from the live files:
+```bash
+cd ~/.config/nix-darwin/secrets
+for f in sources:Sources identities:Identities submission:Submission; do
+  agenix -e "mailmate-${f%%:*}.age" -i ~/.config/age/keys.txt \
+    < ~/Library/Application\ Support/MailMate/"${f##*:}".plist
+done
+```
+_Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new content from stdin instead — which is what the redirect above relies on._
+
 - *First use on a brand-new key* (once ever):
     1. `mkdir -p ~/.config/age && age-keygen -o ~/.config/age/keys.txt`
     2. Back the key up to 1Password:
@@ -112,8 +126,9 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
     2. `nix-restore-age-key` — pulls the key from 1Password to
         `~/.config/age/keys.txt` with mode 0600.
     3. `ns`.
-- Shared machinery is in `extra/agenix.nix`; **secrets live with whatever uses them** —
-  `extra/envvars.nix` for shell tokens. Add another secret:
+- Shared machinery is in `agenix.nix`; **secrets live with whatever uses them** —
+  `extra/envvars.nix` for shell tokens, `extra/mailmate.nix` for the MailMate account
+  config. Add another secret:
     1. Declare `age.secrets.<name>` in the module that consumes it (a new
         `extra/<feature>.nix` if it's a new feature — add it to `modules` in `flake.nix`).
     2. Add it to `secrets/secrets.nix` — that file is read by the `agenix` CLI, so it stays

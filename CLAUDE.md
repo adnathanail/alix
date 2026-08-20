@@ -28,6 +28,7 @@ living at `~/.config/nix-darwin/`.
 | `home.nix` | Home Manager user config (packages, git, zsh, VS Code, PyCharm keymap, Ghostty config) |
 | `agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`, `nix-restore-age-key`. Declares **no** secrets |
 | `extra/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
+| `extra/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
 | `extra/appdev.nix`, `extra/macapps.nix`, `extra/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge); deliberately independent of each other |
 | `extra/rocq.nix`, `extra/eleventy.nix`, `extra/nx.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
 | `secrets/*.age`, `secrets/secrets.nix` | encrypted secrets + their recipients |
@@ -91,8 +92,9 @@ designated-requirement signature (Nix's wrap step invalidates it, and HM install
 **Secrets live with their users, not in one secrets file.** `agenix.nix` holds only the
 shared machinery — the agenix module, the `agenix` CLI, `age.identityPaths`, and
 `nix-restore-age-key` — and declares no `age.secrets.<name>` blocks itself. Each consuming module
-owns its own — `extra/envvars.nix` for the shell tokens. A new secret-using feature gets its
-own `extra/<feature>.nix` rather than an entry in a shared file.
+owns its own: `extra/envvars.nix` for the shell tokens, `extra/mailmate.nix` for the MailMate
+account config. A new secret-using feature gets its own `extra/<feature>.nix` rather than an
+entry in a shared file.
 
 This works because `age.secrets`, `homebrew.casks` and `system.activationScripts.<name>.text`
 all merge across modules rather than conflicting.
@@ -107,6 +109,9 @@ Adding an env-var secret = two edits in `extra/envvars.nix` (`age.secrets.<name>
 `secrets/secrets.nix` and the encrypted file itself. Operator steps are in the README.
 `secrets/secrets.nix` is read by the `agenix` **CLI**, not the module system, so it stays a
 single flat map of filename → publicKeys and can't be split up per-feature.
+
+Not every secret is a shell env var — `mailmate-*` are files copied into place by the activation
+script instead (see *MailMate* below).
 
 **Encrypting non-interactively:** `agenix -e` **ignores `$EDITOR` when stdin isn't a TTY** and
 substitutes `cp -- /dev/stdin`, so pipe the content in — `agenix -e <name>.age -i
@@ -184,6 +189,27 @@ Nix-managed unless noted.
   keys here, not in-app — see Microsoft Learn, *Set preferences for Outlook for Mac*. Microsoft
   AutoUpdate is disabled via `"com.microsoft.autoupdate2".HowToCheck = "Manual"` so updates flow
   through the cask refresh.
+- **MailMate** *(Homebrew `mailmate@beta`; account config via agenix)* — mechanics are
+  commented in `extra/mailmate.nix`; what follows is only what isn't.
+  **Accounts are *not* in the defaults domain** — they're three NeXTSTEP-format ASCII plists
+  under `~/Library/Application Support/MailMate/` (`Sources.plist` IMAP, `Submission.plist`
+  SMTP, `Identities.plist` from-addresses) using MailMate's own `:true`/`:false` encoding, so
+  store them verbatim rather than generating them from Nix attrs. `Mailboxes.plist` is
+  app-owned; leave it out. Settings *are* ordinary defaults (`com.freron.MailMate` is
+  non-sandboxed); quit MailMate before `ns` if any get declared, since it flushes prefs on quit
+  over activation's writes.
+  **Outlook.com / Hotmail: both hosts must be `*.office365.com`, and MailMate's own setup wizard
+  gets this wrong.** Working pair is `outlook.office365.com:993` + `smtp.office365.com:587`; the
+  wizard pairs the correct IMAP host with `smtp-mail.outlook.com:587`. Provider detection is
+  **hostname-based** (`Office365 not detected` in the binary; the recognised set is
+  `outlook.office365.com`, `smtp.office365.com`, `mail.office365.com`), so the *consumer* host
+  `smtp-mail.outlook.com` fails detection, never enables OAuth, and falls back to basic auth —
+  which Microsoft disabled for Outlook.com in Sept 2024. Symptoms in the order they appear:
+  `LOGINDISABLED (no plain text login allowed)` on IMAP → `535 5.7.139 … basic authentication is
+  disabled` on SMTP → `error code -25300` once the cached password is deleted. Setting
+  `"oauth2" = :true;` in `Submission.plist` is **not** sufficient alone — the hostname drives
+  detection. A stale SMTP password in the Keychain also shadows OAuth; clear it with
+  `security delete-internet-password -s smtp-mail.outlook.com -a <address>`.
 - **Mac App Store apps** *(via `mas`)* — Apple ships Xcode, Office, iMovie etc. only through the
   App Store. Adding one is a one-line entry in whichever `extra/` file fits the category; find
   IDs with `mas search <name>`. **Requires being signed into the App Store first** — modern `mas`
