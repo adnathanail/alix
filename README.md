@@ -33,26 +33,13 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Claude Code
 - VS Code (w/ plugins)
     - Tracks `nixpkgs-unstable`; the 26.05 pin lags several releases behind
-    - TikZiT (`alekskissinger.vstikzit`) — graphical editor for `.tikz` /
-      `.tikzstyles` files. Editing works out of the box; PDF/SVG preview shells out to
-      `pdflatex` and `dvisvgm`, which aren't installed — add a TeX Live package if you
-      need it
-    - GitButler for IDE (`BartInTheField.gitbutler-for-ide`) — shows GitButler branch/stack
-      state in the editor; needs the GitButler app (already a cask) running
+    - Some plugins aren't in Nix, so built from source: `alekskissinger.vstikzit`, `BartInTheField.gitbutler-for-ide`
 - 1Password
 - PyCharm
     - *First use*:
         - Disable in-app updater
         - Set keymap to `ALix keymap`
 - GitButler
-    - Homebrew cask — the nixpkgs build is unfree (FSL-1.1-MIT), so it's never in the
-      binary cache and would compile the whole Tauri/Rust app locally
-    - The cask is `auto_updates`, so GitButler updates itself rather than through `ns`
-    - The `but` CLI comes with the cask — it's a Binary artifact symlinked to
-      `/opt/homebrew/bin/but`, so it tracks the app version. Don't use the GUI's
-      "Install CLI" button or `curl -fsSL https://gitbutler.com/install.sh | sh`;
-      both add a second, unmanaged copy
-    - *First use*: `but setup` in each repo you want GitButler to manage
 - Orbstack
 - Ghostty
 - Outlook
@@ -102,39 +89,53 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Raycast
 - Top left hot corner: Show desktop
 - Bottom left hot corner: Apps (Launchpad)
-- Secrets management (agenix)
-    - Currently exposed as env vars: `$NPM_FONT_AWESOME_TOKEN`,
-      `$NPM_GITHUB_PACKAGES_TOKEN`.
-    - *First use on a brand-new key* (once ever):
-        1. `mkdir -p ~/.config/age && age-keygen -o ~/.config/age/keys.txt`
-        2. Back the key up to 1Password:
-           `op document create ~/.config/age/keys.txt --title "nix-darwin age key" --vault Private`
-           (rotate the item with `op document edit "nix-darwin age key" ~/.config/age/keys.txt`
-           if you regenerate the key later).
-        3. `age-keygen -y ~/.config/age/keys.txt` and paste the `age1...`
-           output into `secrets/secrets.nix` in place of the placeholder.
-        4. For each secret listed in `secrets/secrets.nix`, run
-           `cd secrets && EDITOR=vim agenix -e <name>.age`. `git add` the
-           `.age` file so the flake sees it.
-        5. `ns` — secrets decrypt to `/run/agenix/<name>` and are exported
-           in the shell by `programs.zsh.initContent` in `home.nix`.
-    - *First use on a fresh machine* (key already in 1Password):
-        1. Bootstrap up to the point where `op` is on PATH (see top of
-           this file).
-        2. `nix-restore-age-key` — pulls the key from 1Password to
-           `~/.config/age/keys.txt` with mode 0600.
-        3. `ns`.
-    - All the machinery is in `extra/secrets.nix` (imported from
-      `flake.nix`). Add another secret:
-        1. Declare `age.secrets.<name>` in `extra/secrets.nix`.
-        2. Add it to `secrets/secrets.nix`.
-        3. `cd secrets && agenix -e <name>.age`, then `git add` it.
-        4. If you want it as a shell env var, add a
-           `write <VAR> /run/agenix/<name>` line to
-           `system.activationScripts.postActivation` in
-           `extra/secrets.nix` — the value lands in
-           `~/.config/nix-secrets.env` on rebuild.
-        5. `ns`.
+
+#### Secrets management (agenix)
+
+- Env vars: `$NPM_FONT_AWESOME_TOKEN`, `$NPM_GITHUB_PACKAGES_TOKEN`.
+- MailMate account config: `mailmate-sources`, `mailmate-identities`, `mailmate-submission`
+  - Activation copies them into `~/Library/Application Support/MailMate/` **only if the file is absent**
+
+To adopt settings you've changed in the GUI, re-encrypt from the live files:
+```bash
+cd ~/.config/nix-darwin/secrets
+for f in sources:Sources identities:Identities submission:Submission; do
+  agenix -e "mailmate-${f%%:*}.age" -i ~/.config/age/keys.txt \
+    < ~/Library/Application\ Support/MailMate/"${f##*:}".plist
+done
+```
+_Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new content from stdin instead — which is what the redirect above relies on._
+
+- *First use on a brand-new key* (once ever):
+    1. `mkdir -p ~/.config/age && age-keygen -o ~/.config/age/keys.txt`
+    2. Back the key up to 1Password:
+        `op document create ~/.config/age/keys.txt --title "nix-darwin age key" --vault Private`
+        (rotate the item with `op document edit "nix-darwin age key" ~/.config/age/keys.txt`
+        if you regenerate the key later).
+    3. `age-keygen -y ~/.config/age/keys.txt` and paste the `age1...`
+        output into `secrets/secrets.nix` in place of the placeholder.
+    4. For each secret listed in `secrets/secrets.nix`, run
+        `cd secrets && EDITOR=vim agenix -e <name>.age`. `git add` the
+        `.age` file so the flake sees it.
+    5. `ns` — secrets decrypt to `/run/agenix/<name>` and are exported
+        in the shell by `programs.zsh.initContent` in `home.nix`.
+- *First use on a fresh machine* (key already in 1Password):
+    1. Bootstrap up to the point where `op` is on PATH (see top of
+        this file).
+    2. `nix-restore-age-key` — pulls the key from 1Password to
+        `~/.config/age/keys.txt` with mode 0600.
+    3. `ns`.
+- All the machinery is in `extra/secrets.nix` (imported from
+  `flake.nix`). Add another secret:
+    1. Declare `age.secrets.<name>` in `extra/secrets.nix`.
+    2. Add it to `secrets/secrets.nix`.
+    3. `cd secrets && agenix -e <name>.age`, then `git add` it.
+    4. If you want it as a shell env var, add a
+        `write <VAR> /run/agenix/<name>` line to
+        `system.activationScripts.postActivation` in
+        `extra/secrets.nix` — the value lands in
+        `~/.config/nix-secrets.env` on rebuild.
+    5. `ns`.
 
 ### CLIs
 
