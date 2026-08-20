@@ -37,6 +37,8 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
       `.tikzstyles` files. Editing works out of the box; PDF/SVG preview shells out to
       `pdflatex` and `dvisvgm`, which aren't installed — add a TeX Live package if you
       need it
+    - GitButler for IDE (`BartInTheField.gitbutler-for-ide`) — shows GitButler branch/stack
+      state in the editor; needs the GitButler app (already a cask) running
 - 1Password
 - PyCharm
     - *First use*:

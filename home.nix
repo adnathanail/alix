@@ -124,6 +124,15 @@
           version = "0.5.2";
           sha256 = "sha256-+Xnv6RT7xxGmQItzR0k7Xp0N3Bu6Em214LEHSZud20M=";
         })
+        # GitButler for IDE — shows the GitButler branch/stack state inside
+        # VS Code. Not in the prebuilt nixpkgs extension set, so it comes
+        # straight from the marketplace; bump version + sha256 together.
+        (pkgs.vscode-utils.extensionFromVscodeMarketplace {
+          publisher = "BartInTheField";
+          name = "gitbutler-for-ide";
+          version = "2026.8.9";
+          sha256 = "sha256-E9kb7pKuR5Ds9h863tWR1Ls184KEyXdecXbq6OglxUE=";
+        })
       ];
       userSettings = {
         "nix.enableLanguageServer" = true;
