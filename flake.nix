@@ -158,7 +158,7 @@
               upgrade = true;
               cleanup = "zap";  # Uninstalls everything not declared here
             };
-            casks = [ "1password" "1password-cli" "orbstack" "raycast" "bartender" "ghostty" "gitbutler" "microsoft-outlook" "slack" "todoist-app" "fantastical" "spotify" "whatsapp" "google-drive" "steam" "discord" "capcut" "zoom" "audacity" "vlc" "gimp" "utm" "anki" "private-internet-access" "telegram" "signal" "brave-browser" "little-snitch" "micro-snitch" "raindropio" "deepl" ];
+            casks = [ "1password" "1password-cli" "orbstack" "raycast" "bartender" "ghostty" "gitbutler" "microsoft-outlook" "mailmate" "slack" "todoist-app" "fantastical" "spotify" "whatsapp" "google-drive" "steam" "discord" "capcut" "zoom" "audacity" "vlc" "gimp" "utm" "anki" "private-internet-access" "telegram" "signal" "brave-browser" "little-snitch" "micro-snitch" "raindropio" "deepl" ];
             # `mas` is the Mac App Store CLI; needed for `homebrew.masApps`.
             # Explicit so `cleanup = "zap"` doesn't uninstall it.
             brews = [ "mas" ];

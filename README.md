@@ -54,6 +54,12 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Orbstack
 - Ghostty
 - Outlook
+- MailMate
+    - Homebrew cask — macOS-only proprietary IMAP client, not in nixpkgs
+    - The cask is `auto_updates`, so MailMate updates itself (Sparkle) rather than through `ns`
+    - Ships an `emate` CLI at `/Applications/MailMate.app/Contents/Resources/emate`
+    - *First use*: add accounts (App-specific password for iCloud/Gmail-style 2FA accounts);
+      unlicensed use falls back to the free/limited mode after the trial
 - Todoist
 - Slack
 - Fantastical
