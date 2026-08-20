@@ -77,6 +77,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Little Snitch
 - Micro Snitch
 - Raindrop.io
+- DeepL (translator)
 - Xcode
     - *First use*: sign into the Mac App Store (App Store app → Sign In) **before** the first `ns`, otherwise the `mas install` step will fail. Downloads ~15 GB on first activation.
 - Android Studio
