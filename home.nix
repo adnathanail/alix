@@ -76,6 +76,7 @@
     pkgs.gh
     pkgs.doctl
     pkgs.postgresql
+    pkgs.mariadb.client
     pkgs.ghidra
     (pkgs.writeShellScriptBin "nix-switch" ''
       exec sudo darwin-rebuild switch --flake ~/.config/nix-darwin "$@"

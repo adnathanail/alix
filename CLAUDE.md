@@ -172,6 +172,12 @@ Nix-managed unless noted.
   stable lags this fast-moving 0.x tool.
 - **nx** *(Nix, built locally)* — not in nixpkgs; built via `buildNpmPackage` from the wrapper
   project at `nx/`. See *Routine maintenance*.
+- **mysql CLI** *(Nix, `pkgs.mariadb.client`)* — MariaDB's client, deliberately. Stable nixpkgs
+  has no client-only MySQL build: `mysql84.client` is `finalAttrs.finalPackage`, i.e. the whole
+  server (~281 MB closure). `mariadb.client` is a genuine client-only output (~68 MB) and speaks
+  the MySQL protocol, `caching_sha2_password` included. Unstable *does* split out an Oracle
+  `-DWITHOUT_SERVER=ON` client — if a MariaDB-vs-MySQL incompatibility ever bites, add `mysql84`
+  to `unstableOverlay` and use `pkgs.mysql84.client` instead. No server, so nothing to configure.
 - **git** *(Nix)* — `programs.git` owns identity and `~/.gitconfig`. Installing git via Nix
   sidesteps Apple's Command Line Tools prompt; CLT is still needed for build systems that
   hardcode `/usr/bin/git` or need Apple SDK headers.

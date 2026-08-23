@@ -168,6 +168,7 @@ _Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new con
 - op (1Password)
 - Rocq (with std++ library)
 - psql (PostgreSQL client)
+- mysql (client only, from `mariadb.client` — `mysql`, `mysqldump`, `mysqladmin`; no server)
 
 ## Tips
 
