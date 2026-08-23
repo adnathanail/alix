@@ -165,3 +165,16 @@ _Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new con
 - op (1Password)
 - Rocq (with std++ library)
 - psql (PostgreSQL client)
+
+## Tips
+
+If you want to prevent cask update when on a slow connection, change `autoUpdate` in `flake.nix`
+
+```nix
+homebrew = {
+  onActivation = {
+    # Temporarily disable auto-update
+    upgrade = false;
+  };
+}
+```
