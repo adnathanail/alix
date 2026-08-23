@@ -5,6 +5,7 @@
     ./extra/rocq.nix
     ./extra/eleventy.nix
     ./extra/nx.nix
+    ./extra/uvtools.nix
   ];
 
   home.stateVersion = "25.11";
@@ -19,9 +20,6 @@
   # Stop Claude Code self-updating into the read-only store;
   # you update it via Nix instead.
   home.sessionVariables.DISABLE_AUTOUPDATER = "1";
-
-  # Put `uv tool install` shims on PATH.
-  home.sessionPath = [ "$HOME/.local/bin" ];
 
   programs.zsh = {
     enable = true;

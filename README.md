@@ -157,6 +157,8 @@ _Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new con
 - prek
 - python
 - uv (Python package/project manager) (uv tools added to path)
+    - Python CLIs that aren't in nixpkgs are declared in `extra/uvtools.nix` as `<executable> = "<pinned spec>"` pairs; each becomes a PATH shim that runs `uv tool run --from <spec> <executable>`
+    - uv resolves and caches the environment under `~/.cache/uv` on first run, so the first invocation of each tool needs network access; keep the `==` version pins
 - node
 - pnpm (Node package manager)
 - nx (Nx monorepo CLI)

@@ -30,7 +30,7 @@ living at `~/.config/nix-darwin/`.
 | `extra/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
 | `extra/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
 | `extra/appdev.nix`, `extra/macapps.nix`, `extra/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge); deliberately independent of each other |
-| `extra/rocq.nix`, `extra/eleventy.nix`, `extra/nx.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
+| `extra/rocq.nix`, `extra/eleventy.nix`, `extra/nx.nix`, `extra/uvtools.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
 | `secrets/*.age`, `secrets/secrets.nix` | encrypted secrets + their recipients |
 | `pycharm/custom-keymap.xml`, `nx/` | files consumed by the modules above |
 
