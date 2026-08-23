@@ -143,6 +143,11 @@ Nix-managed unless noted.
   `home.sessionVariables.DISABLE_AUTOUPDATER = "1"`. The `claude symlink points to an invalid
   binary` warning is a harmless false positive (Nix wraps it as a script). The VS Code extension
   and PyCharm plugin update independently of the CLI.
+- **uv tools** *(`extra/uvtools.nix`)* — the escape hatch for Python CLIs nixpkgs doesn't carry at
+  a usable version. Each `<executable> = "<pinned spec>"` pair becomes a `writeShellScriptBin`
+  shim that execs `uv tool run --from <spec> <executable>`, so the shim is Nix-managed but the
+  environment is uv's, cached under `~/.cache/uv`. Keep the `==` pins — they're the only thing
+  making it reproducible. Prefer a real nixpkgs package whenever one exists.
 - **VS Code** *(Nix, unstable overlay, Nix-managed config + extensions)* — `programs.vscode`,
   `profiles.default`. Only the `vscode` attr is on unstable; `pkgs.vscode-extensions` still comes
   from stable, which is fine (a newer editor runs older extensions).
