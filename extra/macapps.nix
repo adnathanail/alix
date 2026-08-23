@@ -1,5 +1,4 @@
 # Mac App Store apps that aren't dev tooling or Safari extensions.
-# Currently: the Microsoft Office trio, iMovie, Reeder + Amphetamine.
 #
 # Find IDs with `mas search <name>`.
 #

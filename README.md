@@ -82,8 +82,6 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - iMovie
 - Reeder (RSS/media reader — the 2024 rewrite, not Reeder Classic)
 - Amphetamine (keep-awake menu bar app)
-    - *First use*: it asks to be added as a login item, and needs Accessibility for the
-      "close lid" / app-based triggers
 - Save to Raindrop.io
 
 ### Configuration/Tools
