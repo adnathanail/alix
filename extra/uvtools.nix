@@ -9,7 +9,6 @@ let
   # value = the pip name/version (PEP 508) to install it from
   uvTools = {
     qi = "quantuminspire==3.5.3";
-    vibe = "mistral-vibe==2.24.3";
   };
 
   # Each entry becomes a tiny shell script in the store that shells out to
