@@ -33,7 +33,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Claude Code
 - VS Code (w/ plugins)
     - Tracks `nixpkgs-unstable`; the 26.05 pin lags several releases behind
-    - Some plugins aren't in Nix, so built from source: `alekskissinger.vstikzit`, `BartInTheField.gitbutler-for-ide`, `lennardv.set-window-color-name`
+    - Some plugins aren't in Nix, so built from source: `alekskissinger.vstikzit`, `BartInTheField.gitbutler-for-ide`, `lennardv.set-window-color-name`, `fabiospampinato.vscode-highlight`
 - 1Password
 - PyCharm
     - *First use*:

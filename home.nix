@@ -132,6 +132,16 @@
           version = "2026.8.9";
           sha256 = "sha256-E9kb7pKuR5Ds9h863tWR1Ls184KEyXdecXbq6OglxUE=";
         })
+        # Highlight — regex-driven decorations for arbitrary patterns (TODOs,
+        # custom annotations) in any language. Not in the prebuilt nixpkgs
+        # extension set, so it comes straight from the marketplace; bump
+        # version + sha256 together.
+        (pkgs.vscode-utils.extensionFromVscodeMarketplace {
+          publisher = "fabiospampinato";
+          name = "vscode-highlight";
+          version = "2.1.0";
+          sha256 = "sha256-pZZHV9vcF5bx3DE4AyoNoPdzzhPE+DlhK1kQg5+pwGI=";
+        })
         # Set Window Color & Name — per-workspace title-bar colour and window
         # title, so multiple VS Code windows stay distinguishable. Not in the
         # prebuilt nixpkgs extension set, so it comes straight from the
