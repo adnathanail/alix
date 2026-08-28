@@ -51,30 +51,29 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
     in the tenant. Nothing works until they do, and there is nothing to debug locally if they
     haven't.
   - Runs headless as a launchd agent — the nixpkgs build ships no macOS SWT, so tray/GUI modes
-    are impossible; `davmail.authentication=O365DeviceCode` is what makes that workable.
-  - *First use*: DavMail only starts the device-code flow **when a client tries to log in** — it
-    does not authenticate at startup, so tailing an idle gateway shows nothing. Trigger it by
-    hand rather than configuring MailMate blind. Tail the log in one terminal:
+    are impossible. Note `davmail.mode` (transport: `O365Graph`) and `davmail.authentication`
+    (flow: `O365Manual`) are independent settings that merely share a prefix.
+  - *First use*: the tenant's Conditional Access **blocks the device code flow** — sign-in
+    succeeds and then token issuance is refused ("does not meet the criteria to access this
+    resource"). So DavMail uses `O365Manual`, the ordinary authorization-code flow: you sign in
+    in a real browser and paste the redirect URL back. (`O365Interactive` is not available at
+    all, per the missing macOS SWT above.)
+  - That flow needs a console, which a launchd agent does not have, so run the helper:
     ```bash
-    tail -f ~/Library/Logs/davmail.log
+    davmail-auth
     ```
-    and in another, open a raw IMAP session and log in (with device-code auth the password is
-    ignored, so `x` is a placeholder):
+    It stops the agent, runs DavMail in the foreground against the same settings file, and
+    restarts the agent when you exit. Follow its on-screen instructions: DavMail only begins
+    authentication **when a client tries to log in**, so in a second terminal trigger it with
     ```bash
     nc 127.0.0.1 1143
     a LOGIN you@work-domain x
     ```
-    The LOGIN will appear to hang — that is DavMail polling Microsoft for authorization, and the
-    repeated `Authorization pending for device code` lines (logged at ERROR, misleadingly) are
-    the normal waiting state, not a failure.
-  - **The device code is printed to stdout, not through log4j**, so it is *not* in `davmail.log`
-    — it goes to the launchd stdout file. That is the one to watch during first sign-in:
-    ```bash
-    tail -f ~/Library/Logs/davmail.launchd.out.log
-    ```
-    It prints `https://login.microsoft.com/device` and a short code. Complete them in a browser
-    within ~15 minutes and the LOGIN returns `a OK`. The refresh token is then stored 0600 at
-    `~/.local/state/davmail/token` and subsequent starts are silent.
+    (the password is ignored with this flow). A login URL appears in the `davmail-auth`
+    terminal; open it, sign in, land on a blank page, then paste that page's **full** URL back
+    into that terminal. The LOGIN returns `a OK`, the refresh token is stored 0600 at
+    `~/.local/state/davmail/token`, and subsequent starts authenticate from it silently — the
+    agent never needs a console again.
   - Then add the account in MailMate: IMAP `127.0.0.1:1143`, SMTP `127.0.0.1:1025`, **no TLS**
     (it never leaves loopback), username = your work email, password = anything non-empty.
   - Logs: `~/Library/Logs/davmail.log`. Config is a store file built in `extra/davmail.nix` —

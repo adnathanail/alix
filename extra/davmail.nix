@@ -35,13 +35,28 @@ let
     davmail.enableTray=false
 
     # Graph, not EWS — Microsoft retires EWS for M365 in October 2026.
-    davmail.mode=O365Graph
+    # NB: this is the *transport*, independent of the authentication flow
+    # below. They are separate settings that happen to share a prefix.
+    davmail.mode=O365EWS
 
-    # Device-code flow, for the same headless reason. O365Interactive wants
-    # an SWT browser window that cannot exist here; O365Manual wants a
-    # console this launchd agent does not have. Device code writes a URL and
-    # a short code to the log, which you complete in a real browser once.
-    davmail.authentication=O365DeviceCode
+    davmail.oauth.clientId=d3590ed6-52b3-4102-aeff-aad2292ab01c
+
+    # Authorization-code flow, driven manually.
+    #
+    # Not the first choice: device code (O365DeviceCode) is the natural fit
+    # for a headless agent, but this tenant's Conditional Access blocks the
+    # device code flow outright — sign-in succeeds and then token issuance is
+    # refused with "does not meet the criteria to access this resource".
+    # O365Interactive is not an option either: it wants an SWT browser window
+    # and the nixpkgs build has no macOS SWT (see above).
+    #
+    # O365Manual prints a login URL, you authenticate in a real browser, and
+    # paste the resulting redirect URL back on stdin. A launchd agent has no
+    # stdin, so this cannot complete under the agent — that is what the
+    # `davmail-auth` helper below is for. Once a refresh token exists in the
+    # token file DavMail authenticates from it and never prompts, so the
+    # agent only needs this setting for the rare re-auth.
+    davmail.authentication=O365Manual
 
     # Tenant is left at the default ("common", the multi-tenant authority).
     # If sign-in fails with "Invalid domain name - No tenant-identifying
@@ -75,7 +90,53 @@ let
   '';
 in
 {
-  environment.systemPackages = [ pkgs.davmail ];
+  environment.systemPackages = [
+    pkgs.davmail
+
+    # One-time sign-in helper (and the way back after a token expires).
+    #
+    # O365Manual needs a console to paste the redirect URL into, and the
+    # launchd agent has neither stdin nor, while it is running, free ports.
+    # So: stop the agent, run DavMail in the foreground against the *same*
+    # settings file (so the token lands at the same tokenFilePath the agent
+    # reads), and put the agent back on the way out.
+    (pkgs.writeShellScriptBin "davmail-auth" ''
+      set -euo pipefail
+      plist="$HOME/Library/LaunchAgents/org.nixos.davmail.plist"
+
+      restart() {
+        echo
+        echo "Restarting the DavMail agent..."
+        launchctl bootstrap "gui/$(id -u)" "$plist" 2>/dev/null || true
+      }
+
+      echo "Stopping the DavMail agent so it releases ports 1143/1025..."
+      launchctl bootout "gui/$(id -u)/org.nixos.davmail" 2>/dev/null || true
+      # Only arm the restart once the agent is actually down, so a failure
+      # above cannot leave us bootstrapping a service that never stopped.
+      trap restart EXIT
+
+      echo
+      echo "DavMail is starting in the foreground."
+      echo
+      echo "In ANOTHER terminal, trigger authentication:"
+      echo
+      echo "    nc 127.0.0.1 1143"
+      echo "    a LOGIN you@work-domain x"
+      echo
+      echo "(the password is ignored with this flow)."
+      echo
+      echo "A login URL will appear below. Open it in your browser and sign in;"
+      echo "you will land on a blank page. Copy that blank page's FULL url and"
+      echo "paste it here, then press Enter."
+      echo
+      echo "Ctrl-C once the LOGIN returns \"a OK\"."
+      echo
+
+      # Deliberately not exec: the EXIT trap has to survive to restart the agent.
+      ${pkgs.davmail}/bin/davmail ${settings}
+    '')
+  ];
 
   # DavMail writes the token file itself with 0600 but will not create the
   # directory tree above it.
