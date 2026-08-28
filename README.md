@@ -43,6 +43,42 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Orbstack
 - Ghostty
 - Outlook
+- DavMail (local IMAP/SMTP gateway to the work Microsoft 365 mailbox)
+  - The work tenant only allows approved mail clients, so MailMate cannot reach Exchange
+    directly. DavMail signs in over Graph as its own Entra app and re-exposes the mailbox on
+    `127.0.0.1` as plain IMAP (`1143`) / SMTP (`1025`).
+  - **Needs IT to admin-consent DavMail's application** (`facd6cff-a294-4415-b59f-c5b01937d7bd`)
+    in the tenant. Nothing works until they do, and there is nothing to debug locally if they
+    haven't.
+  - Runs headless as a launchd agent — the nixpkgs build ships no macOS SWT, so tray/GUI modes
+    are impossible; `davmail.authentication=O365DeviceCode` is what makes that workable.
+  - *First use*: DavMail only starts the device-code flow **when a client tries to log in** — it
+    does not authenticate at startup, so tailing an idle gateway shows nothing. Trigger it by
+    hand rather than configuring MailMate blind. Tail the log in one terminal:
+    ```bash
+    tail -f ~/Library/Logs/davmail.log
+    ```
+    and in another, open a raw IMAP session and log in (with device-code auth the password is
+    ignored, so `x` is a placeholder):
+    ```bash
+    nc 127.0.0.1 1143
+    a LOGIN you@work-domain x
+    ```
+    The LOGIN will appear to hang — that is DavMail polling Microsoft for authorization, and the
+    repeated `Authorization pending for device code` lines (logged at ERROR, misleadingly) are
+    the normal waiting state, not a failure.
+  - **The device code is printed to stdout, not through log4j**, so it is *not* in `davmail.log`
+    — it goes to the launchd stdout file. That is the one to watch during first sign-in:
+    ```bash
+    tail -f ~/Library/Logs/davmail.launchd.out.log
+    ```
+    It prints `https://login.microsoft.com/device` and a short code. Complete them in a browser
+    within ~15 minutes and the LOGIN returns `a OK`. The refresh token is then stored 0600 at
+    `~/.local/state/davmail/token` and subsequent starts are silent.
+  - Then add the account in MailMate: IMAP `127.0.0.1:1143`, SMTP `127.0.0.1:1025`, **no TLS**
+    (it never leaves loopback), username = your work email, password = anything non-empty.
+  - Logs: `~/Library/Logs/davmail.log`. Config is a store file built in `extra/davmail.nix` —
+    edit the module, not any file on disk.
 - MailMate (2.0 beta)
   - Includes `emate` CLI at `/Applications/MailMate.app/Contents/Resources/emate`
   - Account config lives in three small files: `~/Library/Application Support/MailMate/` — `Sources.plist` (IMAP), `Submission.plist` (SMTP), `Identities.plist` (from-addresses).

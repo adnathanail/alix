@@ -52,6 +52,9 @@
         # ── MailMate: cask + account config ─────────────────────
         (import ./extra/mailmate.nix { inherit username; })
 
+        # ── DavMail: local IMAP/SMTP gateway to the work M365 mailbox
+        (import ./extra/davmail.nix { inherit username; })
+
         # ── iOS/Android app dev tooling ───────────────
         ./extra/appdev.nix
 
