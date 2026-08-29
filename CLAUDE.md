@@ -87,6 +87,11 @@ designated-requirement signature (Nix's wrap step invalidates it, and HM install
   `masApps` gets uninstalled on rebuild.** This is why `mas` is pinned in `brews`.
 - `onActivation.upgrade = true`, `autoUpdate = false` (activation stays deterministic; bump
   Homebrew itself with `nix flake update nix-homebrew`), `enableRosetta = false`.
+- Because `autoUpdate = false` sets `HOMEBREW_NO_AUTO_UPDATE=1`, activation upgrades casks only
+  as far as the **local tap metadata** knows — run `brew update` before `ns` to actually pull new
+  versions. `greedyCasks = true` is set so `brew bundle` doesn't skip casks marked
+  `auto_updates true` (most GUI apps here), which matters because self-updating is deliberately
+  off for Ghostty and Microsoft AutoUpdate.
 
 ### Secrets via agenix
 **Secrets live with their users, not in one secrets file.** `agenix.nix` holds only the

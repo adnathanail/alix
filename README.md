@@ -171,12 +171,26 @@ _Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new con
 
 ## Tips
 
-If you want to prevent cask update when on a slow connection, change `autoUpdate` in `flake.nix`
+### Updating Homebrew apps
+
+Activation runs `brew bundle` with `HOMEBREW_NO_AUTO_UPDATE=1` (`onActivation.autoUpdate = false`),
+so a rebuild upgrades casks only as far as the *local* tap metadata knows. Refresh it first:
+
+```bash
+brew update   # fetch new cask definitions
+ns            # activation upgrades to them
+```
+
+`greedyCasks = true` makes this cover casks marked `auto_updates true` (most GUI apps), which
+`brew bundle` would otherwise skip. Homebrew itself is pinned by `nix-homebrew` — bump it with
+`nix flake update nix-homebrew` and rebuild.
+
+To skip cask upgrades on a slow connection, temporarily set `upgrade = false` in `flake.nix`:
 
 ```nix
 homebrew = {
   onActivation = {
-    # Temporarily disable auto-update
+    # Temporarily disable upgrades on activation
     upgrade = false;
   };
 }

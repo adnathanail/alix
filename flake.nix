@@ -164,6 +164,11 @@
               upgrade = true;
               cleanup = "zap";  # Uninstalls everything not declared here
             };
+            # `brew bundle` skips casks marked `auto_updates true` (most GUI
+            # apps) unless told otherwise, so without this `ns` would never
+            # upgrade them — and self-updating is deliberately off for some
+            # of them (Ghostty's Sparkle, Microsoft AutoUpdate).
+            greedyCasks = true;
             casks = [ "1password" "1password-cli" "orbstack" "raycast" "bartender" "ghostty" "gitbutler" "microsoft-outlook" "slack" "todoist-app" "fantastical" "spotify" "whatsapp" "google-drive" "steam" "discord" "capcut" "zoom" "audacity" "vlc" "gimp" "utm" "anki" "private-internet-access" "telegram" "signal" "brave-browser" "little-snitch" "micro-snitch" "raindropio" "deepl" ];
             # `mas` is the Mac App Store CLI; needed for `homebrew.masApps`.
             # Explicit so `cleanup = "zap"` doesn't uninstall it.
