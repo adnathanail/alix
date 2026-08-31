@@ -83,8 +83,10 @@
             { app = "/Applications/Ghostty.app"; }
             { app = "/System/Cryptexes/App/System/Applications/Safari.app"; }
             { spacer = { small = true; }; }
-            { app = "/Users/${username}/Applications/Home Manager Apps/PyCharm.app"; }
             { app = "/Users/${username}/Applications/Home Manager Apps/Visual Studio Code.app"; }
+            { app = "/Applications/GitButler.app"; }
+            { spacer = { small = true; }; }
+            { app = "/Applications/MailMate.app"; }
             { spacer = { small = true; }; }
           ];
 
