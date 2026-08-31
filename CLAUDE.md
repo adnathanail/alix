@@ -87,11 +87,17 @@ designated-requirement signature (Nix's wrap step invalidates it, and HM install
   `masApps` gets uninstalled on rebuild.** This is why `mas` is pinned in `brews`.
 - `onActivation.upgrade = true`, `autoUpdate = false` (activation stays deterministic; bump
   Homebrew itself with `nix flake update nix-homebrew`), `enableRosetta = false`.
-- Because `autoUpdate = false` sets `HOMEBREW_NO_AUTO_UPDATE=1`, activation upgrades casks only
-  as far as the **local tap metadata** knows — run `brew update` before `ns` to actually pull new
-  versions. `greedyCasks = true` is set so `brew bundle` doesn't skip casks marked
-  `auto_updates true` (most GUI apps here), which matters because self-updating is deliberately
-  off for Ghostty and Microsoft AutoUpdate.
+- **Tap metadata is pinned in `flake.lock`.** `homebrew-core` and `homebrew-cask` are
+  `flake = false` inputs wired into `nix-homebrew.taps`, with `mutableTaps = false` and
+  `homebrew.taps = builtins.attrNames config.nix-homebrew.taps` keeping the Brewfile in step.
+  Tapping homebrew-core makes nix-homebrew's `brew` wrapper export
+  `HOMEBREW_NO_INSTALL_FROM_API=1`, so brew resolves formulae/casks from the pinned store
+  checkouts rather than formulae.brew.sh. Consequences: cask versions move **only** on
+  `nix flake update homebrew-cask` (or `-core`) + rebuild; `brew update` / `brew tap` no longer
+  do anything (the taps are read-only store symlinks); a cask that only exists in a newer tap
+  revision won't resolve until the pin is bumped. `greedyCasks = true` is set so `brew bundle`
+  doesn't skip casks marked `auto_updates true` (most GUI apps here), which matters because
+  self-updating is deliberately off for Ghostty and Microsoft AutoUpdate.
 
 ### Secrets via agenix
 **Secrets live with their users, not in one secrets file.** `agenix.nix` holds only the
@@ -242,8 +248,9 @@ Notifications/Calendar/Contacts/Mic/Camera per app.
 
 ## Routine maintenance
 
-- `nix flake update <input>` (e.g. `nixpkgs-unstable`, `nix-homebrew`) or `nix flake update` for
-  everything — then ask the user to rebuild. Casks refresh on every rebuild.
+- `nix flake update <input>` (e.g. `nixpkgs-unstable`, `nix-homebrew`, `homebrew-cask`) or
+  `nix flake update` for everything — then ask the user to rebuild. Cask *versions* come from the
+  `homebrew-cask` / `homebrew-core` pins, so a rebuild alone won't move them.
 - After a PyCharm minor-version bump: update the version-pinned keymap path in `home.nix`.
 - Bumping `nx` (flake updates don't touch it): edit `nx/package.json`, then
   ```bash

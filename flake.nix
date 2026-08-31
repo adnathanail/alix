@@ -13,12 +13,24 @@
 
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
 
+    # Homebrew's tap metadata, pinned in flake.lock so cask/formula versions
+    # only move when `nix flake update homebrew-cask` (or -core) is run.
+    # `flake = false` — these are plain git checkouts, not flakes.
+    homebrew-core = {
+      url = "github:homebrew/homebrew-core";
+      flake = false;
+    };
+    homebrew-cask = {
+      url = "github:homebrew/homebrew-cask";
+      flake = false;
+    };
+
     agenix.url = "github:ryantm/agenix";
     agenix.inputs.nixpkgs.follows = "nixpkgs";
     agenix.inputs.home-manager.follows = "home-manager";
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, nixpkgs-unstable, home-manager, nix-homebrew, agenix }:
+  outputs = inputs@{ self, nix-darwin, nixpkgs, nixpkgs-unstable, home-manager, nix-homebrew, homebrew-core, homebrew-cask, agenix }:
   let
     username = "adnathanail";        # `whoami`
     hostname = "Alexs-MacBook-Pro";  # `scutil --get LocalHostName`
@@ -169,9 +181,12 @@
             # `brew bundle` skips casks marked `auto_updates true` (most GUI
             # apps) unless told otherwise, so without this `ns` would never
             # upgrade them — and self-updating is deliberately off for some
-            # of them (Ghostty's Sparkle, Microsoft AutoUpdate).
+            # of them (Ghostty's Sparkle, Microsoft AutoUpdate). Upgrades go
+            # only as far as the tap pins in flake.lock (see nix-homebrew.taps
+            # below), so `ns` is reproducible: bump with
+            # `nix flake update homebrew-cask`.
             greedyCasks = true;
-            casks = [ "1password" "1password-cli" "orbstack" "raycast" "bartender" "ghostty" "gitbutler" "microsoft-outlook" "slack" "todoist-app" "fantastical" "spotify" "whatsapp" "google-drive" "steam" "discord" "capcut" "zoom" "audacity" "vlc" "gimp" "utm" "anki" "private-internet-access" "telegram" "signal" "brave-browser" "little-snitch" "micro-snitch" "raindropio" "deepl" ];
+            casks = [ "1password" "1password-cli" "orbstack" "raycast" "bartender" "ghostty" "gitbutler" "microsoft-outlook" "slack" "todoist-app" "fantastical" "spotify" "whatsapp" "google-drive" "steam" "capcut" "zoom" "audacity" "vlc" "gimp" "utm" "anki" "private-internet-access" "telegram" "signal" "brave-browser" "little-snitch" "micro-snitch" "raindropio" "deepl" ];
             # `mas` is the Mac App Store CLI; needed for `homebrew.masApps`.
             # Explicit so `cleanup = "zap"` doesn't uninstall it.
             brews = [ "mas" ];
@@ -188,8 +203,29 @@
             # `enableRosetta = true` only if an x86_64-only cask
             # needs to be installed alongside the aarch64 brew.
             enableRosetta = false;
+
+            # Taps come from the flake inputs above, so the whole cask/formula
+            # catalogue is pinned by flake.lock — `ns` can only ever install
+            # what the pinned metadata describes. Because homebrew-core is
+            # tapped, nix-homebrew's brew wrapper also sets
+            # HOMEBREW_NO_INSTALL_FROM_API=1, so brew reads these checkouts
+            # instead of the live formulae.brew.sh API.
+            taps = {
+              "homebrew/homebrew-core" = homebrew-core;
+              "homebrew/homebrew-cask" = homebrew-cask;
+            };
+
+            # Fully declarative: `brew tap` / `brew update` are refused, and
+            # the wrapper exports HOMEBREW_NO_AUTO_UPDATE=1.
+            mutableTaps = false;
           };
         }
+
+        # Keep `homebrew.taps` (what `brew bundle` expects) in step with the
+        # Nix-managed taps above, so activation never tries to tap anything.
+        ({ config, ... }: {
+          homebrew.taps = builtins.attrNames config.nix-homebrew.taps;
+        })
 
         # ── Home Manager ──────────────────────────
         home-manager.darwinModules.home-manager

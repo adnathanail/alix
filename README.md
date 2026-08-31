@@ -173,17 +173,20 @@ _Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new con
 
 ### Updating Homebrew apps
 
-Activation runs `brew bundle` with `HOMEBREW_NO_AUTO_UPDATE=1` (`onActivation.autoUpdate = false`),
-so a rebuild upgrades casks only as far as the *local* tap metadata knows. Refresh it first:
+Cask versions are **pinned in `flake.lock`**, like everything else. `homebrew-core` and
+`homebrew-cask` are flake inputs, handed to `nix-homebrew.taps` with `mutableTaps = false`, so
+`brew` reads those pinned checkouts instead of the live formulae.brew.sh API. A rebuild can only
+ever install what the pin describes — app updates happen when *you* move the pin:
 
 ```bash
-brew update   # fetch new cask definitions
-ns            # activation upgrades to them
+nix flake update homebrew-cask   # (and/or homebrew-core) — pull newer app versions
+ns                               # activation upgrades to them
 ```
 
-`greedyCasks = true` makes this cover casks marked `auto_updates true` (most GUI apps), which
-`brew bundle` would otherwise skip. Homebrew itself is pinned by `nix-homebrew` — bump it with
-`nix flake update nix-homebrew` and rebuild.
+`brew update` is a no-op now (and `brew tap` is refused) — the taps are read-only symlinks into
+the Nix store. `greedyCasks = true` makes the rebuild cover casks marked `auto_updates true`
+(most GUI apps), which `brew bundle` would otherwise skip. Homebrew itself is pinned by
+`nix-homebrew` — bump it with `nix flake update nix-homebrew` and rebuild.
 
 To skip cask upgrades on a slow connection, temporarily set `upgrade = false` in `flake.nix`:
 
