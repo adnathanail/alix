@@ -186,7 +186,7 @@
             # below), so `ns` is reproducible: bump with
             # `nix flake update homebrew-cask`.
             greedyCasks = true;
-            casks = [ "1password" "1password-cli" "orbstack" "raycast" "bartender" "ghostty" "gitbutler" "microsoft-outlook" "slack" "todoist-app" "fantastical" "spotify" "whatsapp" "google-drive" "steam" "capcut" "zoom" "audacity" "vlc" "gimp" "utm" "anki" "private-internet-access" "telegram" "signal" "brave-browser" "little-snitch" "micro-snitch" "raindropio" "deepl" ];
+            casks = [ "1password" "1password-cli" "orbstack" "raycast" "bartender" "ghostty" "gitbutler" "microsoft-outlook" "mimestream" "slack" "todoist-app" "fantastical" "spotify" "whatsapp" "google-drive" "steam" "capcut" "zoom" "audacity" "vlc" "gimp" "utm" "anki" "private-internet-access" "telegram" "signal" "brave-browser" "little-snitch" "micro-snitch" "raindropio" "deepl" ];
             # `mas` is the Mac App Store CLI; needed for `homebrew.masApps`.
             # Explicit so `cleanup = "zap"` doesn't uninstall it.
             brews = [ "mas" ];

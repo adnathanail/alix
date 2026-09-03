@@ -50,6 +50,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
   - Outlook.com/Hotmail needs OAuth on **both** IMAP and SMTP, and both hosts must be
     `*.office365.com` — the setup wizard gets the SMTP host wrong. See CLAUDE.md →
     *Per-tool notes* → MailMate before touching account settings
+- Mimestream (Gmail client)
 - Todoist
 - Slack
 - Fantastical
