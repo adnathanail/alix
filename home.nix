@@ -25,6 +25,10 @@
     enable = true;
     shellAliases = {
       ns = "nix-switch";
+      # Work uses a separate Anthropic account; CLAUDE_CONFIG_DIR points
+      # Claude Code at an isolated config/credentials dir (default is
+      # ~/.claude) so logging in here doesn't clobber the personal session.
+      claude-work = "CLAUDE_CONFIG_DIR=$HOME/.claude-work claude";
     };
   };
 
