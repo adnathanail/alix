@@ -169,6 +169,7 @@ _Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new con
 - Rocq (with std++ library)
 - psql (PostgreSQL client)
 - mysql (client only, from `mariadb.client` — `mysql`, `mysqldump`, `mysqladmin`; no server)
+- poppler (PDF tools: `pdftotext`, `pdftoppm`, `pdfinfo`, etc. for Claude)
 
 ## Tips
 
