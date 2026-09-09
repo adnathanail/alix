@@ -6,6 +6,7 @@
     ./extra/eleventy.nix
     ./extra/nx.nix
     ./extra/uvtools.nix
+    ./extra/extradock.nix
   ];
 
   home.stateVersion = "25.11";

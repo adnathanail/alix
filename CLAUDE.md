@@ -240,6 +240,14 @@ Nix-managed unless noted.
   `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`.
 - **Rectangle** *(Nix)* — fetched from the official `.dmg`. Prefs aren't Nix-managed; could be
   promoted via `system.defaults.CustomUserPreferences."com.knollsoft.Rectangle"`.
+- **ExtraDock** *(Nix, `extra/extradock.nix`)* — v5 isn't in the Homebrew cask, which tracks a
+  different, older upstream repo (`AppitStudio/extra-dock-updates`, v4.x). v5 ships from a
+  separate repo (`extra-dock5-updates`) behind a mutable `prod` release tag — the dmg the URL
+  points to can change without the URL changing. `fetchurl` + `undmg` unpacks it and copies the
+  signed, notarized `.app` straight into the Nix store untouched (no `makeWrapper`, so the
+  signature survives), same pattern as nixpkgs' own `skimpdf`. Bump `version` and refetch the
+  hash (`nix-prefetch-url --type sha256 <url>`) whenever AppitStudio ships an update — a stale
+  hash fails the build loudly rather than silently serving old bits.
 
 Manual, non-Nix setup a fresh machine still needs: App Store sign-in (**before** the first `ns`),
 per-app sign-ins/licences, and System Settings → Privacy & Security grants — Accessibility

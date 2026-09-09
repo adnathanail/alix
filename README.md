@@ -76,7 +76,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Raindrop.io
 - DeepL (translator)
 - DockFlow (Dock preset switcher)
-- ExtraDock (customizable extra docks)
+- ExtraDock 5 (customizable extra docks; direct-download package, see `extra/extradock.nix`)
 - Xcode
     - *First use*: sign into the Mac App Store (App Store app → Sign In) **before** the first `ns`, otherwise the `mas install` step will fail. Downloads ~15 GB on first activation.
 - Android Studio
