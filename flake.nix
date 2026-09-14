@@ -86,6 +86,9 @@
         # ── Graveyard: where things go to die ─
         ./graveyard/graveyard.nix
 
+        # ── SketchyBar: menu-bar replacement ───────────
+        (import ./extra/sketchybar.nix { inherit username; })
+
         # ── system ──────────────────────────────────────────────
         ({ pkgs, ... }: {
           nixpkgs.hostPlatform = "aarch64-darwin"; # "x86_64-darwin" on Intel
