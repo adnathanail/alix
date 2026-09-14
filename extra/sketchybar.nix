@@ -21,7 +21,14 @@
     pkgs.sketchybar-app-font
   ];
 
-  home-manager.users.${username} = { pkgs, ... }: {
+  home-manager.users.${username} = { pkgs, ... }:
+    let
+      # launchd user agents run with macOS's minimal default PATH
+      # (/usr/bin:/bin:/usr/sbin:/sbin), which doesn't include the Nix
+      # profile — so both sketchybarrc and the plugin scripts it points at
+      # must call sketchybar by absolute store path, not rely on PATH.
+      sketchybarBin = "${pkgs.sketchybar}/bin/sketchybar";
+    in {
     home.packages = [ pkgs.sketchybar ];
 
     # Minimal starter bar: front-most app on the left, clock on the right.
@@ -34,14 +41,14 @@
 
         PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
 
-        sketchybar --bar \
+        ${sketchybarBin} --bar \
             height=32 \
             position=top \
             padding_left=10 \
             padding_right=10 \
             color=0xff1e1e2e
 
-        sketchybar --default \
+        ${sketchybarBin} --default \
             icon.font="Hack Nerd Font:Bold:14.0" \
             icon.color=0xffffffff \
             label.font="Hack Nerd Font:Bold:14.0" \
@@ -49,19 +56,19 @@
             padding_left=5 \
             padding_right=5
 
-        sketchybar --add item front_app left \
+        ${sketchybarBin} --add item front_app left \
             --set front_app \
                 icon.drawing=off \
                 script="$PLUGIN_DIR/front_app.sh" \
             --subscribe front_app front_app_switched
 
-        sketchybar --add item clock right \
+        ${sketchybarBin} --add item clock right \
             --set clock \
                 icon.drawing=off \
                 update_freq=10 \
                 script="$PLUGIN_DIR/clock.sh"
 
-        sketchybar --update
+        ${sketchybarBin} --update
       '';
     };
 
@@ -69,7 +76,7 @@
       executable = true;
       text = ''
         #!/bin/bash
-        sketchybar --set "$NAME" label="$INFO"
+        ${sketchybarBin} --set "$NAME" label="$INFO"
       '';
     };
 
@@ -77,7 +84,7 @@
       executable = true;
       text = ''
         #!/bin/bash
-        sketchybar --set "$NAME" label="$(date '+%a %d %b  %H:%M')"
+        ${sketchybarBin} --set "$NAME" label="$(date '+%a %d %b  %H:%M')"
       '';
     };
   };
