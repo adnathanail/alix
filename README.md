@@ -92,8 +92,8 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Window tiling (Rectangle)
 - Raycast
 - SketchyBar (menu-bar replacement, see `extra/sketchybar.nix`)
-    - Minimal starter config (front app, calendar, clock) at `~/.config/sketchybar/`; edit and rebuild to extend — https://felixkratz.github.io/SketchyBar/config
-    - Calendar item mimics Fantastical's own menu-bar icon (day-of-month); click opens Fantastical
+    - Minimal starter config (front app, clock) at `~/.config/sketchybar/`; edit and rebuild to extend — https://felixkratz.github.io/SketchyBar/config
+    - Clock shows the date and time; click opens Fantastical's Mini Window
     - Autostarts via a launchd user agent (`launchd.user.agents.sketchybar`), the Nix equivalent of `brew services start sketchybar`
     - To actually replace the native menu bar, hide it in System Settings → Control Center → Menu Bar (not Nix-managed)
 - Top left hot corner: Show desktop

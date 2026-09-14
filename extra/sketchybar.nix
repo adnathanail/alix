@@ -169,6 +169,37 @@
                 click_script="$PLUGIN_DIR/close_popups.sh" \
             --subscribe front_app front_app_switched
 
+        # Mirrors the native WiFi menu-bar icon. Click shows a small popup
+        # with the current network name (refreshed on open, not shown
+        # inline in the bar since SSIDs can be long) and a shortcut to
+        # System Settings' Wi-Fi pane, instead of the native quick-toggle
+        # popover.
+        ${sketchybarBin} --add alias "Control Centre,WiFi" right \
+            --set "Control Centre,WiFi" \
+                alias.update_freq=10 \
+                click_script="$PLUGIN_DIR/wifi_menu_toggle.sh" \
+                popup.align=right \
+                popup.background.color=0xff1e1e2e \
+                popup.background.border_color=0xff585b70 \
+                popup.background.border_width=1 \
+                popup.background.corner_radius=6 \
+                popup.y_offset=5 \
+            --add item wifi_current_network "popup.Control Centre,WiFi" \
+            --set wifi_current_network \
+                icon=$'' \
+                icon.padding_left=4 \
+                icon.padding_right=8 \
+                label.align=left \
+                width=200 \
+            --add item wifi_open_settings "popup.Control Centre,WiFi" \
+            --set wifi_open_settings \
+                icon=$'' \
+                icon.padding_left=4 \
+                icon.padding_right=8 \
+                label="Open Wi-Fi Settings" \
+                label.align=left \
+                width=200 \
+                click_script="$PLUGIN_DIR/wifi_open_settings.sh"
 
         # No native Fantastical menu-bar icon left to mirror, so this item
         # is now just a date/time label; click still opens Fantastical's
@@ -179,47 +210,51 @@
                 update_freq=1 \
                 script="$PLUGIN_DIR/clock.sh" \
                 click_script="$PLUGIN_DIR/close_popups.sh && $PLUGIN_DIR/open_calendar.sh"
-                click_script="$PLUGIN_DIR/apple_menu_close.sh"
 
         ${sketchybarBin} --update
       '';
     };
 
-    # Also closes the Apple menu popup: SketchyBar has no way to detect a
-    # click outside the bar itself (an open, unresolved upstream request —
-    # https://github.com/FelixKratz/SketchyBar/issues/655), so clicking the
-    # desktop or another app can't be caught directly. front_app_switched
-    # already fires whenever a different app becomes frontmost, which is
-    # true for essentially every "click elsewhere on screen" case (clicking
-    # another app, or empty desktop which activates Finder), so it doubles
-    # as that signal for free.
+    # Also closes both popups (Apple menu, WiFi): SketchyBar has no way to
+    # detect a click outside the bar itself (an open, unresolved upstream
+    # request — https://github.com/FelixKratz/SketchyBar/issues/655), so
+    # clicking the desktop or another app can't be caught directly.
+    # front_app_switched already fires whenever a different app becomes
+    # frontmost, which is true for essentially every "click elsewhere on
+    # screen" case (clicking another app, or empty desktop which activates
+    # Finder), so it doubles as that signal for free.
     xdg.configFile."sketchybar/plugins/front_app.sh" = {
       executable = true;
       text = ''
         #!/bin/bash
         ${sketchybarBin} --set "$NAME" label="$INFO"
         ${sketchybarBin} --set apple_menu popup.drawing=off
+        ${sketchybarBin} --set "Control Centre,WiFi" popup.drawing=off
       '';
     };
 
     # Apple menu: toggle shows/hides the popup; each action item closes the
     # popup before doing its thing so it doesn't linger over whatever opens
-    # next (System Settings, the logout confirmation, ...).
+    # next (System Settings, the logout confirmation, ...). Also closes the
+    # WiFi popup so only one is ever open at a time.
     xdg.configFile."sketchybar/plugins/apple_menu_toggle.sh" = {
       executable = true;
       text = ''
         #!/bin/bash
+        ${sketchybarBin} --set "Control Centre,WiFi" popup.drawing=off
         ${sketchybarBin} --set apple_menu popup.drawing=toggle
       '';
     };
 
     # Wired into every other clickable item's click_script so clicking
-    # anywhere else on the bar dismisses the Apple menu popup.
-    xdg.configFile."sketchybar/plugins/apple_menu_close.sh" = {
+    # anywhere else on the bar dismisses both the Apple menu and WiFi
+    # popups.
+    xdg.configFile."sketchybar/plugins/close_popups.sh" = {
       executable = true;
       text = ''
         #!/bin/bash
         ${sketchybarBin} --set apple_menu popup.drawing=off
+        ${sketchybarBin} --set "Control Centre,WiFi" popup.drawing=off
       '';
     };
 
