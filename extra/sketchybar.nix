@@ -14,7 +14,7 @@
 # - https://github.com/FelixKratz/SketchyBar/discussions/281
 # - https://github.com/FelixKratz/SketchyBar/discussions/229
 
-{ pkgs, ... }: {
+{ lib, pkgs, ... }: {
   # Nerd Font glyphs for the bar's icons/labels, plus SketchyBar's own
   # per-app icon font. System-wide via /Library/Fonts (nix-darwin's
   # fonts.packages) rather than HM — macOS discovers fonts by scanning
@@ -35,7 +35,8 @@
     in {
     home.packages = [ pkgs.sketchybar ];
 
-    # Minimal starter bar: front-most app on the left, clock on the right.
+    # Bar: front-most app on the left; Fantastical's real menu-bar icon
+    # (aliased in from the native menu bar) then the clock on the right.
     # Extend from here — https://felixkratz.github.io/SketchyBar/config.
     # SketchyBar execs this file directly, so it must be executable.
     xdg.configFile."sketchybar/sketchybarrc" = {
@@ -66,18 +67,19 @@
                 script="$PLUGIN_DIR/front_app.sh" \
             --subscribe front_app front_app_switched
 
-        ${sketchybarBin} --add item calendar right \
-            --set calendar \
-                icon= \
-                click_script="$PLUGIN_DIR/open_calendar.sh" \
-                update_freq=3600 \
-                script="$PLUGIN_DIR/calendar.sh" \
-            --subscribe calendar system_woke
+        # Mirrors Fantastical's actual native menu-bar icon (requires
+        # Screen Recording permission for sketchybar — see README). Click
+        # opens Fantastical's Mini Window (see open_calendar.sh below)
+        # rather than the full app.
+        ${sketchybarBin} --add alias "Control Centre,Fantastical" right \
+            --set "Control Centre,Fantastical" \
+                alias.update_freq=60 \
+                click_script="$PLUGIN_DIR/open_calendar.sh"
 
         ${sketchybarBin} --add item clock right \
             --set clock \
                 icon.drawing=off \
-                update_freq=10 \
+                update_freq=1 \
                 script="$PLUGIN_DIR/clock.sh"
 
         ${sketchybarBin} --update
@@ -96,19 +98,7 @@
       executable = true;
       text = ''
         #!/bin/bash
-        ${sketchybarBin} --set "$NAME" label="$(date '+%a %d %b  %H:%M')"
-      '';
-    };
-
-    # Mimics Fantastical's own menu-bar icon: a calendar glyph with today's
-    # day-of-month as the label. Click opens Fantastical's Mini Window (see
-    # open_calendar.sh below) for the popover Fantastical's own menu-bar
-    # icon would normally show.
-    xdg.configFile."sketchybar/plugins/calendar.sh" = {
-      executable = true;
-      text = ''
-        #!/bin/bash
-        ${sketchybarBin} --set "$NAME" label="$(date '+%e' | tr -d ' ')"
+        ${sketchybarBin} --set "$NAME" label="$(date '+%H:%M:%S')"
       '';
     };
 
@@ -138,4 +128,26 @@
       StandardErrorPath = "/Users/${username}/Library/Logs/sketchybar.err.log";
     };
   };
+
+  # SketchyBar only executes sketchybarrc once, at process startup — it
+  # never re-sources it on its own. Activation updates the config files on
+  # disk (xdg.configFile above) but nix-darwin only reloads a launchd job
+  # when the *plist itself* changes, which it never does here since only
+  # the files it points at change. Without this, every sketchybarrc/plugin
+  # edit would silently sit unapplied until something manually restarted
+  # the process. `kickstart -k` kills and relaunches it in one step, same
+  # pattern nix-darwin's own launchd.nix uses for userLaunchAgents.
+  #
+  # mkAfter matters here: Home Manager's own activation step (which is what
+  # actually writes the new config file symlinks) is appended to this same
+  # postActivation.text by home-manager.darwinModules.home-manager, later
+  # in flake.nix's module list. Without mkAfter, plain module-order
+  # concatenation puts our kickstart *before* that HM step, so it would
+  # restart sketchybar with the previous rebuild's config, one step behind.
+  system.activationScripts.postActivation.text = lib.mkAfter ''
+    launchctl asuser "$(id -u -- ${username})" \
+      sudo --user=${username} -- \
+      launchctl kickstart -k "gui/$(id -u -- ${username})/org.nixos.sketchybar" \
+      2>/dev/null || true
+  '';
 }
