@@ -10,6 +10,10 @@
 #     (import ./extra/sketchybar.nix { inherit username; })
 { username }:
 
+# To check
+# - https://github.com/FelixKratz/SketchyBar/discussions/281
+# - https://github.com/FelixKratz/SketchyBar/discussions/229
+
 { pkgs, ... }: {
   # Nerd Font glyphs for the bar's icons/labels, plus SketchyBar's own
   # per-app icon font. System-wide via /Library/Fonts (nix-darwin's
@@ -62,6 +66,14 @@
                 script="$PLUGIN_DIR/front_app.sh" \
             --subscribe front_app front_app_switched
 
+        ${sketchybarBin} --add item calendar right \
+            --set calendar \
+                icon= \
+                click_script="$PLUGIN_DIR/open_calendar.sh" \
+                update_freq=3600 \
+                script="$PLUGIN_DIR/calendar.sh" \
+            --subscribe calendar system_woke
+
         ${sketchybarBin} --add item clock right \
             --set clock \
                 icon.drawing=off \
@@ -85,6 +97,33 @@
       text = ''
         #!/bin/bash
         ${sketchybarBin} --set "$NAME" label="$(date '+%a %d %b  %H:%M')"
+      '';
+    };
+
+    # Mimics Fantastical's own menu-bar icon: a calendar glyph with today's
+    # day-of-month as the label. Click opens Fantastical's Mini Window (see
+    # open_calendar.sh below) for the popover Fantastical's own menu-bar
+    # icon would normally show.
+    xdg.configFile."sketchybar/plugins/calendar.sh" = {
+      executable = true;
+      text = ''
+        #!/bin/bash
+        ${sketchybarBin} --set "$NAME" label="$(date '+%e' | tr -d ' ')"
+      '';
+    };
+
+    # Fantastical has no URL scheme or AppleScript command for its Mini
+    # Window (the menu-bar popover) — it only opens via a system-wide
+    # keyboard shortcut (Fantastical → Settings → General). This simulates
+    # that shortcut (default Control+Option+Space, key code 49 = space)
+    # through System Events instead of launching the full app. First click
+    # will likely prompt for Accessibility permission, same as Rectangle/
+    # Raycast — see README's manual-setup section.
+    xdg.configFile."sketchybar/plugins/open_calendar.sh" = {
+      executable = true;
+      text = ''
+        #!/bin/bash
+        osascript -e 'tell application "System Events" to key code 49 using {control down, option down}'
       '';
     };
   };
