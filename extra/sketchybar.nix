@@ -10,10 +10,6 @@
 #     (import ./extra/sketchybar.nix { inherit username; })
 { username }:
 
-# To check
-# - https://github.com/FelixKratz/SketchyBar/discussions/281
-# - https://github.com/FelixKratz/SketchyBar/discussions/229
-
 { lib, pkgs, ... }: {
   # Nerd Font glyphs for the bar's icons/labels, plus SketchyBar's own
   # per-app icon font. System-wide via /Library/Fonts (nix-darwin's
@@ -35,8 +31,7 @@
     in {
     home.packages = [ pkgs.sketchybar ];
 
-    # Bar: front-most app on the left; Fantastical's real menu-bar icon
-    # (aliased in from the native menu bar) then the clock on the right.
+    # Bar: front-most app on the left, WiFi + date/time on the right.
     # Extend from here — https://felixkratz.github.io/SketchyBar/config.
     # SketchyBar execs this file directly, so it must be executable.
     xdg.configFile."sketchybar/sketchybarrc" = {
@@ -68,7 +63,7 @@
         # github.com/FelixKratz/SketchyBar/issues/655), so closing on an
         # outside click is wired up by hand from two directions: every
         # other bar item's click_script closes it explicitly (see
-        # apple_menu_close.sh below), and front_app.sh closes it whenever
+        # close_popups.sh below), and front_app.sh closes it whenever
         # front_app_switched fires, which covers clicking away to the
         # desktop or another app. Icons are Nerd Font (Font Awesome 4)
         # glyphs, given as \u escapes rather than literal characters since
@@ -85,11 +80,15 @@
                 popup.background.border_width=1 \
                 popup.background.corner_radius=6 \
                 popup.y_offset=5 \
+                popup.height=0 \
             --add item apple_about popup.apple_menu \
             --set apple_about \
                 icon=$'' \
-                icon.padding_left=10 \
+                icon.padding_left=4 \
                 icon.padding_right=8 \
+                background.color=0x00000000 \
+                background.height=26 \
+                background.drawing=on \
                 label="About This Mac" \
                 label.align=left \
                 width=160 \
@@ -97,8 +96,11 @@
             --add item apple_settings popup.apple_menu \
             --set apple_settings \
                 icon=$'' \
-                icon.padding_left=10 \
+                icon.padding_left=4 \
                 icon.padding_right=8 \
+                background.color=0x00000000 \
+                background.height=26 \
+                background.drawing=on \
                 label="System Settings" \
                 label.align=left \
                 width=160 \
@@ -106,8 +108,11 @@
             --add item apple_activity popup.apple_menu \
             --set apple_activity \
                 icon=$'' \
-                icon.padding_left=10 \
+                icon.padding_left=4 \
                 icon.padding_right=8 \
+                background.color=0x00000000 \
+                background.height=26 \
+                background.drawing=on \
                 label="Activity Monitor" \
                 label.align=left \
                 width=160 \
@@ -119,13 +124,15 @@
                 background.drawing=on \
                 background.color=0xff585b70 \
                 background.height=1 \
-                height=8 \
                 width=160 \
             --add item apple_logout popup.apple_menu \
             --set apple_logout \
                 icon=$'' \
-                icon.padding_left=10 \
+                icon.padding_left=4 \
                 icon.padding_right=8 \
+                background.color=0x00000000 \
+                background.height=26 \
+                background.drawing=on \
                 label="Log Out" \
                 label.align=left \
                 width=160 \
@@ -133,8 +140,11 @@
             --add item apple_shutdown popup.apple_menu \
             --set apple_shutdown \
                 icon=$'' \
-                icon.padding_left=10 \
+                icon.padding_left=4 \
                 icon.padding_right=8 \
+                background.color=0x00000000 \
+                background.height=26 \
+                background.drawing=on \
                 label="Shut Down" \
                 label.align=left \
                 width=160 \
@@ -142,8 +152,11 @@
             --add item apple_restart popup.apple_menu \
             --set apple_restart \
                 icon=$'' \
-                icon.padding_left=10 \
+                icon.padding_left=4 \
                 icon.padding_right=8 \
+                background.color=0x00000000 \
+                background.height=26 \
+                background.drawing=on \
                 label="Restart" \
                 label.align=left \
                 width=160 \
@@ -153,7 +166,7 @@
             --set front_app \
                 icon.drawing=off \
                 script="$PLUGIN_DIR/front_app.sh" \
-                click_script="$PLUGIN_DIR/apple_menu_close.sh" \
+                click_script="$PLUGIN_DIR/close_popups.sh" \
             --subscribe front_app front_app_switched
 
         # Mirrors Fantastical's actual native menu-bar icon (requires
@@ -275,7 +288,7 @@
       executable = true;
       text = ''
         #!/bin/bash
-        ${sketchybarBin} --set "$NAME" label="$(date '+%H:%M:%S')"
+        ${sketchybarBin} --set "$NAME" label="$(date '+%a %d %b %H:%M:%S')"
       '';
     };
 
@@ -291,6 +304,54 @@
       text = ''
         #!/bin/bash
         osascript -e 'tell application "System Events" to key code 49 using {control down, option down}'
+      '';
+    };
+
+    # Refreshes the current-network label before showing the WiFi popup
+    # (rather than polling continuously in the background), and closes the
+    # Apple menu so only one popup is open at a time.
+    xdg.configFile."sketchybar/plugins/wifi_menu_toggle.sh" = {
+      executable = true;
+      text = ''
+        #!/bin/bash
+        NAME=wifi_current_network "$HOME/.config/sketchybar/plugins/wifi_ssid.sh"
+        ${sketchybarBin} --set apple_menu popup.drawing=off
+        ${sketchybarBin} --set "Control Centre,WiFi" popup.drawing=toggle
+      '';
+    };
+
+    # Deep link straight to System Settings' Wi-Fi pane, rather than the
+    # native menu-bar quick-toggle popover.
+    xdg.configFile."sketchybar/plugins/wifi_open_settings.sh" = {
+      executable = true;
+      text = ''
+        #!/bin/bash
+        ${sketchybarBin} --set "Control Centre,WiFi" popup.drawing=off
+        open "x-apple.systempreferences:com.apple.wifi-settings-extension"
+      '';
+    };
+
+    # Connected SSID. Both `networksetup -getairportnetwork` and `ipconfig
+    # getsummary`'s SSID field are gated behind Location Services on this
+    # machine — they report "not associated"/"<redacted>" respectively even
+    # while genuinely connected, a system-wide privacy policy (this held
+    # even querying directly from Terminal, outside any Nix/sketchybar
+    # context). `networksetup -listpreferredwirelessnetworks` isn't gated
+    # the same way, and macOS keeps the currently-connected network at the
+    # top of that list, so this checks the interface is active first, then
+    # reads that top entry as the SSID. Detects the Wi-Fi hardware port
+    # name rather than hardcoding en0, since that can vary.
+    xdg.configFile."sketchybar/plugins/wifi_ssid.sh" = {
+      executable = true;
+      text = ''
+        #!/bin/bash
+        device=$(networksetup -listallhardwareports | awk '/Wi-Fi/{getline; print $2}')
+        if ipconfig getsummary "$device" 2>/dev/null | grep -Fxq "  Active : FALSE"; then
+          ssid=""
+        else
+          ssid=$(networksetup -listpreferredwirelessnetworks "$device" | sed -n '2s/^\t//p')
+        fi
+        ${sketchybarBin} --set "$NAME" label="''${ssid:-Disconnected}"
       '';
     };
   };
