@@ -169,20 +169,16 @@
                 click_script="$PLUGIN_DIR/close_popups.sh" \
             --subscribe front_app front_app_switched
 
-        # Mirrors Fantastical's actual native menu-bar icon (requires
-        # Screen Recording permission for sketchybar — see README). Click
-        # opens Fantastical's Mini Window (see open_calendar.sh below)
-        # rather than the full app.
-        ${sketchybarBin} --add alias "Control Centre,Fantastical" right \
-            --set "Control Centre,Fantastical" \
-                alias.update_freq=60 \
-                click_script="$PLUGIN_DIR/apple_menu_close.sh && $PLUGIN_DIR/open_calendar.sh"
 
+        # No native Fantastical menu-bar icon left to mirror, so this item
+        # is now just a date/time label; click still opens Fantastical's
+        # Mini Window (see open_calendar.sh below) instead of the full app.
         ${sketchybarBin} --add item clock right \
             --set clock \
                 icon.drawing=off \
                 update_freq=1 \
                 script="$PLUGIN_DIR/clock.sh" \
+                click_script="$PLUGIN_DIR/close_popups.sh && $PLUGIN_DIR/open_calendar.sh"
                 click_script="$PLUGIN_DIR/apple_menu_close.sh"
 
         ${sketchybarBin} --update
