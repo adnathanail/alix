@@ -87,7 +87,7 @@
         ./graveyard/graveyard.nix
 
         # ── SketchyBar: menu-bar replacement ───────────
-        (import ./extra/sketchybar.nix { inherit username; })
+        (import ./extra/sketchybar { inherit username; })
 
         # ── system ──────────────────────────────────────────────
         ({ pkgs, ... }: {
