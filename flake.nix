@@ -73,6 +73,9 @@
         # ── Safari extensions (from the App Store) ─────
         ./extra/safariexts.nix
 
+        # ── Graveyard: where things go to die ─
+        ./graveyard/graveyard.nix
+
         # ── system ──────────────────────────────────────────────
         ({ pkgs, ... }: {
           nixpkgs.hostPlatform = "aarch64-darwin"; # "x86_64-darwin" on Intel
@@ -186,7 +189,7 @@
             # below), so `ns` is reproducible: bump with
             # `nix flake update homebrew-cask`.
             greedyCasks = true;
-            casks = [ "1password" "1password-cli" "orbstack" "raycast" "bartender" "ghostty" "gitbutler" "microsoft-outlook" "mimestream" "slack" "todoist-app" "fantastical" "spotify" "whatsapp" "google-drive" "steam" "capcut" "zoom" "audacity" "vlc" "gimp" "utm" "anki" "private-internet-access" "telegram" "signal" "brave-browser" "little-snitch" "micro-snitch" "raindropio" "deepl" "dockflow" ];
+            casks = [ "1password" "1password-cli" "orbstack" "raycast" "bartender" "ghostty" "gitbutler" "microsoft-outlook" "mimestream" "slack" "todoist-app" "fantastical" "spotify" "whatsapp" "google-drive" "steam" "capcut" "zoom" "audacity" "vlc" "gimp" "utm" "anki" "private-internet-access" "telegram" "signal" "brave-browser" "raindropio" "deepl" "dockflow" ];
             # `mas` is the Mac App Store CLI; needed for `homebrew.masApps`.
             # Explicit so `cleanup = "zap"` doesn't uninstall it.
             brews = [ "mas" "poppler" ];

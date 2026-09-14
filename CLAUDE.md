@@ -31,6 +31,7 @@ living at `~/.config/nix-darwin/`.
 | `extra/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
 | `extra/appdev.nix`, `extra/macapps.nix`, `extra/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge); deliberately independent of each other |
 | `extra/rocq.nix`, `extra/eleventy.nix`, `extra/nx.nix`, `extra/uvtools.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
+| `graveyard/graveyard.nix` | Things we might want to (or already have) killed |
 | `secrets/*.age`, `secrets/secrets.nix` | encrypted secrets + their recipients |
 | `pycharm/custom-keymap.xml`, `nx/` | files consumed by the modules above |
 
