@@ -16,14 +16,14 @@
 # sandboxed build's PATH, hence the absolute `/usr/bin/hdiutil`.
 { pkgs, lib, ... }:
 let
-  version = "5.0.7";
+  version = "5.0.8";
   extradock = pkgs.stdenvNoCC.mkDerivation {
     pname = "extradock";
     inherit version;
     src = pkgs.fetchurl {
       name = "ExtraDock-${version}.dmg";
       url = "https://github.com/AppitStudio/extra-dock5-updates/releases/download/prod/ExtraDock.dmg";
-      hash = "sha256-Onckd9eVIACa+ZIRoj1I9aR6gc9WRfFXpinf6oA3J4c=";
+      hash = "sha256-jskWty2yimoYgn7VGl9sZuVnQVrzriq3qbtBsQIv2H0=";
     };
     dontUnpack = true;
     installPhase = ''
