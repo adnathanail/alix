@@ -25,12 +25,12 @@ living at `~/.config/nix-darwin/`.
 | Path | Owns |
 | --- | --- |
 | `flake.nix` | inputs, unstable overlay, `system.defaults`, Homebrew casks/brews, nix-homebrew + HM wiring |
-| `home.nix` | Home Manager user config (packages, git, zsh, VS Code, PyCharm keymap, Ghostty config) |
+| `home.nix` | Home Manager user config (packages, git, zsh, PyCharm keymap, Ghostty config) |
 | `agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`, `nix-restore-age-key`. Declares **no** secrets |
 | `extra/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
 | `extra/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
 | `extra/appdev.nix`, `extra/macapps.nix`, `extra/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge); deliberately independent of each other |
-| `extra/rocq.nix`, `extra/eleventy.nix`, `extra/nx.nix`, `extra/uvtools.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
+| `extra/rocq.nix`, `extra/eleventy.nix`, `extra/nx.nix`, `extra/uvtools.nix`, `extra/vscode.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
 | `graveyard/graveyard.nix` | Things we might want to (or already have) killed |
 | `secrets/*.age`, `secrets/secrets.nix` | encrypted secrets + their recipients |
 | `pycharm/custom-keymap.xml`, `nx/` | files consumed by the modules above |
@@ -160,13 +160,14 @@ Nix-managed unless noted.
   shim that execs `uv tool run --from <spec> <executable>`, so the shim is Nix-managed but the
   environment is uv's, cached under `~/.cache/uv`. Keep the `==` pins — they're the only thing
   making it reproducible. Prefer a real nixpkgs package whenever one exists.
-- **VS Code** *(Nix, unstable overlay, Nix-managed config + extensions)* — `programs.vscode`,
-  `profiles.default`. Only the `vscode` attr is on unstable; `pkgs.vscode-extensions` still comes
-  from stable, which is fine (a newer editor runs older extensions).
-  `settings.json` is Nix-owned: edit `userSettings` in `home.nix`, not in-app.
-  `mutableExtensionsDir = false` means HM fully owns `~/.vscode/extensions`, so extensions can
-  **only** be added by editing `home.nix` (or `extra/rocq.nix` / `extra/eleventy.nix`) and
-  rebuilding. Prefer `pkgs.vscode-extensions.<publisher>.<name>`; otherwise
+- **VS Code** *(Nix, unstable overlay, Nix-managed config + extensions)* — `programs.vscode` lives
+  in `extra/vscode.nix`, `profiles.default`. Only the `vscode` attr is on unstable;
+  `pkgs.vscode-extensions` still comes from stable, which is fine (a newer editor runs older
+  extensions). `settings.json` is Nix-owned: edit `userSettings` in `extra/vscode.nix`, not
+  in-app. `mutableExtensionsDir = false` means HM fully owns `~/.vscode/extensions`, so extensions
+  can **only** be added by editing `extra/vscode.nix` (or `extra/rocq.nix` / `extra/eleventy.nix`,
+  which also append to `programs.vscode.profiles.default.extensions`) and rebuilding. Prefer
+  `pkgs.vscode-extensions.<publisher>.<name>`; otherwise
   `pkgs.vscode-utils.extensionFromVscodeMarketplace` with publisher, name, version, and hash
   (bump version + hash together). The first eval after adding the extension set is slow.
 - **PyCharm Professional** *(Nix, unstable overlay)* — lands at
