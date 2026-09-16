@@ -8,7 +8,7 @@ let
   # Attribute name = what you type 
   # value = the pip name/version (PEP 508) to install it from
   uvTools = {
-    qi = "quantuminspire==3.5.3";
+    qi = "quantuminspire==4.0.0";
   };
 
   # Each entry becomes a tiny shell script in the store that shells out to
