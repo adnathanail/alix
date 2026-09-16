@@ -179,6 +179,10 @@ _Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new con
 
 ### Updating Homebrew apps
 
+For a full update sweep across every pinned source in this repo (flake inputs, ExtraDock,
+VS Code marketplace extensions, `nx`, uv tools), ask Claude Code to run the
+`update-packages` skill rather than doing it by hand.
+
 Cask versions are **pinned in `flake.lock`**, like everything else. `homebrew-core` and
 `homebrew-cask` are flake inputs, handed to `nix-homebrew.taps` with `mutableTaps = false`, so
 `brew` reads those pinned checkouts instead of the live formulae.brew.sh API. A rebuild can only

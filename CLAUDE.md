@@ -33,6 +33,7 @@ living at `~/.config/nix-darwin/`.
 | `extra/rocq.nix`, `extra/eleventy.nix`, `extra/nx.nix`, `extra/uvtools.nix`, `extra/vscode.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
 | `graveyard/graveyard.nix` | Things we might want to (or already have) killed |
 | `secrets/*.age`, `secrets/secrets.nix` | encrypted secrets + their recipients |
+| `.claude/skills/update-packages/SKILL.md` | the package-update runbook — flake inputs + manual pins |
 | `pycharm/custom-keymap.xml`, `nx/` | files consumed by the modules above |
 
 ## Rules
@@ -255,17 +256,3 @@ Manual, non-Nix setup a fresh machine still needs: App Store sign-in (**before**
 per-app sign-ins/licences, and System Settings → Privacy & Security grants — Accessibility
 (Rectangle, Raycast, Bartender), Screen Recording (Bartender, Slack), Input Monitoring (Raycast),
 Notifications/Calendar/Contacts/Mic/Camera per app.
-
-## Routine maintenance
-
-- `nix flake update <input>` (e.g. `nixpkgs-unstable`, `nix-homebrew`, `homebrew-cask`) or
-  `nix flake update` for everything — then ask the user to rebuild. Cask *versions* come from the
-  `homebrew-cask` / `homebrew-core` pins, so a rebuild alone won't move them.
-- After a PyCharm minor-version bump: update the version-pinned keymap path in `home.nix`.
-- Bumping `nx` (flake updates don't touch it): edit `nx/package.json`, then
-  ```bash
-  (cd nx && npm install --package-lock-only --ignore-scripts)
-  nix run nixpkgs#prefetch-npm-deps -- nx/package-lock.json
-  ```
-  Paste the printed `sha256-…` into `npmDepsHash` in `extra/nx.nix` and bump `version` there to
-  match. Commit `nx/package.json`, `nx/package-lock.json`, `extra/nx.nix` together.
