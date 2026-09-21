@@ -6,7 +6,8 @@
 # `launchd.agents` option, so this is the Nix equivalent of
 # `brew services start sketchybar`.
 #
-# Each bar widget is its own file — apple-menu.nix, wifi.nix, clock.nix —
+# Each bar widget is its own file — apple-menu.nix, wifi.nix, battery.nix,
+# clock.nix —
 # returning `{ rc, plugins }`: `rc` is the sketchybarrc fragment that adds
 # the widget's items, `plugins` is an attrset of plugin-script filename →
 # contents. This file concatenates the rc fragments into one sketchybarrc
@@ -41,9 +42,10 @@
 
       appleMenu = import ./apple-menu.nix { inherit sketchybarBin; };
       wifi = import ./wifi.nix { inherit sketchybarBin; };
+      battery = import ./battery.nix { inherit sketchybarBin; };
       clock = import ./clock.nix { inherit sketchybarBin; };
 
-      widgetPlugins = appleMenu.plugins // wifi.plugins // clock.plugins // {
+      widgetPlugins = appleMenu.plugins // wifi.plugins // battery.plugins // clock.plugins // {
         # Also closes both popups (Apple menu, WiFi): SketchyBar has no way
         # to detect a click outside the bar itself (an open, unresolved
         # upstream request — github.com/FelixKratz/SketchyBar/issues/655),
@@ -113,6 +115,8 @@
                 --subscribe front_app front_app_switched
 
             ${wifi.rc}
+
+            ${battery.rc}
 
             ${clock.rc}
 
