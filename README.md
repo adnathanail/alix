@@ -35,6 +35,8 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
     - Tracks `nixpkgs-unstable`; the 26.05 pin lags several releases behind
 - 1Password
 - PyCharm
+    - Pinned to its own `nixpkgs-unstable-pycharm` flake input, held back
+      independently of `nixpkgs-unstable` — see `flake.nix`
     - *First use*:
         - Disable in-app updater
         - Set keymap to `ALix keymap`

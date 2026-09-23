@@ -68,6 +68,16 @@ everything else on stable: `claude-code`, `prek`, `vscode`, `jetbrains.pycharm`.
 merged (`prev.jetbrains // { … }`) so other JetBrains IDEs still come from stable. Reuse this
 pattern for anything that needs to be fresher than the pin.
 
+`jetbrains.pycharm` draws from its own `nixpkgs-unstable-pycharm` input instead of the shared
+`nixpkgs-unstable` one, and that input's URL is pinned to a specific revision rather than a
+branch — so it doesn't move on a plain `nix flake update`/`nix flake update nixpkgs-unstable`,
+only when its `url` is edited to a new revision and `nix flake update nixpkgs-unstable-pycharm`
+(or `nix flake lock`) is run. Newer unstable revisions have repeatedly broken the pycharm
+derivation's cython-speedups build step (e.g. a python3.14 bump leaving `setup_cython.py` missing
+from the pydev helpers), so this keeps `claude-code`/`prek`/`vscode` free to update without
+risking PyCharm. Bump the pinned revision, and verify the build, only when a PyCharm update is
+actually wanted.
+
 `nixpkgs.config.allowUnfree = true` is required for `claude-code`, `vscode`, `jetbrains.pycharm`.
 
 ### Home Manager as a nix-darwin module

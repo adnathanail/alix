@@ -1,6 +1,6 @@
 ---
 name: update-packages
-description: "Check for and apply package/dependency updates across this nix-darwin config — the 8 flake inputs plus everything pinned outside the flake-lock system (ExtraDock, VS Code marketplace extensions, nx, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
+description: "Check for and apply package/dependency updates across this nix-darwin config — the 9 flake inputs (one, nixpkgs-unstable-pycharm, is revision-pinned and updated deliberately rather than tracked) plus everything pinned outside the flake-lock system (ExtraDock, VS Code marketplace extensions, nx, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
 ---
 
 # Update packages
@@ -34,6 +34,7 @@ user anything — don't mutate `flake.lock` or any source file in this phase.
 |---|---|
 | `nixpkgs` | `nixpkgs-26.05-darwin` branch |
 | `nixpkgs-unstable` | `nixpkgs-unstable` branch |
+| `nixpkgs-unstable-pycharm` | pinned to a fixed revision, not a branch — see below, skip in the branch-HEAD loop |
 | `nix-darwin` | `nix-darwin-26.05` branch |
 | `home-manager` | `release-26.05` branch |
 | `nix-homebrew` | default branch (also carries its own `brew-src` sub-pin, which updates alongside it) |
@@ -41,8 +42,17 @@ user anything — don't mutate `flake.lock` or any source file in this phase.
 | `homebrew-cask` | default branch, `flake = false` |
 | `agenix` | default branch |
 
-Check each without touching the lockfile — compare the locked rev to the remote ref's
-current head:
+`nixpkgs-unstable-pycharm` (used only for `jetbrains.pycharm`, see `flake.nix` and
+CLAUDE.md's *Selective unstable overlay*) is pinned to an exact revision in its `url`, not
+a tracked branch, specifically so it does **not** move when `nixpkgs-unstable` or the rest
+of the flake updates. Newer unstable revisions have repeatedly broken PyCharm's
+cython-speedups build step. Don't propose bumping it as part of a routine sweep — just
+report the revision (and its date) it's currently pinned to. Only bump it when the user
+explicitly asks to update PyCharm, and always verify the rebuild succeeds before treating
+that bump as done (see Phase 3).
+
+Check the branch-tracked inputs without touching the lockfile — compare the locked rev to
+the remote ref's current head:
 
 ```bash
 for name in nixpkgs nixpkgs-unstable nix-darwin home-manager nix-homebrew homebrew-core homebrew-cask agenix; do
@@ -129,11 +139,26 @@ nix flake update <input>
 git diff flake.lock   # show the user what moved
 ```
 
-If `<input>` is `nixpkgs-unstable`, a rebuild can also carry PyCharm to a new minor
-version (it's on the unstable overlay). If so, `home.nix` symlinks the repo's keymap
-into a version-pinned path (`~/Library/Application Support/JetBrains/PyCharm<version>/keymaps/`)
-— check whether the PyCharm version changed and, if so, update that path in `home.nix`
-too, or the keymap silently lands in an unused directory.
+**`nixpkgs-unstable-pycharm` (bumping PyCharm specifically):** this one isn't part of the
+routine sweep — only touch it if the user explicitly asks to update PyCharm. Find the
+current `nixpkgs-unstable` revision (or another candidate) and edit the `url` in
+`flake.nix` to that revision, then lock and rebuild:
+
+```bash
+# edit nixpkgs-unstable-pycharm.url in flake.nix to github:NixOS/nixpkgs/<new-rev>
+nix flake lock
+ns   # ask the user to run this — verify the pycharm derivation actually builds
+```
+
+If the build breaks (this has happened before — a python3.14 bump left the pydev
+helpers' `setup_cython.py` missing), don't leave the pin on a broken revision — pick an
+earlier one and retry, same as the general "if a rebuild breaks" guidance below.
+
+A successful PyCharm bump can also carry it to a new minor version. If so, `home.nix`
+symlinks the repo's keymap into a version-pinned path
+(`~/Library/Application Support/JetBrains/PyCharm<version>/keymaps/`) — check whether the
+PyCharm version changed and, if so, update that path in `home.nix` too, or the keymap
+silently lands in an unused directory.
 
 **ExtraDock:** re-download to get the fresh hash, then edit `version` and `hash` together
 in `extra/extradock.nix`:

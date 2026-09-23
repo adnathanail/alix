@@ -5,6 +5,15 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
+    # PyCharm gets its own unstable pin, held back independently of
+    # nixpkgs-unstable above. Newer unstable revisions have repeatedly broken
+    # the pycharm derivation's cython-speedups build step (e.g. a python3.14
+    # bump breaking `setup_cython.py` in the pydev helpers) — pinned here to
+    # the last revision known to build so `nix flake update nixpkgs-unstable`
+    # can move freely without taking PyCharm down with it. Bump this input
+    # deliberately, and verify the build, when a PyCharm update is wanted.
+    nixpkgs-unstable-pycharm.url = "github:NixOS/nixpkgs/dcbaf796f4fb83327147bb31ee56e673c78d5a62";
+
     nix-darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -30,7 +39,7 @@
     agenix.inputs.home-manager.follows = "home-manager";
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, nixpkgs-unstable, home-manager, nix-homebrew, homebrew-core, homebrew-cask, agenix }:
+  outputs = inputs@{ self, nix-darwin, nixpkgs, nixpkgs-unstable, nixpkgs-unstable-pycharm, home-manager, nix-homebrew, homebrew-core, homebrew-cask, agenix }:
   let
     username = "adnathanail";        # `whoami`
     hostname = "Alexs-MacBook-Pro";  # `scutil --get LocalHostName`
@@ -42,13 +51,19 @@
           system = prev.stdenv.hostPlatform.system;
           config.allowUnfree = true;   # claude-code, pycharm, vscode are unfree
         };
+        # PyCharm tracks its own, separately-pinned unstable checkout — see
+        # the nixpkgs-unstable-pycharm input comment.
+        unstablePycharm = import nixpkgs-unstable-pycharm {
+          system = prev.stdenv.hostPlatform.system;
+          config.allowUnfree = true;
+        };
       in {
         claude-code = unstable.claude-code;
         prek = unstable.prek;
         vscode = unstable.vscode;
         # Merge so other jetbrains.* attrs keep coming from stable.
         jetbrains = prev.jetbrains // {
-          pycharm = unstable.jetbrains.pycharm;
+          pycharm = unstablePycharm.jetbrains.pycharm;
         };
       };
   in {
