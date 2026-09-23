@@ -204,22 +204,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-unstable-pycharm": {
-      "locked": {
-        "lastModified": 1788450882,
-        "narHash": "sha256-0CTM8gsHHmRjwX1JvzpP99cBSEp/GgVfooGJMxArRdo=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "dcbaf796f4fb83327147bb31ee56e673c78d5a62",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "dcbaf796f4fb83327147bb31ee56e673c78d5a62",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "agenix": "agenix",
@@ -230,8 +214,7 @@
         "nix-homebrew": "nix-homebrew",
         "nixpkgs": "nixpkgs",
         "nixpkgs-master": "nixpkgs-master",
-        "nixpkgs-unstable": "nixpkgs-unstable",
-        "nixpkgs-unstable-pycharm": "nixpkgs-unstable-pycharm"
+        "nixpkgs-unstable": "nixpkgs-unstable"
       }
     },
     "systems": {

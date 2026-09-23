@@ -14,15 +14,6 @@
     # usual risk of tracking unvetted `master` is low here.
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
 
-    # PyCharm gets its own unstable pin, held back independently of
-    # nixpkgs-unstable above. Newer unstable revisions have repeatedly broken
-    # the pycharm derivation's cython-speedups build step (e.g. a python3.14
-    # bump breaking `setup_cython.py` in the pydev helpers) — pinned here to
-    # the last revision known to build so `nix flake update nixpkgs-unstable`
-    # can move freely without taking PyCharm down with it. Bump this input
-    # deliberately, and verify the build, when a PyCharm update is wanted.
-    nixpkgs-unstable-pycharm.url = "github:NixOS/nixpkgs/dcbaf796f4fb83327147bb31ee56e673c78d5a62";
-
     nix-darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -48,7 +39,7 @@
     agenix.inputs.home-manager.follows = "home-manager";
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, nixpkgs-unstable, nixpkgs-master, nixpkgs-unstable-pycharm, home-manager, nix-homebrew, homebrew-core, homebrew-cask, agenix }:
+  outputs = inputs@{ self, nix-darwin, nixpkgs, nixpkgs-unstable, nixpkgs-master, home-manager, nix-homebrew, homebrew-core, homebrew-cask, agenix }:
   let
     username = "adnathanail";        # `whoami`
     hostname = "Alexs-MacBook-Pro";  # `scutil --get LocalHostName`
@@ -58,16 +49,10 @@
       let
         unstable = import nixpkgs-unstable {
           system = prev.stdenv.hostPlatform.system;
-          config.allowUnfree = true;   # claude-code, pycharm, vscode are unfree
+          config.allowUnfree = true;   # vscode is unfree
         };
         # claude-code tracks raw master — see the nixpkgs-master input comment.
         master = import nixpkgs-master {
-          system = prev.stdenv.hostPlatform.system;
-          config.allowUnfree = true;
-        };
-        # PyCharm tracks its own, separately-pinned unstable checkout — see
-        # the nixpkgs-unstable-pycharm input comment.
-        unstablePycharm = import nixpkgs-unstable-pycharm {
           system = prev.stdenv.hostPlatform.system;
           config.allowUnfree = true;
         };
@@ -75,10 +60,6 @@
         claude-code = master.claude-code;
         prek = unstable.prek;
         vscode = unstable.vscode;
-        # Merge so other jetbrains.* attrs keep coming from stable.
-        jetbrains = prev.jetbrains // {
-          pycharm = unstablePycharm.jetbrains.pycharm;
-        };
       };
   in {
     darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {

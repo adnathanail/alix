@@ -64,9 +64,8 @@ fixes but rarely new modules — a brand-new HM module may exist only on `master
 
 ### Selective unstable overlay
 `unstableOverlay` in `flake.nix` pulls **specific** packages from `nixpkgs-unstable`, leaving
-everything else on stable: `claude-code`, `prek`, `vscode`, `jetbrains.pycharm`. `jetbrains` is
-merged (`prev.jetbrains // { … }`) so other JetBrains IDEs still come from stable. Reuse this
-pattern for anything that needs to be fresher than the pin.
+everything else on stable: `claude-code`, `prek`, `vscode`. Reuse this pattern for anything that
+needs to be fresher than the pin.
 
 `claude-code` draws from its own `nixpkgs-master` input — raw `master`, not the
 `nixpkgs-unstable` channel branch. `nixpkgs-unstable` only advances once Hydra's build/test gate
@@ -77,15 +76,11 @@ specifically because the overlay only cherry-picks the single `claude-code` deri
 (a broken build for some other package) doesn't apply. `nix flake update nixpkgs-master` moves
 independently of `nixpkgs-unstable`.
 
-`jetbrains.pycharm` draws from its own `nixpkgs-unstable-pycharm` input instead of the shared
-`nixpkgs-unstable` one, and that input's URL is pinned to a specific revision rather than a
-branch — so it doesn't move on a plain `nix flake update`/`nix flake update nixpkgs-unstable`,
-only when its `url` is edited to a new revision and `nix flake update nixpkgs-unstable-pycharm`
-(or `nix flake lock`) is run. Newer unstable revisions have repeatedly broken the pycharm
-derivation's cython-speedups build step (e.g. a python3.14 bump leaving `setup_cython.py` missing
-from the pydev helpers), so this keeps `claude-code`/`prek`/`vscode` free to update without
-risking PyCharm. Bump the pinned revision, and verify the build, only when a PyCharm update is
-actually wanted.
+`jetbrains.pycharm` comes from **stable**, deliberately. Unstable's pycharm derivation broke at
+its cython-speedups step (`setup_cython.py` missing from the pydev helpers under python3.14)
+while stable shipped the same PyCharm version and built fine. If stable ever lags a wanted
+PyCharm release, re-add it to the overlay as `jetbrains = prev.jetbrains // { pycharm = …; }`
+(the merge keeps other JetBrains IDEs on stable) and verify the build first.
 
 `nixpkgs.config.allowUnfree = true` is required for `claude-code`, `vscode`, `jetbrains.pycharm`.
 
@@ -191,7 +186,7 @@ Nix-managed unless noted.
   `pkgs.vscode-extensions.<publisher>.<name>`; otherwise
   `pkgs.vscode-utils.extensionFromVscodeMarketplace` with publisher, name, version, and hash
   (bump version + hash together). The first eval after adding the extension set is slow.
-- **PyCharm Professional** *(Nix, unstable overlay)* — lands at
+- **PyCharm Professional** *(Nix, stable)* — lands at
   `~/Applications/Home Manager Apps/PyCharm.app`. The keymap at `pycharm/custom-keymap.xml`
   (named "ALix keymap" in-app) is symlinked into
   `~/Library/Application Support/JetBrains/PyCharm2026.2/keymaps/` by `home.nix`. Edits inside
