@@ -68,6 +68,15 @@ everything else on stable: `claude-code`, `prek`, `vscode`, `jetbrains.pycharm`.
 merged (`prev.jetbrains // { … }`) so other JetBrains IDEs still come from stable. Reuse this
 pattern for anything that needs to be fresher than the pin.
 
+`claude-code` draws from its own `nixpkgs-master` input — raw `master`, not the
+`nixpkgs-unstable` channel branch. `nixpkgs-unstable` only advances once Hydra's build/test gate
+promotes a `master` commit, which can lag a same-day claude-code release by hours to a day;
+tracking `master` directly picks up each release the moment nixpkgs merges it. This is safe here
+specifically because the overlay only cherry-picks the single `claude-code` derivation (a
+`fetchurl`'d binary, no wide dependency surface) — the usual risk of tracking unvetted `master`
+(a broken build for some other package) doesn't apply. `nix flake update nixpkgs-master` moves
+independently of `nixpkgs-unstable`.
+
 `jetbrains.pycharm` draws from its own `nixpkgs-unstable-pycharm` input instead of the shared
 `nixpkgs-unstable` one, and that input's URL is pinned to a specific revision rather than a
 branch — so it doesn't move on a plain `nix flake update`/`nix flake update nixpkgs-unstable`,
@@ -162,7 +171,8 @@ Only the surprising bits. The full software list and first-use steps live in `RE
 Per-app state (sign-ins, caches, prefs, licences) lives under `~/Library/…` and is **not**
 Nix-managed unless noted.
 
-- **Claude Code** *(Nix, unstable overlay)* — `programs.claude-code`. Self-updater off via
+- **Claude Code** *(Nix, tracks `nixpkgs-master`, not the shared unstable overlay input)* —
+  `programs.claude-code`. Self-updater off via
   `home.sessionVariables.DISABLE_AUTOUPDATER = "1"`. The `claude symlink points to an invalid
   binary` warning is a harmless false positive (Nix wraps it as a script). The VS Code extension
   and PyCharm plugin update independently of the CLI.

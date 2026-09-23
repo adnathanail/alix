@@ -31,6 +31,8 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 ### Software
 
 - Claude Code
+    - Tracks raw `nixpkgs` `master` (its own flake input, `nixpkgs-master`) rather than the
+      `nixpkgs-unstable` channel branch, to avoid the channel-promotion lag — see `flake.nix`
 - VS Code (w/ plugins)
     - Tracks `nixpkgs-unstable`; the 26.05 pin lags several releases behind
 - 1Password

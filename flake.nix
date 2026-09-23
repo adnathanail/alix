@@ -5,6 +5,15 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
+    # claude-code tracks raw `master` rather than the `nixpkgs-unstable`
+    # channel branch. `nixpkgs-unstable` only advances once Hydra's
+    # build/test gate promotes a `master` commit, which can lag same-day
+    # package bumps (e.g. a new claude-code release) by hours to a day.
+    # Since the overlay only cherry-picks the single claude-code derivation
+    # (a fetchurl'd binary, not a build with a wide dependency surface), the
+    # usual risk of tracking unvetted `master` is low here.
+    nixpkgs-master.url = "github:NixOS/nixpkgs/master";
+
     # PyCharm gets its own unstable pin, held back independently of
     # nixpkgs-unstable above. Newer unstable revisions have repeatedly broken
     # the pycharm derivation's cython-speedups build step (e.g. a python3.14
@@ -39,7 +48,7 @@
     agenix.inputs.home-manager.follows = "home-manager";
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, nixpkgs-unstable, nixpkgs-unstable-pycharm, home-manager, nix-homebrew, homebrew-core, homebrew-cask, agenix }:
+  outputs = inputs@{ self, nix-darwin, nixpkgs, nixpkgs-unstable, nixpkgs-master, nixpkgs-unstable-pycharm, home-manager, nix-homebrew, homebrew-core, homebrew-cask, agenix }:
   let
     username = "adnathanail";        # `whoami`
     hostname = "Alexs-MacBook-Pro";  # `scutil --get LocalHostName`
@@ -51,6 +60,11 @@
           system = prev.stdenv.hostPlatform.system;
           config.allowUnfree = true;   # claude-code, pycharm, vscode are unfree
         };
+        # claude-code tracks raw master — see the nixpkgs-master input comment.
+        master = import nixpkgs-master {
+          system = prev.stdenv.hostPlatform.system;
+          config.allowUnfree = true;
+        };
         # PyCharm tracks its own, separately-pinned unstable checkout — see
         # the nixpkgs-unstable-pycharm input comment.
         unstablePycharm = import nixpkgs-unstable-pycharm {
@@ -58,7 +72,7 @@
           config.allowUnfree = true;
         };
       in {
-        claude-code = unstable.claude-code;
+        claude-code = master.claude-code;
         prek = unstable.prek;
         vscode = unstable.vscode;
         # Merge so other jetbrains.* attrs keep coming from stable.

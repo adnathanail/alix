@@ -1,6 +1,6 @@
 ---
 name: update-packages
-description: "Check for and apply package/dependency updates across this nix-darwin config — the 9 flake inputs (one, nixpkgs-unstable-pycharm, is revision-pinned and updated deliberately rather than tracked) plus everything pinned outside the flake-lock system (ExtraDock, VS Code marketplace extensions, nx, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
+description: "Check for and apply package/dependency updates across this nix-darwin config — the 10 flake inputs (nixpkgs-unstable-pycharm is revision-pinned and updated deliberately rather than tracked; nixpkgs-master tracks raw master for claude-code) plus everything pinned outside the flake-lock system (ExtraDock, VS Code marketplace extensions, nx, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
 ---
 
 # Update packages
@@ -35,6 +35,7 @@ user anything — don't mutate `flake.lock` or any source file in this phase.
 | `nixpkgs` | `nixpkgs-26.05-darwin` branch |
 | `nixpkgs-unstable` | `nixpkgs-unstable` branch |
 | `nixpkgs-unstable-pycharm` | pinned to a fixed revision, not a branch — see below, skip in the branch-HEAD loop |
+| `nixpkgs-master` | `master` branch (used only for `claude-code`, to avoid `nixpkgs-unstable`'s channel-promotion lag) |
 | `nix-darwin` | `nix-darwin-26.05` branch |
 | `home-manager` | `release-26.05` branch |
 | `nix-homebrew` | default branch (also carries its own `brew-src` sub-pin, which updates alongside it) |
@@ -55,7 +56,7 @@ Check the branch-tracked inputs without touching the lockfile — compare the lo
 the remote ref's current head:
 
 ```bash
-for name in nixpkgs nixpkgs-unstable nix-darwin home-manager nix-homebrew homebrew-core homebrew-cask agenix; do
+for name in nixpkgs nixpkgs-unstable nixpkgs-master nix-darwin home-manager nix-homebrew homebrew-core homebrew-cask agenix; do
   owner=$(jq -r ".nodes[\"$name\"].original.owner" flake.lock)
   repo=$(jq -r ".nodes[\"$name\"].original.repo" flake.lock)
   ref=$(jq -r ".nodes[\"$name\"].original.ref // \"HEAD\"" flake.lock)
