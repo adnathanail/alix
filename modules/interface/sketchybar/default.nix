@@ -16,8 +16,9 @@
 #
 # Consumed from modules/interface/default.nix as:
 #     ./sketchybar
-{ username, lib, pkgs, ... }:
+{ config, username, lib, pkgs, ... }:
 let
+  aerospace = config.services.aerospace;
   # The server binary launchd runs: a stable-path, stably-signed copy of
   # pkgs.sketchybar (./signing.nix). This path is what privacy grants are
   # given to, so don't move it.
@@ -98,11 +99,14 @@ in {
       # launchd user agents get macOS's minimal default PATH, and the config
       # shells out to bare command names (`sketchybar --set` in click
       # scripts, SwitchAudioSource for the volume popup's device list), so
-      # those go on the server's PATH, ahead of launchd's default. Its spaces
-      # widget also calls `yabai` on click, which isn't installed — clicking
-      # a space does nothing.
+      # those go on the server's PATH, ahead of launchd's default. The
+      # spaces widget reads and switches AeroSpace workspaces through the
+      # `aerospace` CLI.
       EnvironmentVariables.PATH = lib.concatStringsSep ":" [
-        (lib.makeBinPath [ pkgs.sketchybar pkgs.switchaudio-osx ])
+        (lib.makeBinPath (
+          [ pkgs.sketchybar pkgs.switchaudio-osx ]
+          ++ lib.optional aerospace.enable aerospace.package
+        ))
         "/usr/bin:/bin:/usr/sbin:/sbin"
       ];
       RunAtLoad = true;
@@ -110,6 +114,19 @@ in {
       StandardOutPath = "/Users/${username}/Library/Logs/sketchybar.log";
       StandardErrorPath = "/Users/${username}/Library/Logs/sketchybar.err.log";
     };
+  };
+
+  # Tell the spaces widget (config/items/spaces.lua) whenever AeroSpace's
+  # workspaces or focus change — focus changes cover windows opening,
+  # closing and moving between workspaces. AeroSpace runs these with its own
+  # launchd PATH, hence the store path.
+  services.aerospace.settings = lib.mkIf aerospace.enable {
+    exec-on-workspace-change = [
+      "${pkgs.sketchybar}/bin/sketchybar" "--trigger" "aerospace_workspace_change"
+    ];
+    on-focus-changed = [
+      "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_workspace_change"
+    ];
   };
 
   # The way back from the native menu bar: a status item in it that tells
