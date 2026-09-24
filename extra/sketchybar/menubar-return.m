@@ -37,7 +37,7 @@ int main(void) {
     NSStatusItem* item = [[NSStatusBar systemStatusBar]
         statusItemWithLength:NSSquareStatusItemLength];
     NSImage* image =
-        [NSImage imageWithSystemSymbolName:@"menubar.rectangle"
+        [NSImage imageWithSystemSymbolName:@"eye.slash"
                   accessibilityDescription:@"Return to SketchyBar"];
     image.template = YES;
     item.button.image = image;

@@ -74,7 +74,11 @@ in {
   # settings.lua), and SF Pro also carries the SF Symbols glyphs its icons.lua
   # uses. Apple doesn't license them for redistribution, so nixpkgs has no
   # package; the casks install Apple's own .pkg.
-  homebrew.casks = [ "font-sf-pro" "font-sf-mono" ];
+  #
+  # sf-symbols is Apple's SF Symbols browser, for picking icons: search by
+  # name, then copy the glyph (paste straight into the Lua) — SF Pro itself
+  # only names its symbol glyphs by codepoint.
+  homebrew.casks = [ "font-sf-pro" "font-sf-mono" "sf-symbols" ];
 
   home-manager.users.${username} = { pkgs, ... }: {
     home.packages = [ pkgs.sketchybar ];
@@ -128,8 +132,9 @@ in {
   # disk (xdg.configFile above) but nix-darwin only reloads a launchd job
   # when the *plist itself* changes, which it never does here since only
   # the files it points at change. Without this, every config edit would
-  # silently sit unapplied until something manually restarted the process. `kickstart -k` kills and relaunches it in one step, same
-  # pattern nix-darwin's own launchd.nix uses for userLaunchAgents.
+  # silently sit unapplied until something manually restarted the process.
+  # `kickstart -k` kills and relaunches it in one step, same pattern
+  # nix-darwin's own launchd.nix uses for userLaunchAgents.
   #
   # mkAfter matters here: Home Manager's own activation step (which is what
   # actually writes the new config file symlinks) is appended to this same

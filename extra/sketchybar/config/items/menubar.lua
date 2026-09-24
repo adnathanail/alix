@@ -14,15 +14,18 @@
 -- native bar's background is transparent and SketchyBar shows through. It
 -- keeps running while hidden, so the menubar_hide event still reaches it.
 --
--- SketchyBar doesn't forward that change to the config, so the icon's state
--- is read at startup and after each click, not live — toggling in System
--- Settings instead leaves it stale until the next click or restart.
+-- SketchyBar doesn't forward that change to the config, so whether the bar
+-- is hidden is set at startup and after each click, not live — toggling in
+-- System Settings instead leaves it out of step until the next click or
+-- restart.
 
 local colors = require("colors")
 local settings = require("settings")
 
--- SF Symbol menubar.rectangle (codepoint found by rendering SF Pro).
-local icon = utf8.char(0x1009F5)
+-- SF Symbol "eye" (codepoint found by rendering SF Pro — it only names its
+-- symbol glyphs by codepoint). eye.fill, eye.slash, eye.slash.fill follow
+-- at 0x1002EE–0x1002F0.
+local icon = utf8.char(0x1002ED)
 
 local menubar = sbar.add("item", "widgets.menubar", {
   position = "right",
