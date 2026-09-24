@@ -75,8 +75,12 @@ fixes but rarely new modules — a brand-new HM module may exist only on `master
 
 ### Selective unstable overlay
 `unstableOverlay` in `flake.nix` pulls **specific** packages from `nixpkgs-unstable`, leaving
-everything else on stable: `claude-code`, `prek`, `sketchybar`, `vscode`. Reuse this pattern for anything that
-needs to be fresher than the pin.
+everything else on stable. It also exposes the whole unstable set as `pkgs.unstable`, so a
+feature module picks its own fresher package where it's used rather than in `flake.nix`:
+`vscode.nix` sets `programs.vscode.package = pkgs.unstable.vscode`, and the SketchyBar module's
+patch overlay builds from `final.unstable.sketchybar`. Only packages used from several places or
+with no module of their own are swapped in `flake.nix` itself: `claude-code`, `prek`. Prefer the
+`pkgs.unstable.<name>` route for anything new that needs to be fresher than the pin.
 
 `claude-code` draws from its own `nixpkgs-master` input — raw `master`, not the
 `nixpkgs-unstable` channel branch. `nixpkgs-unstable` only advances once Hydra's build/test gate
@@ -188,8 +192,8 @@ Nix-managed unless noted.
   shim that execs `uv tool run --from <spec> <executable>`, so the shim is Nix-managed but the
   environment is uv's, cached under `~/.cache/uv`. Keep the `==` pins — they're the only thing
   making it reproducible. Prefer a real nixpkgs package whenever one exists.
-- **VS Code** *(Nix, unstable overlay, Nix-managed config + extensions)* — `programs.vscode` lives
-  in `modules/apps/vscode.nix`, `profiles.default`. Only the `vscode` attr is on unstable;
+- **VS Code** *(Nix, `pkgs.unstable.vscode`, Nix-managed config + extensions)* — `programs.vscode` lives
+  in `modules/apps/vscode.nix`, `profiles.default`. Only the editor (`programs.vscode.package`) is on unstable;
   `pkgs.vscode-extensions` still comes from stable, which is fine (a newer editor runs older
   extensions). `settings.json` is Nix-owned: edit `userSettings` in `modules/apps/vscode.nix`, not
   in-app. `mutableExtensionsDir = false` means HM fully owns `~/.vscode/extensions`, so extensions
@@ -218,7 +222,7 @@ Nix-managed unless noted.
   server (~281 MB closure). `mariadb.client` is a genuine client-only output (~68 MB) and speaks
   the MySQL protocol, `caching_sha2_password` included. Unstable *does* split out an Oracle
   `-DWITHOUT_SERVER=ON` client — if a MariaDB-vs-MySQL incompatibility ever bites, add `mysql84`
-  to `unstableOverlay` and use `pkgs.mysql84.client` instead. No server, so nothing to configure.
+  use `pkgs.unstable.mysql84.client` instead. No server, so nothing to configure.
 - **git** *(Nix)* — `programs.git` owns identity and `~/.gitconfig`. Installing git via Nix
   sidesteps Apple's Command Line Tools prompt; CLT is still needed for build systems that
   hardcode `/usr/bin/git` or need Apple SDK headers.
@@ -285,7 +289,7 @@ Nix-managed unless noted.
   signature survives), same pattern as nixpkgs' own `skimpdf`. Bump `version` and refetch the
   hash (`nix-prefetch-url --type sha256 <url>`) whenever AppitStudio ships an update — a stale
   hash fails the build loudly rather than silently serving old bits.
-- **SketchyBar** *(Nix, unstable overlay, re-signed)* — TCC pins a privacy grant to path + designated requirement,
+- **SketchyBar** *(Nix, `pkgs.unstable.sketchybar`, re-signed)* — TCC pins a privacy grant to path + designated requirement,
   and the nixpkgs binary is ad-hoc signed (requirement = cdhash), so every rebuild silently voids
   every grant (the toggle stays on but no longer applies). Plugin scripts are SketchyBar's
   children, so their requests (e.g. the clock's osascript keystroke → Accessibility) count as
@@ -295,7 +299,7 @@ Nix-managed unless noted.
   in the plugins keep using the store binary. Homebrew wouldn't fix it (stable path, still ad-hoc
   signed). The same pattern would work for any other Nix-built binary that needs grants.
   Also carries a local patch, `modules/interface/sketchybar/layered-window-levels.patch` (applied by an
-  overlay in `modules/interface/sketchybar/default.nix`, `mkAfter` so it lands on top of the unstable swap):
+  overlay in `modules/interface/sketchybar/default.nix` that builds from `final.unstable.sketchybar`):
   macOS raises a clicked window above its same-level siblings, and upstream puts the bar
   background, brackets and items on one level, so clicking empty bar space lifted the
   background over every item and dimmed the whole bar until restart. The patch gives each layer

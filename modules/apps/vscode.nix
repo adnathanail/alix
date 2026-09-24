@@ -1,6 +1,10 @@
 { pkgs, ... }: {
   programs.vscode = {
     enable = true;
+    # Editor from unstable (pkgs.unstable, from flake.nix's unstableOverlay);
+    # the extensions below stay on stable, which is fine — a newer editor
+    # runs older extensions.
+    package = pkgs.unstable.vscode;
     # HM fully owns ~/.vscode/extensions. VS Code's marketplace-install
     # path can no longer rewrite extensions.json and desync the manifest
     # from the on-disk symlinks. Trade-off: extensions can only be added
