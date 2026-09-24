@@ -29,6 +29,21 @@ let
   signedBin = "/Users/${username}/.local/libexec/sketchybar/sketchybar";
   signSketchybar = import ./signing.nix { inherit pkgs; };
 in {
+  # Local patch: put the bar background, brackets and items on three
+  # separate window levels. Upstream shares one, and macOS raises a clicked
+  # window above its same-level siblings, so clicking empty bar space lifted
+  # the background over every item and dimmed the whole bar until SketchyBar
+  # restarted (see the patch for details). mkAfter so it applies on top of
+  # flake.nix's unstableOverlay, which is what swaps in 2.24 — otherwise the
+  # overlay would replace the patched package with the plain unstable one.
+  nixpkgs.overlays = lib.mkAfter [
+    (final: prev: {
+      sketchybar = prev.sketchybar.overrideAttrs (old: {
+        patches = (old.patches or [ ]) ++ [ ./layered-window-levels.patch ];
+      });
+    })
+  ];
+
   age.secrets.sketchybar-signing-identity = {
     file = ../../secrets/sketchybar-signing-identity.age;
     owner = username;

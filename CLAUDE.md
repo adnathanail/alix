@@ -31,7 +31,7 @@ living at `~/.config/nix-darwin/`.
 | `extra/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
 | `extra/appdev.nix`, `extra/macapps.nix`, `extra/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge); deliberately independent of each other |
 | `extra/rocq.nix`, `extra/eleventy.nix`, `extra/nx.nix`, `extra/uvtools.nix`, `extra/vscode.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
-| `extra/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, restart and picks the bar config (`barConfig`); `felixkratz/` (active, vendored Lua config + Nix build of its helpers) and `classic/` (disconnected bash widgets) each build a config directory; `signing.nix` re-signs the server binary |
+| `extra/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, restart and picks the bar config (`barConfig`); `felixkratz/` (active, vendored Lua config + Nix build of its helpers) and `classic/` (disconnected bash widgets) each build a config directory; `signing.nix` re-signs the server binary; `layered-window-levels.patch` is a local SketchyBar fix |
 | `graveyard/graveyard.nix` | Things we might want to (or already have) killed |
 | `secrets/*.age`, `secrets/secrets.nix` | encrypted secrets + their recipients |
 | `.claude/skills/update-packages/SKILL.md` | the package-update runbook — flake inputs + manual pins |
@@ -279,6 +279,14 @@ Nix-managed unless noted.
   **Grant permissions to that path, never a store path.** Only the server needs it; the CLI calls
   in the plugins keep using the store binary. Homebrew wouldn't fix it (stable path, still ad-hoc
   signed). The same pattern would work for any other Nix-built binary that needs grants.
+  Also carries a local patch, `extra/sketchybar/layered-window-levels.patch` (applied by an
+  overlay in `extra/sketchybar/default.nix`, `mkAfter` so it lands on top of the unstable swap):
+  macOS raises a clicked window above its same-level siblings, and upstream puts the bar
+  background, brackets and items on one level, so clicking empty bar space lifted the
+  background over every item and dimmed the whole bar until restart. The patch gives each layer
+  its own level (background −2, brackets −1, items at the configured level). Re-stacking after
+  the click instead was tried and fixed it, but flashed for the length of the click. May need
+  rebasing when SketchyBar is bumped — the build fails loudly if it no longer applies.
 
 Manual, non-Nix setup a fresh machine still needs: App Store sign-in (**before** the first `ns`),
 per-app sign-ins/licences, and System Settings → Privacy & Security grants — Accessibility
