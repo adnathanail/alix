@@ -24,7 +24,8 @@ living at `~/.config/nix-darwin/`.
 
 | Path | Owns |
 | --- | --- |
-| `flake.nix` | inputs, unstable overlay, `system.defaults`, Homebrew casks/brews, nix-homebrew + HM wiring |
+| `flake.nix` | inputs, unstable overlay, app `CustomUserPreferences` (Microsoft, Rectangle), Homebrew casks/brews, nix-homebrew + HM wiring |
+| `modules/interface/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey |
 | `home.nix` | Home Manager user config (packages, git, zsh, Ghostty config) |
 | `modules/secrets/agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`, `nix-restore-age-key`. Declares **no** secrets |
 | `modules/secrets/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
@@ -156,11 +157,11 @@ private key is **not** Nix-managed; it's backed up to 1Password as document `nix
 re-run `op document edit "nix-darwin age key" ~/.config/age/keys.txt`.
 
 ### System defaults
-`system.defaults` in `flake.nix` covers the Dock (no recents, hot corners, pinned apps),
-menu-bar clock, Control Center, Touch ID for sudo
-(`security.pam.services.sudo_local.touchIdAuth` — writes `/etc/pam.d/sudo_local`, survives macOS
-updates, doesn't work in tmux without `pam_reattach`), and `CustomUserPreferences` for the `pbs`
-services hotkey and Microsoft's domains. Note some domains are TCC-protected and can't be set
+`modules/interface/macos.nix` covers the Dock (no recents, hot corners, pinned apps), menu-bar
+clock, Control Center and the `pbs` services hotkey (`CustomUserPreferences`). `flake.nix` keeps
+Touch ID for sudo (`security.pam.services.sudo_local.touchIdAuth` — writes
+`/etc/pam.d/sudo_local`, survives macOS updates, doesn't work in tmux without `pam_reattach`) and
+`CustomUserPreferences` for Microsoft's domains and Rectangle. Note some domains are TCC-protected and can't be set
 from the activation script — those stay manual toggles.
 
 ## Per-tool notes
