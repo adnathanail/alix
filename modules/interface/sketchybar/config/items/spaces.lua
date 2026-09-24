@@ -37,6 +37,15 @@ local shown = true
 -- GitButler's (pinned in ../../../aerospace.nix).
 local unnamed = { ["0"] = true }
 
+-- Per-context colours (the workspaces are set up in ../../../aerospace.nix).
+-- The pill's background: a faint tint of it when inactive, the full colour
+-- when active (with a white number, as red clashes with the colours).
+local accents = {
+  ["4"] = 0xffee8076, -- Fermioniq
+  ["5"] = 0xffd25bf7, -- ASAC
+}
+local tint_alpha = 0.3
+
 for _, ws in ipairs(workspaces) do
   local space = sbar.add("item", "space." .. ws, {
     drawing = false,
@@ -47,7 +56,7 @@ for _, ws in ipairs(workspaces) do
       padding_left = 10,
       padding_right = 5,
       color = colors.white,
-      highlight_color = colors.red,
+      highlight_color = accents[ws] and colors.white or colors.red,
     },
     label = {
       -- With no name, the icons need the name's left padding instead.
@@ -114,7 +123,12 @@ local function render()
       drawing = visible,
       icon = { highlight = selected },
       label = { string = icon_line, highlight = selected },
-      background = { border_color = selected and colors.black or colors.bg2 },
+      background = {
+        color = not accents[ws] and colors.bg1
+          or selected and accents[ws]
+          or colors.with_alpha(accents[ws], tint_alpha),
+        border_color = selected and colors.black or colors.bg2,
+      },
     })
     paddings[ws]:set({ drawing = visible })
     brackets[ws]:set({

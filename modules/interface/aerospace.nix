@@ -28,6 +28,16 @@ let
   ];
   # Run a service-mode command, then drop back to main mode.
   service = cmd: [ cmd ] ++ toMode "main";
+
+  # Window rule: Safari windows in a given profile. Safari starts each
+  # window's title with the profile name.
+  safariProfile = profile: ws: {
+    "if" = {
+      app-id = "com.apple.Safari";
+      window-title-regex-substring = "^${profile} — ";
+    };
+    run = "move-node-to-workspace ${ws}";
+  };
 in
 {
   services.aerospace = {
@@ -51,6 +61,14 @@ in
       on-window-detected = [
         { "if".app-id = "com.gitbutler.app"; run = "move-node-to-workspace 0"; }
         { "if".app-id = "com.spotify.client"; run = "move-node-to-workspace 9"; }
+
+        # 4: Fermioniq (work) — Slack, and its Safari profile.
+        { "if".app-id = "com.tinyspeck.slackmacgap"; run = "move-node-to-workspace 4"; }
+        (safariProfile "Fermioniq" "4")
+
+        # 5: ASAC — its Safari profile.
+        (safariProfile "ASAC" "5")
+
         # Keep last (the first matching rule wins). On startup — `ns` or
         # login — AeroSpace puts every already-open window on the first
         # workspace, 0; send everything not pinned above to 1 instead.
