@@ -7,8 +7,8 @@
 # through Home Manager, so it stays at ~/Applications/Home Manager Apps/
 # and keeps its Accessibility grant.
 #
-# Wiring (in flake.nix):
-#     (import ./modules/interface/rectangle.nix { inherit username; })
+# Consumed from modules/interface/default.nix as:
+#     (import ./rectangle.nix { inherit username; })
 { username }:
 { pkgs, ... }: {
   home-manager.users.${username}.home.packages = [ pkgs.rectangle ];

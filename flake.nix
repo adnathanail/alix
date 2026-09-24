@@ -68,41 +68,17 @@
     darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
       modules = [
 
-        # ── agenix machinery (secrets themselves live with their users)
-        (import ./modules/secrets/agenix.nix { inherit agenix username; })
+        # ── secrets: agenix machinery + env-var secrets ────────
+        (import ./modules/secrets { inherit agenix username; })
 
-        # ── secrets exposed as shell env vars ───────────────────
-        (import ./modules/secrets/envvars.nix { inherit username; })
+        # ── apps ────────────────────────────────────────────────
+        (import ./modules/apps { inherit username; })
 
-        # ── MailMate: cask + account config ─────────────────────
-        (import ./modules/apps/mailmate.nix { inherit username; })
-
-        # ── iOS/Android app dev tooling ───────────────
-        ./modules/apps/appdev.nix
-
-        # ── Microsoft Office: Outlook, Word, Excel, PowerPoint ─
-        ./modules/apps/microsoft.nix
-
-        # ── Mac App Store apps (iMovie, Reeder, …) ─────
-        ./modules/apps/macapps.nix
-
-        # ── Safari extensions (from the App Store) ─────
-        ./modules/apps/safariexts.nix
+        # ── interface: SketchyBar, macOS settings, Rectangle, … ─
+        (import ./modules/interface { inherit username; })
 
         # ── Graveyard: where things go to die ─
         ./modules/graveyard.nix
-
-        # ── SketchyBar: menu-bar replacement ───────────
-        (import ./modules/interface/sketchybar { inherit username; })
-
-        # ── macOS settings: Dock, menu bar, shortcuts ──────────
-        (import ./modules/interface/macos.nix { inherit username; })
-
-        # ── Rectangle: window snapping ─────────────────────────
-        (import ./modules/interface/rectangle.nix { inherit username; })
-
-        # ── Other interface tools (Raycast) ────────────────────
-        ./modules/interface/other.nix
 
         # ── system ──────────────────────────────────────────────
         ({ pkgs, ... }: {

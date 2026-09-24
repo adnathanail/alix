@@ -14,8 +14,8 @@
 # binary, so privacy grants given to SketchyBar survive updates. See
 # ./signing.nix.
 #
-# Consumed from flake.nix as:
-#     (import ./modules/interface/sketchybar { inherit username; })
+# Consumed from modules/interface/default.nix as:
+#     (import ./sketchybar { inherit username; })
 { username }:
 
 { lib, pkgs, ... }:

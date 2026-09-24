@@ -2,8 +2,8 @@
 #
 # Find IDs with `mas search <name>`.
 #
-# Consumed from flake.nix as:
-#     ./modules/apps/macapps.nix
+# Consumed from modules/apps/default.nix as:
+#     ./macapps.nix
 {
   homebrew.masApps = {
     iMovie = 408981434;

@@ -1,8 +1,8 @@
 # macOS system settings: Dock, menu-bar clock, Control Center,
 # system-wide keyboard shortcuts, and Touch ID for sudo.
 #
-# Wiring (in flake.nix):
-#     (import ./modules/interface/macos.nix { inherit username; })
+# Consumed from modules/interface/default.nix as:
+#     (import ./macos.nix { inherit username; })
 { username }:
 { ... }: {
   # Touch ID for sudo. Writes /etc/pam.d/sudo_local, which survives macOS

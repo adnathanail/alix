@@ -8,8 +8,8 @@
 # and a `write <VAR> /run/agenix/<name>` line) plus an entry in
 # ./secrets.nix and the encrypted file itself.
 #
-# Consumed from flake.nix as:
-#     (import ./modules/secrets/envvars.nix { inherit username; })
+# Consumed from modules/secrets/default.nix as:
+#     (import ./envvars.nix { inherit username; })
 { username }:
 
 { ... }: {

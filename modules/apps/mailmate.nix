@@ -6,8 +6,8 @@
 # types.lines, so both merge with what other modules declare — this file
 # adds to them rather than owning them outright.
 #
-# Consumed from flake.nix as:
-#     (import ./modules/apps/mailmate.nix { inherit username; })
+# Consumed from modules/apps/default.nix as:
+#     (import ./mailmate.nix { inherit username; })
 #
 # See CLAUDE.md → "Per-tool notes" → MailMate for the Outlook.com/Hotmail
 # host-pairing trap, which is the thing most likely to bite here.

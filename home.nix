@@ -1,16 +1,4 @@
 { pkgs, config, ... }: {
-  # Optional feature modules. Comment a line to disable that feature on
-  # the next `ns` rebuild.
-  imports = [
-    ./modules/apps/rocq.nix
-    ./modules/apps/eleventy.nix
-    ./modules/apps/nx/nx.nix
-    ./modules/apps/pycharm/pycharm.nix
-    ./modules/apps/uvtools.nix
-    ./modules/interface/extradock.nix
-    ./modules/apps/vscode.nix
-  ];
-
   home.stateVersion = "25.11";
 
   programs.claude-code = {

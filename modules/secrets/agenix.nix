@@ -7,8 +7,8 @@
 # with whatever uses them (see `modules/secrets/envvars.nix`, `modules/apps/mailmate.nix`), so
 # a feature is one file rather than a change scattered across the tree.
 #
-# Consumed from flake.nix as:
-#     (import ./modules/secrets/agenix.nix { inherit agenix username; })
+# Consumed from modules/secrets/default.nix as:
+#     (import ./agenix.nix { inherit agenix username; })
 #
 # See ./README.md for the operator flow
 # (generating the age key, encrypting a new secret, fresh-machine bootstrap).

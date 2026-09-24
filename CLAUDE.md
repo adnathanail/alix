@@ -30,15 +30,16 @@ living at `~/.config/nix-darwin/`.
 | `modules/interface/README.md` | user-facing list of the interface config (Touch ID, Rectangle, Raycast, SketchyBar, hot corners) |
 | `modules/interface/rectangle.nix` | Rectangle: a darwin module that sets its screen-edge gaps and adds the app to the HM packages |
 | `home.nix` | Home Manager user config (packages, git, zsh, Ghostty config) |
+| `modules/{apps,interface,secrets}/default.nix` | each directory's entry point, imported once from `flake.nix`: lists its nix-darwin modules in `imports` and its HM modules in `home-manager.users.${username}.imports`. Add a new module to its directory's `default.nix`, not the root files |
 | `modules/secrets/agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`, `nix-restore-age-key`. Declares **no** secrets |
 | `modules/secrets/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
 | `modules/apps/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
 | `modules/apps/microsoft.nix` | everything Microsoft Office: the Outlook cask, Word/Excel/PowerPoint `masApps`, and the Office/Outlook/AutoUpdate prefs |
 | `modules/apps/appdev.nix`, `modules/apps/macapps.nix`, `modules/apps/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge, along with `microsoft.nix`'s); deliberately independent of each other |
-| `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/nx/nx.nix`, `modules/apps/pycharm/pycharm.nix`, `modules/apps/uvtools.nix`, `modules/apps/vscode.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
+| `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/nx/nx.nix`, `modules/apps/pycharm/pycharm.nix`, `modules/apps/uvtools.nix`, `modules/apps/vscode.nix` | optional HM feature modules, imported by `modules/apps/default.nix` — comment out a line to drop the feature |
 | `modules/apps/nx/package.json`, `package-lock.json` | the npm wrapper project `nx.nix` builds from |
-| `modules/apps/pycharm/` | PyCharm: `pycharm.nix` (an HM module imported from `home.nix`) installs it and symlinks in `custom-keymap.xml` |
-| `modules/interface/extradock.nix` | ExtraDock 5, an HM module imported from `home.nix` |
+| `modules/apps/pycharm/` | PyCharm: `pycharm.nix` (an HM module imported by `modules/apps/default.nix`) installs it and symlinks in `custom-keymap.xml` |
+| `modules/interface/extradock.nix` | ExtraDock 5, an HM module imported by `modules/interface/default.nix` |
 | `modules/interface/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, signing and restart; `config/` is FelixKratz's vendored Lua config (plus local tweaks), built by `config.nix` along with its C helpers; `signing.nix` re-signs the server binary; `layered-window-levels.patch` is a local SketchyBar fix; `menubar-return.m` is a tiny native status-item helper that returns from the macOS menu bar to SketchyBar |
 | `modules/graveyard.nix` | Things we might want to (or already have) killed |
 | `modules/secrets/README.md` | operator steps for secrets: key generation, fresh-machine restore, adding/re-encrypting a secret |

@@ -42,7 +42,7 @@ _Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new con
   `modules/secrets/envvars.nix` for shell tokens, `modules/apps/mailmate.nix` for the MailMate account
   config. Add another secret:
     1. Declare `age.secrets.<name>` in the module that consumes it (a new
-        `modules/apps/<feature>.nix` if it's a new feature — add it to `modules` in `flake.nix`).
+        `modules/apps/<feature>.nix` if it's a new feature — add it to `modules/apps/default.nix`).
     2. Add it to `modules/secrets/secrets.nix` — that file is read by the `agenix` CLI, so it stays
         one flat list regardless of which module uses the secret.
     3. `cd modules/secrets && agenix -e agefiles/<name>.age -i ~/.config/age/keys.txt < plaintext`,

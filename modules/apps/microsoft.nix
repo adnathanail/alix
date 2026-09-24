@@ -1,8 +1,8 @@
 # Microsoft Office: Outlook (Homebrew cask), Word / Excel / PowerPoint
 # (Mac App Store), and their Nix-managed preferences.
 #
-# Consumed from flake.nix as:
-#     ./modules/apps/microsoft.nix
+# Consumed from modules/apps/default.nix as:
+#     ./microsoft.nix
 {
   homebrew.casks = [ "microsoft-outlook" ];
 
