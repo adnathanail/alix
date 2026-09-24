@@ -117,6 +117,11 @@ in
 {
   environment.systemPackages = [ aerospaceSort ];
 
+  # Group windows by app in Mission Control. AeroSpace parks windows from
+  # other workspaces off-screen, which otherwise shrinks them to slivers in
+  # Mission Control; AeroSpace's docs recommend this.
+  system.defaults.dock.expose-group-apps = true;
+
   services.aerospace = {
     enable = true;
     package = aerospace;
@@ -154,6 +159,9 @@ in
       # fills the space) rather than tiling them side by side. ⌥/ still
       # switches a workspace to tiles.
       default-root-container-layout = "accordion";
+
+      # Prevent ⌘H hiding apps
+      automatically-unhide-macos-hidden-apps = true;
 
       # Workspaces that exist even when empty — what SketchyBar's spaces
       # widget builds its pills from. AeroSpace infers 1–9 from the bindings
