@@ -36,6 +36,7 @@ container lays out its windows either **tiles** (all visible, sharing the space)
 | ⌥Tab | Back to the previous workspace |
 | ⌥⇧Tab | Move the current workspace to the next monitor |
 | ⌥⇧; | Enter service mode |
+| ⌥` | Swap SketchyBar between workspaces and the app's menus |
 
 ### Service mode
 

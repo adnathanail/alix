@@ -73,6 +73,10 @@ in
         alt-shift-tab = "move-workspace-to-monitor --wrap-around next";
 
         alt-shift-semicolon = toMode "service";
+
+        # Swap SketchyBar between app menus and workspaces, as its switch
+        # icon does (sketchybar/config/items/menus.lua).
+        alt-backtick = "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger swap_menus_and_spaces";
       }
       // perWorkspace (w: { name = "alt-${w}"; value = "workspace ${w}"; })
       // perWorkspace (w: { name = "alt-shift-${w}"; value = "move-node-to-workspace ${w}"; });
