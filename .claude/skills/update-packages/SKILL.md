@@ -142,7 +142,7 @@ SketchyBar version moved. It carries a local patch,
 `extra/sketchybar/layered-window-levels.patch`, against `src/bar.c`'s
 `bar_order_item_windows`. If a new release no longer applies it, the build fails at
 `patchPhase` — rebase the patch on the new source (keep the three-level idea: bar
-background −2, brackets −1, items at the configured level) and first check the
+background +0, brackets +1, items +2 above the configured level) and first check the
 upstream changelog in case the bar-dimming-on-click bug was fixed there, in which case
 drop the patch and its overlay in `extra/sketchybar/default.nix`.
 

@@ -4,11 +4,15 @@
 -- Click flips System Settings' "Automatically hide and show the menu bar"
 -- between Always and Never, via System Events (SketchyBar already has
 -- Automation access to it for the calendar's Fantastical keystroke). The way
--- back is this same icon, so while the native bar is showing SketchyBar moves
--- down below it and rises above normal windows (`topmost = "window"`) —
--- otherwise windows cover it, since at its usual backstop level it sits
--- under them. SketchyBar would do the moving-down itself, but only when
--- `topmost` is off, so with it on the offset is applied here.
+-- back is a matching icon in the native menu bar (../../menubar-return.m).
+--
+-- The bar is `topmost = "on"` (bar.lua): the status window level, one above
+-- the native menu bar's, so hovering at the top of the screen reveals the
+-- auto-hidden native bar *underneath* SketchyBar, where it can't be seen or
+-- clicked. While the native bar is deliberately shown, SketchyBar hides
+-- itself instead — lowering it below the native bar isn't enough, as the
+-- native bar's background is transparent and SketchyBar shows through. It
+-- keeps running while hidden, so the menubar_hide event still reaches it.
 --
 -- SketchyBar doesn't forward that change to the config, so the icon's state
 -- is read at startup and after each click, not live — toggling in System
@@ -32,6 +36,9 @@ local menubar = sbar.add("item", "widgets.menubar", {
     padding_right = 8,
   },
   label = { drawing = false },
+  -- The config's default is "when_shown", and while the native bar is up the
+  -- whole bar is hidden, so menubar_hide would never arrive.
+  updates = true,
 })
 
 sbar.add("bracket", "widgets.menubar.bracket", { menubar.name }, {
@@ -43,23 +50,8 @@ sbar.add("item", "widgets.menubar.padding", {
   width = settings.group_paddings
 })
 
--- Height of the native menu bar: the main screen's top inset, which is also
--- how SketchyBar measures it (32pt on the notched built-in display).
-local inset_cmd = "osascript -l JavaScript -e 'ObjC.import(\"AppKit\");"
-  .. " var s = $.NSScreen.mainScreen;"
-  .. " Math.round(s.frame.size.height - s.visibleFrame.origin.y"
-  .. " - s.visibleFrame.size.height)'"
-
--- Icon bright while the native menu bar is showing, so it's obvious it's on.
 local function show_state(autohide)
-  menubar:set({ icon = { color = autohide and colors.grey or colors.white } })
-  if autohide then
-    sbar.bar({ topmost = "off", y_offset = 0 })
-  else
-    sbar.exec(inset_cmd, function(inset)
-      sbar.bar({ topmost = "window", y_offset = tonumber(inset) or 32 })
-    end)
-  end
+  sbar.bar({ hidden = autohide and "off" or "on" })
 end
 
 -- `value` is AppleScript: "true", "false", or "not autohide menu bar" to

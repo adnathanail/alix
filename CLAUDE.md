@@ -284,7 +284,7 @@ Nix-managed unless noted.
   macOS raises a clicked window above its same-level siblings, and upstream puts the bar
   background, brackets and items on one level, so clicking empty bar space lifted the
   background over every item and dimmed the whole bar until restart. The patch gives each layer
-  its own level (background −2, brackets −1, items at the configured level). Re-stacking after
+  its own level, stacking up from the configured one (background +0, brackets +1, items +2) so that at `topmost = on` the whole bar stays above a hover-revealed native menu bar. Re-stacking after
   the click instead was tried and fixed it, but flashed for the length of the click. May need
   rebasing when SketchyBar is bumped — the build fails loudly if it no longer applies.
 
