@@ -326,5 +326,5 @@ A fresh machine comes up in stages — core → secrets → interface → apps, 
 uncommenting its line in `flake.nix` — with the manual steps between them in `docs/FIRST_USE.md`. Only these orders evaluate: interface and apps both need secrets' agenix
 module. Manual, non-Nix setup still needed: App Store sign-in (**before** enabling
 `modules/apps`, whose `masApps` otherwise abort activation), per-app sign-ins/licences, and System Settings → Privacy & Security grants — Accessibility
-(Rectangle, Raycast, SketchyBar), Screen Recording (Slack), Input Monitoring (Raycast),
+(Rectangle, Raycast, SketchyBar), Screen Recording (Slack, Pika), Input Monitoring (Raycast),
 Notifications/Calendar/Contacts/Mic/Camera per app.

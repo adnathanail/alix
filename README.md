@@ -72,6 +72,7 @@ CLI
 - Raindrop.io
 - DeepL (translator)
 - DockFlow (Dock preset switcher)
+- Pika (colour picker with contrast checking)
 - ExtraDock 5 (customizable extra docks; direct-download package, see `modules/interface/extradock.nix`)
 - Xcode
 - Android Studio

@@ -90,6 +90,6 @@ Then:
    provisioned from secrets.
 4. PyCharm: disable the in-app updater and select the `ALix keymap`.
 5. Sign into the rest (Slack, Todoist, Fantastical, …) and grant per-app permissions as they
-   ask (Screen Recording for Slack, Calendar/Contacts/Mic/Camera per app).
+   ask (Screen Recording for Slack and Pika, Calendar/Contacts/Mic/Camera per app).
 
 Every module is now enabled; `flake.nix` should match the repo again (`git diff` is empty).

@@ -45,6 +45,9 @@
     "raindropio"
     "deepl"
     "dockflow"
+    # Open-source colour picker. A cask rather than pkgs.pika: its eyedropper
+    # needs a Screen Recording grant, which wants a stable /Applications path.
+    "pika"
   ];
 
   homebrew.brews = [
