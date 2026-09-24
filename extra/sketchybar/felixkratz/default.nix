@@ -1,7 +1,11 @@
 # FelixKratz's own SketchyBar config (the SketchyBar author), in Lua via
-# SbarLua. ./config is a verbatim copy of .config/sketchybar from
+# SbarLua. ./config is a copy of .config/sketchybar from
 # github.com/FelixKratz/dotfiles @ 67ad686 (2025-10-04), GPL-3.0 (./LICENSE).
-# Edit it in place; to re-sync with upstream, copy the directory over again.
+# Edit it in place; to re-sync with upstream, copy the directory over again
+# and re-apply the local tweaks (carried over from ../classic):
+#   - items/calendar.lua: click opens Fantastical's Mini Window, not Calendar
+#   - items/widgets/wifi.lua: SSID read from the preferred-networks list, as
+#     ipconfig's is redacted without Location Services
 #
 # Upstream assumes a mutable ~/.config/sketchybar, which the store isn't, so
 # this derivation fixes up the three places that break:

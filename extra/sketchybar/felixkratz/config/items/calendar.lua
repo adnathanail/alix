@@ -29,7 +29,11 @@ local cal = sbar.add("item", {
     border_color = colors.black,
     border_width = 1
   },
-  click_script = "open -a 'Calendar'"
+  -- Opens Fantastical's Mini Window (its menu-bar popover), which has no URL
+  -- scheme or AppleScript command — only a global shortcut (Fantastical →
+  -- Settings → General, default ⌃⌥Space; key code 49 = space). Needs
+  -- SketchyBar's Accessibility grant, as osascript runs as its child.
+  click_script = "osascript -e 'tell application \"System Events\" to key code 49 using {control down, option down}'"
 })
 
 -- Double border for calendar using a single item bracket
