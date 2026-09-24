@@ -6,5 +6,6 @@
   homebrew.casks = [
     # "little-snitch"
     # "micro-snitch"
+    # "bartender"
   ];
 }

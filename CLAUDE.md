@@ -219,8 +219,6 @@ Nix-managed unless noted.
   `pkgs.docker-compose`** — PATH conflicts.
 - **Raycast** *(Homebrew)* — Login Items helper + system-wide hotkey; default ⌥Space collides
   with Spotlight (onboarding offers to disable it).
-- **Bartender** *(Homebrew)* — without Screen Recording, hidden icons render blank; without
-  Accessibility, clicks land on the wrong items.
 - **Microsoft Outlook / Office** *(Homebrew, Nix-managed prefs)* — prefs are set through
   `system.defaults.CustomUserPreferences` on `com.microsoft.Outlook` and `com.microsoft.office`.
   This works for a sandboxed app because Microsoft documents `defaults write` as the supported
@@ -290,5 +288,5 @@ Nix-managed unless noted.
 
 Manual, non-Nix setup a fresh machine still needs: App Store sign-in (**before** the first `ns`),
 per-app sign-ins/licences, and System Settings → Privacy & Security grants — Accessibility
-(Rectangle, Raycast, Bartender, SketchyBar), Screen Recording (Bartender, Slack), Input Monitoring (Raycast),
+(Rectangle, Raycast, SketchyBar), Screen Recording (Slack), Input Monitoring (Raycast),
 Notifications/Calendar/Contacts/Mic/Camera per app.
