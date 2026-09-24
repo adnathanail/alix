@@ -150,6 +150,11 @@ in
         { "if".during-aerospace-startup = true; run = "move-node-to-workspace 1"; }
       ];
 
+      # New workspaces stack their windows as an accordion (the focused one
+      # fills the space) rather than tiling them side by side. ⌥/ still
+      # switches a workspace to tiles.
+      default-root-container-layout = "accordion";
+
       # Workspaces that exist even when empty — what SketchyBar's spaces
       # widget builds its pills from. AeroSpace infers 1–9 from the bindings
       # below, but not 0 (bound to § rather than a digit).

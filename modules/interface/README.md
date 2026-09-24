@@ -25,7 +25,7 @@
 
 Bindings are declared in `aerospace.nix` (⌥ = Option). Hold ⌥ on its own for a moment and SketchyBar shows a blue pill with the main-mode hints. Each workspace is a tree of containers; a
 container lays out its windows either **tiles** (all visible, sharing the space) or **accordion**
-(overlapping, the focused one fills the space), horizontally or vertically.
+(overlapping, the focused one fills the space), horizontally or vertically. Workspaces start as accordions.
 
 ### Main mode
 
