@@ -34,12 +34,9 @@ local mode = sbar.add("item", "aerospace.mode", {
   padding_right = 7,
 })
 
-sbar.add("event", "aerospace_mode_change")
-mode:subscribe("aerospace_mode_change", function(env)
-  mode:set({ drawing = env.MODE == "service" })
-end)
 
--- Shown while Option is held on its own: the main-mode ⌥ shortcuts. The
+-- Shown while Option is held on its own, until another key is pressed: the
+-- main-mode ⌥ shortcuts. Not in service mode, whose pill is showing instead. The
 -- `aerospace_option_hint HELD=on|off` event comes from ../../option-hint.c.
 local option_hint = sbar.add("item", "aerospace.option_hint", {
   drawing = false,
@@ -52,7 +49,7 @@ local option_hint = sbar.add("item", "aerospace.option_hint", {
     padding_right = 6,
   },
   label = {
-    string = "§ 1–9 workspace · ⇧§ ⇧1–9 send · HJKL focus · ⇧HJKL move · "
+    string = "HJKL focus · ⇧HJKL move · "
       .. "/ tiles · , accordion · - = resize · ⇥ back · ` bar · ⇧; service",
     color = colors.black,
     font = { style = settings.font.style_map["Semibold"], size = 12.0 },
@@ -67,7 +64,16 @@ local option_hint = sbar.add("item", "aerospace.option_hint", {
   padding_right = 7,
 })
 
+local in_service = false
+
+sbar.add("event", "aerospace_mode_change")
+mode:subscribe("aerospace_mode_change", function(env)
+  in_service = env.MODE == "service"
+  mode:set({ drawing = in_service })
+  if in_service then option_hint:set({ drawing = false }) end
+end)
+
 sbar.add("event", "aerospace_option_hint")
 option_hint:subscribe("aerospace_option_hint", function(env)
-  option_hint:set({ drawing = env.HELD == "on" })
+  option_hint:set({ drawing = env.HELD == "on" and not in_service })
 end)
