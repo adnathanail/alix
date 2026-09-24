@@ -12,7 +12,7 @@
     enable = true;
     lfs.enable = true;
     # SSH commit signing through 1Password. The signer is 1Password's own
-    # binary (Homebrew cask, see flake.nix), which prompts for biometrics
+    # binary (Homebrew cask, see modules/apps/other.nix), which prompts for biometrics
     # and holds the private key — nothing secret lands on disk or in Nix.
     # `key` is the *public* key literal; git accepts that in place of a
     # path when gpg.format = "ssh". signByDefault also signs tags.
@@ -56,7 +56,7 @@
     '')
   ];
 
-  # Ghostty config. The app itself comes from Homebrew (see flake.nix), but
+  # Ghostty config. The app itself comes from Homebrew (see modules/apps/other.nix), but
   # the config file is Nix-owned so the first-launch auto-update prompt is
   # suppressed declaratively. Edits made in the app won't persist — change
   # this block and rebuild.

@@ -114,10 +114,8 @@
             # below), so `ns` is reproducible: bump with
             # `nix flake update homebrew-cask`.
             greedyCasks = true;
-            casks = [ "1password" "1password-cli" "orbstack" "ghostty" "gitbutler" "mimestream" "slack" "todoist-app" "fantastical" "spotify" "whatsapp" "google-drive" "steam" "capcut" "zoom" "audacity" "vlc" "gimp" "utm" "anki" "private-internet-access" "telegram" "signal" "brave-browser" "raindropio" "deepl" "dockflow" ];
-            # `mas` is the Mac App Store CLI; needed for `homebrew.masApps`.
-            # Explicit so `cleanup = "zap"` doesn't uninstall it.
-            brews = [ "mas" "poppler" ];
+            # Casks and brews: modules/apps/other.nix (plus any feature module
+            # that brings its own, e.g. mailmate.nix, microsoft.nix).
           };
         })
 

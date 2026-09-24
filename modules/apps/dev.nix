@@ -1,4 +1,4 @@
-# Dev CLIs that track a newer nixpkgs than the stable pin.
+# Claude Code, from raw nixpkgs master.
 { pkgs, ... }: {
   # Claude Code from raw nixpkgs master (pkgs.master) — see the
   # nixpkgs-master input comment in flake.nix. Manage config here:
@@ -16,10 +16,4 @@
   # Claude Code at an isolated config/credentials dir (default is
   # ~/.claude) so logging in here doesn't clobber the personal session.
   programs.zsh.shellAliases.claude-work = "CLAUDE_CONFIG_DIR=$HOME/.claude-work claude";
-
-  home.packages = [
-    # Rust reimplementation of pre-commit; from unstable because stable
-    # lags this fast-moving 0.x tool.
-    pkgs.unstable.prek
-  ];
 }

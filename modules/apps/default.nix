@@ -7,6 +7,7 @@
 {
   # nix-darwin modules
   imports = [
+    (import ./other.nix { inherit username; })    # Apps without their own module: casks, brews, prek
     (import ./mailmate.nix { inherit username; }) # MailMate: cask + account config
     ./appdev.nix                                  # iOS/Android app dev tooling
     ./microsoft.nix                               # Outlook, Word, Excel, PowerPoint
@@ -16,7 +17,7 @@
 
   # Home Manager modules
   home-manager.users.${username}.imports = [
-    ./dev.nix           # Claude Code, prek
+    ./dev.nix           # Claude Code
     ./rocq.nix
     ./eleventy.nix
     ./nx/nx.nix

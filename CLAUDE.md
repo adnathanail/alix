@@ -24,7 +24,8 @@ living at `~/.config/nix-darwin/`.
 
 | Path | Owns |
 | --- | --- |
-| `flake.nix` | inputs, unstable overlay, Homebrew casks/brews, nix-homebrew + HM wiring |
+| `flake.nix` | inputs, unstable overlay, Homebrew settings (`onActivation`, `greedyCasks`), nix-homebrew + HM wiring |
+| `modules/apps/other.nix` | apps too small for their own module: the Homebrew casks and brews, plus `prek` (added to the HM packages) |
 | `modules/interface/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey; Touch ID for sudo |
 | `modules/interface/other.nix` | interface tools too small for their own module — currently the Raycast cask |
 | `modules/interface/README.md` | user-facing list of the interface config (Touch ID, Rectangle, Raycast, SketchyBar, hot corners) |
@@ -78,8 +79,8 @@ Everything is on stable by default. `unstableOverlay` in `flake.nix` swaps nothi
 exposes `nixpkgs-unstable` as `pkgs.unstable` and `nixpkgs-master` as `pkgs.master`, and each
 feature module picks its own fresher package where it's used:
 
-- `modules/apps/dev.nix` — `pkgs.master.claude-code` (as `programs.claude-code.package`),
-  `pkgs.unstable.prek`
+- `modules/apps/dev.nix` — `pkgs.master.claude-code` (as `programs.claude-code.package`)
+- `modules/apps/other.nix` — `pkgs.unstable.prek`
 - `modules/apps/vscode.nix` — `programs.vscode.package = pkgs.unstable.vscode`
 - `modules/interface/sketchybar/default.nix` — its patch overlay builds from
   `final.unstable.sketchybar`
@@ -112,7 +113,9 @@ refusing to activate). HM apps land in `~/Applications/Home Manager Apps/`; Spot
 `open -a` still find them.
 
 ### `nix-homebrew` for signed / path-locked GUI apps
-`nix-homebrew` installs and pins Homebrew itself; `homebrew.*` in `flake.nix` declares the casks.
+`nix-homebrew` installs and pins Homebrew itself; `homebrew.*` in `flake.nix` sets how it runs, and
+`modules/apps/other.nix` declares the casks and brews (feature modules like `mailmate.nix` and
+`microsoft.nix` add their own; the lists merge).
 First activation prompts for `sudo` to take ownership of `/opt/homebrew`.
 
 Homebrew is used **only** for apps that path-check `/Applications` or need an intact Apple
@@ -219,7 +222,7 @@ Nix-managed unless noted.
   toolchain). Config at `~/.config/ghostty/config` is Nix-owned via `xdg.configFile`; it sets
   `auto-update = off` to suppress Sparkle's prompt. In-app config edits don't persist. If the
   config grows, consider the HM `programs.ghostty` module (check it's on `release-26.05` first).
-- **prek** *(Nix, `pkgs.unstable.prek`, `modules/apps/dev.nix`)* — Rust reimplementation of `pre-commit`; on unstable because
+- **prek** *(Nix, `pkgs.unstable.prek`, `modules/apps/other.nix`)* — Rust reimplementation of `pre-commit`; on unstable because
   stable lags this fast-moving 0.x tool.
 - **nx** *(Nix, built locally)* — not in nixpkgs; built via `buildNpmPackage` from the wrapper
   project at `modules/apps/nx/`. See *Routine maintenance*.
