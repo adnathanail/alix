@@ -97,14 +97,13 @@ in {
     serviceConfig = {
       ProgramArguments = [ signedBin ];
       # launchd user agents get macOS's minimal default PATH, and the config
-      # shells out to bare command names (`sketchybar --set` in
-      # click scripts, SwitchAudioSource for the volume popup's device list,
-      # nowplaying-cli for the media widget's buttons), so those go on the
-      # server's PATH, ahead of launchd's default. Its spaces widget also
-      # calls `yabai` on click, which isn't installed — clicking a space
-      # does nothing.
+      # shells out to bare command names (`sketchybar --set` in click
+      # scripts, SwitchAudioSource for the volume popup's device list), so
+      # those go on the server's PATH, ahead of launchd's default. Its spaces
+      # widget also calls `yabai` on click, which isn't installed — clicking
+      # a space does nothing.
       EnvironmentVariables.PATH = lib.concatStringsSep ":" [
-        (lib.makeBinPath [ pkgs.sketchybar pkgs.switchaudio-osx pkgs.nowplaying-cli ])
+        (lib.makeBinPath [ pkgs.sketchybar pkgs.switchaudio-osx ])
         "/usr/bin:/bin:/usr/sbin:/sbin"
       ];
       RunAtLoad = true;

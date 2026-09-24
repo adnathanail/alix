@@ -14,6 +14,9 @@
 #     together these keep a hover-revealed native menu bar out of sight
 #   - items/lock_animation.lua (+ its require): new, animates the bar back in
 #     after unlocking the screen
+#   - items/spotify.lua (upstream's items/media.lua, renamed): Spotify-only,
+#     driven by Spotify's own notification + AppleScript instead of
+#     SketchyBar's dead media_change event; covers shrunk to 28pt
 #
 # Upstream assumes a mutable ~/.config/sketchybar, which the store isn't, so
 # this derivation fixes up the three places that break:
