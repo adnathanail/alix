@@ -56,12 +56,6 @@ let
         "move-node-to-workspace --focus-follows-window ${ws}")
     ];
 
-  # VS Code often shows a window before it has set the project's title, so
-  # the rules above can miss it. The catch-all VS Code rule runs this for
-  # each window it catches: for 10s it re-reads the window's title and moves
-  # it (and you with it) once a profile's prefix appears. Only for a new window — VS Code's title
-  # changes with every file switched to, so watching for good would undo
-  # manual moves. AEROSPACE_WINDOW_ID is the detected window.
   # Sends every window with a rule home: re-runs the window rules below
   # (on-window-detected) on every window. The VS Code profile rules take
   # focus along, so it returns you to the workspace you were on afterwards.
@@ -73,8 +67,19 @@ let
     $aerospace workspace "$ws"
   '';
 
-  vscodeTitleWatch = pkgs.writeShellScript "aerospace-vscode-title-watch" ''
+  # An app can show a window before it has its final title (VS Code often
+  # does, before loading the project), so the profile rules can miss it.
+  # The stray rules below run this for such windows: for 10s it re-reads the
+  # window's title and moves it once a profile's prefix appears — the app's
+  # "<name><separator>…", as in profileRules. Only for a new window: VS
+  # Code's title changes with every file switched to, so watching for good
+  # would undo manual moves. AEROSPACE_WINDOW_ID is the detected window.
+  #   $1: the separator after the profile name
+  #   $2: extra move-node-to-workspace flags (--focus-follows-window)
+  titleWatch = pkgs.writeShellScript "aerospace-title-watch" ''
     aerospace=${aerospace}/bin/aerospace
+    sep=$1
+    flags=$2
     id=''${AEROSPACE_WINDOW_ID:-$($aerospace list-windows --focused --format '%{window-id}')}
     [ -n "$id" ] || exit 0
     for _ in $(seq 20); do
@@ -84,10 +89,30 @@ let
       [ -n "$title" ] || exit 0 # window closed
       case "$title" in
     ${lib.concatMapStrings (p: ''
-        "${p.name} - "*) exec $aerospace move-node-to-workspace --focus-follows-window --window-id "$id" ${toString p.workspace} ;;
+        "${p.name}$sep"*) exec $aerospace move-node-to-workspace $flags --window-id "$id" ${toString p.workspace} ;;
     '') profiles}  esac
     done
   '';
+
+  # Rules for an app's windows that matched no profile rule. Opened on a
+  # profile's workspace, they go to 1 — they don't belong there; anywhere
+  # else, they stay put. Either way titleWatch moves them on if a profile's
+  # title turns up late. Must come after profileRules (first match wins).
+  strays = appId: sep: flags:
+    let watch = "exec-and-forget ${titleWatch} '${sep}' '${flags}'"; in
+    map (p: {
+      "if" = {
+        app-id = appId;
+        workspace = toString p.workspace;
+      };
+      run = [ "move-node-to-workspace 1" watch ];
+    }) profiles
+    ++ [{
+      "if".app-id = appId;
+      run = watch;
+      # Still let the startup rule send it to 1.
+      check-further-callbacks = true;
+    }];
 in
 {
   environment.systemPackages = [ aerospaceSort ];
@@ -113,29 +138,12 @@ in
         { "if".app-id = "com.gitbutler.app"; run = "move-node-to-workspace 0"; }
         { "if".app-id = "com.spotify.client"; run = "move-node-to-workspace 9"; }
       ]
-      # The profiles' workspaces (./profiles.nix).
+      # The profiles' workspaces (./profiles.nix), then the Safari and VS
+      # Code windows that matched none of them.
       ++ lib.concatMap profileRules profiles
+      ++ strays "com.apple.Safari" " — " ""
+      ++ strays "com.microsoft.VSCode" " - " "--focus-follows-window"
       ++ [
-      ]
-      # Every other VS Code window (after the profile rules above, as the
-      # first match wins): opened on a profile's workspace, it goes to 1 —
-      # unlabelled projects don't belong there; anywhere else, it stays put.
-      # Either way the watcher moves it on if a profile's title turns up late.
-      ++ map (p: {
-        "if" = {
-          app-id = "com.microsoft.VSCode";
-          workspace = toString p.workspace;
-        };
-        run = [ "move-node-to-workspace 1" "exec-and-forget ${vscodeTitleWatch}" ];
-      }) profiles
-      ++ [
-        {
-          "if".app-id = "com.microsoft.VSCode";
-          run = "exec-and-forget ${vscodeTitleWatch}";
-          # Still let the startup rule below send it to 1.
-          check-further-callbacks = true;
-        }
-
         # Keep last (the first matching rule wins). On startup — `ns` or
         # login — AeroSpace puts every already-open window on the first
         # workspace, 0; send everything not pinned above to 1 instead.
