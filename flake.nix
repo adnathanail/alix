@@ -44,10 +44,10 @@
     username = "adnathanail";        # `whoami`
     hostname = "Alexs-MacBook-Pro";  # `scutil --get LocalHostName`
 
-    # Pull specific packages from unstable while keeping everything else on
-    # stable. The whole unstable set is also exposed as `pkgs.unstable`, so a
-    # module can pick its own package from it (vscode.nix, sketchybar/)
-    # instead of adding a line here.
+    # Everything stays on stable by default. This exposes the fresher package
+    # sets as `pkgs.unstable` and `pkgs.master`, so each module picks its own
+    # newer package where it's used (apps/dev.nix, apps/vscode.nix,
+    # interface/sketchybar/) instead of swapping it here.
     unstableOverlay = final: prev:
       let
         unstable = import nixpkgs-unstable {
@@ -60,9 +60,7 @@
           config.allowUnfree = true;
         };
       in {
-        inherit unstable;
-        claude-code = master.claude-code;
-        prek = unstable.prek;
+        inherit unstable master;
       };
   in {
     darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {

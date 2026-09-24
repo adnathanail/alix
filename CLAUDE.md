@@ -36,7 +36,7 @@ living at `~/.config/nix-darwin/`.
 | `modules/apps/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
 | `modules/apps/microsoft.nix` | everything Microsoft Office: the Outlook cask, Word/Excel/PowerPoint `masApps`, and the Office/Outlook/AutoUpdate prefs |
 | `modules/apps/appdev.nix`, `modules/apps/macapps.nix`, `modules/apps/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge, along with `microsoft.nix`'s); deliberately independent of each other |
-| `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/nx/nx.nix`, `modules/apps/pycharm/pycharm.nix`, `modules/apps/uvtools.nix`, `modules/apps/vscode.nix` | optional HM feature modules, imported by `modules/apps/default.nix` — comment out a line to drop the feature |
+| `modules/apps/dev.nix`, `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/nx/nx.nix`, `modules/apps/pycharm/pycharm.nix`, `modules/apps/uvtools.nix`, `modules/apps/vscode.nix` | optional HM feature modules, imported by `modules/apps/default.nix` — comment out a line to drop the feature |
 | `modules/apps/nx/package.json`, `package-lock.json` | the npm wrapper project `nx.nix` builds from |
 | `modules/apps/pycharm/` | PyCharm: `pycharm.nix` (an HM module imported by `modules/apps/default.nix`) installs it and symlinks in `custom-keymap.xml` |
 | `modules/interface/extradock.nix` | ExtraDock 5, an HM module imported by `modules/interface/default.nix` |
@@ -74,19 +74,24 @@ nixpkgs moves to unstable, move HM to `master` in the same commit. HM release br
 fixes but rarely new modules — a brand-new HM module may exist only on `master`.
 
 ### Selective unstable overlay
-`unstableOverlay` in `flake.nix` pulls **specific** packages from `nixpkgs-unstable`, leaving
-everything else on stable. It also exposes the whole unstable set as `pkgs.unstable`, so a
-feature module picks its own fresher package where it's used rather than in `flake.nix`:
-`vscode.nix` sets `programs.vscode.package = pkgs.unstable.vscode`, and the SketchyBar module's
-patch overlay builds from `final.unstable.sketchybar`. Only packages used from several places or
-with no module of their own are swapped in `flake.nix` itself: `claude-code`, `prek`. Prefer the
-`pkgs.unstable.<name>` route for anything new that needs to be fresher than the pin.
+Everything is on stable by default. `unstableOverlay` in `flake.nix` swaps nothing; it only
+exposes `nixpkgs-unstable` as `pkgs.unstable` and `nixpkgs-master` as `pkgs.master`, and each
+feature module picks its own fresher package where it's used:
+
+- `modules/apps/dev.nix` — `pkgs.master.claude-code` (as `programs.claude-code.package`),
+  `pkgs.unstable.prek`
+- `modules/apps/vscode.nix` — `programs.vscode.package = pkgs.unstable.vscode`
+- `modules/interface/sketchybar/default.nix` — its patch overlay builds from
+  `final.unstable.sketchybar`
+
+Do the same for anything new that needs to be fresher than the pin. Plain `pkgs.<name>` stays
+stable, so reference the fresher one explicitly everywhere it's needed.
 
 `claude-code` draws from its own `nixpkgs-master` input — raw `master`, not the
 `nixpkgs-unstable` channel branch. `nixpkgs-unstable` only advances once Hydra's build/test gate
 promotes a `master` commit, which can lag a same-day claude-code release by hours to a day;
 tracking `master` directly picks up each release the moment nixpkgs merges it. This is safe here
-specifically because the overlay only cherry-picks the single `claude-code` derivation (a
+specifically because only the single `claude-code` derivation is taken from it (a
 `fetchurl`'d binary, no wide dependency surface) — the usual risk of tracking unvetted `master`
 (a broken build for some other package) doesn't apply. `nix flake update nixpkgs-master` moves
 independently of `nixpkgs-unstable`.
@@ -182,8 +187,9 @@ Only the surprising bits. The full software list and first-use steps live in `RE
 Per-app state (sign-ins, caches, prefs, licences) lives under `~/Library/…` and is **not**
 Nix-managed unless noted.
 
-- **Claude Code** *(Nix, tracks `nixpkgs-master`, not the shared unstable overlay input)* —
-  `programs.claude-code`. Self-updater off via
+- **Claude Code** *(Nix, `pkgs.master.claude-code`, `modules/apps/dev.nix`)* —
+  `programs.claude-code`, plus the `claude-work` alias (separate `CLAUDE_CONFIG_DIR` for the work
+  account). Self-updater off via
   `home.sessionVariables.DISABLE_AUTOUPDATER = "1"`. The `claude symlink points to an invalid
   binary` warning is a harmless false positive (Nix wraps it as a script). The VS Code extension
   and PyCharm plugin update independently of the CLI.
@@ -213,7 +219,7 @@ Nix-managed unless noted.
   toolchain). Config at `~/.config/ghostty/config` is Nix-owned via `xdg.configFile`; it sets
   `auto-update = off` to suppress Sparkle's prompt. In-app config edits don't persist. If the
   config grows, consider the HM `programs.ghostty` module (check it's on `release-26.05` first).
-- **prek** *(Nix, unstable overlay)* — Rust reimplementation of `pre-commit`; on unstable because
+- **prek** *(Nix, `pkgs.unstable.prek`, `modules/apps/dev.nix`)* — Rust reimplementation of `pre-commit`; on unstable because
   stable lags this fast-moving 0.x tool.
 - **nx** *(Nix, built locally)* — not in nixpkgs; built via `buildNpmPackage` from the wrapper
   project at `modules/apps/nx/`. See *Routine maintenance*.

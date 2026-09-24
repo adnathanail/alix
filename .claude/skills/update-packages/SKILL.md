@@ -131,10 +131,10 @@ git diff flake.lock   # show the user what moved
 ```
 
 If `<input>` is `nixpkgs` (stable — PyCharm comes from there), a rebuild can carry
-PyCharm to a new minor version. If so, `home.nix`
+PyCharm to a new minor version. If so, `modules/apps/pycharm/pycharm.nix`
 symlinks the repo's keymap into a version-pinned path
 (`~/Library/Application Support/JetBrains/PyCharm<version>/keymaps/`) — check whether the
-PyCharm version changed and, if so, update that path in `home.nix` too, or the keymap
+PyCharm version changed and, if so, update that path in `pycharm.nix` too, or the keymap
 silently lands in an unused directory.
 
 If `<input>` is `nixpkgs-unstable` (SketchyBar comes from there), check whether the

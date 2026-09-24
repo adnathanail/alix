@@ -1,25 +1,10 @@
 { pkgs, config, ... }: {
   home.stateVersion = "25.11";
 
-  programs.claude-code = {
-    enable = true;
-    # The module's default package is pkgs.claude-code, which the
-    # overlay has swapped for the unstable build. Manage config here:
-    # settings = { theme = "dark"; };
-  };
-
-  # Stop Claude Code self-updating into the read-only store;
-  # you update it via Nix instead.
-  home.sessionVariables.DISABLE_AUTOUPDATER = "1";
-
   programs.zsh = {
     enable = true;
     shellAliases = {
       ns = "nix-switch";
-      # Work uses a separate Anthropic account; CLAUDE_CONFIG_DIR points
-      # Claude Code at an isolated config/credentials dir (default is
-      # ~/.claude) so logging in here doesn't clobber the personal session.
-      claude-work = "CLAUDE_CONFIG_DIR=$HOME/.claude-work claude";
     };
   };
 
@@ -57,7 +42,6 @@
     "7809723+adnathanail@users.noreply.github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAJsvq2utLp2Y8KEL1xZPi9fggjoJDGiVcL8EjYRo4FJ\n";
 
   home.packages = [
-    pkgs.prek
     pkgs.python3
     pkgs.uv
     pkgs.nodejs
