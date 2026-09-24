@@ -31,6 +31,7 @@ living at `~/.config/nix-darwin/`.
 | `extra/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
 | `extra/appdev.nix`, `extra/macapps.nix`, `extra/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge); deliberately independent of each other |
 | `extra/rocq.nix`, `extra/eleventy.nix`, `extra/nx.nix`, `extra/uvtools.nix`, `extra/vscode.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
+| `extra/sketchybar/` | SketchyBar: `default.nix` wires the per-widget files together; `signing.nix` re-signs the server binary |
 | `graveyard/graveyard.nix` | Things we might want to (or already have) killed |
 | `secrets/*.age`, `secrets/secrets.nix` | encrypted secrets + their recipients |
 | `.claude/skills/update-packages/SKILL.md` | the package-update runbook — flake inputs + manual pins |
@@ -266,8 +267,17 @@ Nix-managed unless noted.
   signature survives), same pattern as nixpkgs' own `skimpdf`. Bump `version` and refetch the
   hash (`nix-prefetch-url --type sha256 <url>`) whenever AppitStudio ships an update — a stale
   hash fails the build loudly rather than silently serving old bits.
+- **SketchyBar** *(Nix, re-signed)* — TCC pins a privacy grant to path + designated requirement,
+  and the nixpkgs binary is ad-hoc signed (requirement = cdhash), so every rebuild silently voids
+  every grant (the toggle stays on but no longer applies). Plugin scripts are SketchyBar's
+  children, so their requests (e.g. the clock's osascript keystroke → Accessibility) count as
+  SketchyBar's. So launchd runs a copy at `~/.local/libexec/sketchybar/sketchybar`, re-signed each
+  activation with the agenix'd `sketchybar-signing-identity` cert (`extra/sketchybar/signing.nix`).
+  **Grant permissions to that path, never a store path.** Only the server needs it; the CLI calls
+  in the plugins keep using the store binary. Homebrew wouldn't fix it (stable path, still ad-hoc
+  signed). The same pattern would work for any other Nix-built binary that needs grants.
 
 Manual, non-Nix setup a fresh machine still needs: App Store sign-in (**before** the first `ns`),
 per-app sign-ins/licences, and System Settings → Privacy & Security grants — Accessibility
-(Rectangle, Raycast, Bartender), Screen Recording (Bartender, Slack), Input Monitoring (Raycast),
+(Rectangle, Raycast, Bartender, SketchyBar), Screen Recording (Bartender, Slack), Input Monitoring (Raycast),
 Notifications/Calendar/Contacts/Mic/Camera per app.

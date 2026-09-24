@@ -96,6 +96,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
     - Battery shows charge percentage; icon reflects level and turns red at ≤10%, green with a bolt while on AC power
     - Clock shows the date and time; click opens Fantastical's Mini Window
     - Autostarts via a launchd user agent (`launchd.user.agents.sketchybar`), the Nix equivalent of `brew services start sketchybar`
+    - launchd runs a copy at `~/.local/libexec/sketchybar/sketchybar`, re-signed on every rebuild with a stable identity from agenix (`extra/sketchybar/signing.nix`), so privacy grants survive updates. Give any grant SketchyBar needs (e.g. Accessibility, for the clock's Fantastical keystroke) to that path — in the file picker, ⌘⇧G and paste it — then `launchctl kickstart -k gui/$(id -u)/org.nixos.sketchybar`. A grant on a `/nix/store/…` path breaks on the next rebuild
     - To actually replace the native menu bar, hide it in System Settings → Control Center → Menu Bar (not Nix-managed)
 - Top left hot corner: Show desktop
 - Bottom left hot corner: Apps (Launchpad)
@@ -105,6 +106,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Env vars: `$NPM_FONT_AWESOME_TOKEN`, `$NPM_GITHUB_PACKAGES_TOKEN`.
 - MailMate account config: `mailmate-sources`, `mailmate-identities`, `mailmate-submission`
   - Activation copies them into `~/Library/Application Support/MailMate/` **only if the file is absent**
+- SketchyBar code-signing identity: `sketchybar-signing-identity` (a `.p12` of a self-signed codeSigning cert + key; the password is `nix-darwin`, and it's only meaningful inside agenix)
 
 To adopt settings you've changed in the GUI, re-encrypt from the live files:
 ```bash

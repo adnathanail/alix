@@ -17,11 +17,28 @@
 # cross-cutting — they reference both the Apple menu and WiFi popups by
 # name.
 #
+# The launchd-run server is a re-signed copy at a fixed path, not the store
+# binary, so privacy grants given to SketchyBar survive updates. See
+# ./signing.nix.
+#
 # Consumed from flake.nix as:
 #     (import ./extra/sketchybar { inherit username; })
 { username }:
 
-{ lib, pkgs, ... }: {
+{ lib, pkgs, ... }:
+let
+  # The server binary launchd runs: a stable-path, stably-signed copy of
+  # pkgs.sketchybar (./signing.nix). This path is what privacy grants are
+  # given to, so don't move it.
+  signedBin = "/Users/${username}/.local/libexec/sketchybar/sketchybar";
+  signSketchybar = import ./signing.nix { inherit pkgs; };
+in {
+  age.secrets.sketchybar-signing-identity = {
+    file = ../../secrets/sketchybar-signing-identity.age;
+    owner = username;
+    mode = "0400";
+  };
+
   # Nerd Font glyphs for the bar's icons/labels, plus SketchyBar's own
   # per-app icon font. System-wide via /Library/Fonts (nix-darwin's
   # fonts.packages) rather than HM — macOS discovers fonts by scanning
@@ -129,7 +146,7 @@
   # Autostart, equivalent to `brew services start sketchybar`.
   launchd.user.agents.sketchybar = {
     serviceConfig = {
-      ProgramArguments = [ "${pkgs.sketchybar}/bin/sketchybar" ];
+      ProgramArguments = [ signedBin ];
       RunAtLoad = true;
       KeepAlive = true;
       StandardOutPath = "/Users/${username}/Library/Logs/sketchybar.log";
@@ -152,7 +169,18 @@
   # in flake.nix's module list. Without mkAfter, plain module-order
   # concatenation puts our kickstart *before* that HM step, so it would
   # restart sketchybar with the previous rebuild's config, one step behind.
+  #
+  # Signing runs first, in the same block, so the kickstart always picks up
+  # the freshly signed binary. It runs as the user (in their security
+  # session, via the same asuser dance), so the throwaway keychain works and
+  # the output is user-owned. A signing failure is reported but doesn't fail
+  # activation; the previous signed copy keeps running.
   system.activationScripts.postActivation.text = lib.mkAfter ''
+    launchctl asuser "$(id -u -- ${username})" \
+      sudo --user=${username} -- \
+      ${signSketchybar} ${pkgs.sketchybar}/bin/sketchybar \
+        /run/agenix/sketchybar-signing-identity ${signedBin} \
+      || echo "sketchybar: signing failed; privacy grants may not apply" >&2
     launchctl asuser "$(id -u -- ${username})" \
       sudo --user=${username} -- \
       launchctl kickstart -k "gui/$(id -u -- ${username})/org.nixos.sketchybar" \
