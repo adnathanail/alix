@@ -25,14 +25,14 @@ living at `~/.config/nix-darwin/`.
 | Path | Owns |
 | --- | --- |
 | `flake.nix` | inputs, unstable overlay, `system.defaults`, Homebrew casks/brews, nix-homebrew + HM wiring |
-| `home.nix` | Home Manager user config (packages, git, zsh, PyCharm keymap, Ghostty config) |
+| `home.nix` | Home Manager user config (packages, git, zsh, Ghostty config) |
 | `modules/secrets/agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`, `nix-restore-age-key`. Declares **no** secrets |
 | `modules/secrets/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
 | `modules/apps/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
 | `modules/apps/appdev.nix`, `modules/apps/macapps.nix`, `modules/apps/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge); deliberately independent of each other |
-| `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/nx/nx.nix`, `modules/apps/uvtools.nix`, `modules/apps/vscode.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
+| `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/nx/nx.nix`, `modules/apps/pycharm/pycharm.nix`, `modules/apps/uvtools.nix`, `modules/apps/vscode.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
 | `modules/apps/nx/package.json`, `package-lock.json` | the npm wrapper project `nx.nix` builds from |
-| `modules/apps/pycharm/custom-keymap.xml` | PyCharm keymap, symlinked in by `home.nix` |
+| `modules/apps/pycharm/` | PyCharm: `pycharm.nix` (an HM module imported from `home.nix`) installs it and symlinks in `custom-keymap.xml` |
 | `modules/interface/extradock.nix` | ExtraDock 5, an HM module imported from `home.nix` |
 | `modules/interface/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, signing and restart; `config/` is FelixKratz's vendored Lua config (plus local tweaks), built by `config.nix` along with its C helpers; `signing.nix` re-signs the server binary; `layered-window-levels.patch` is a local SketchyBar fix; `menubar-return.m` is a tiny native status-item helper that returns from the macOS menu bar to SketchyBar |
 | `modules/graveyard.nix` | Things we might want to (or already have) killed |
@@ -192,9 +192,9 @@ Nix-managed unless noted.
 - **PyCharm Professional** *(Nix, stable)* — lands at
   `~/Applications/Home Manager Apps/PyCharm.app`. The keymap at `modules/apps/pycharm/custom-keymap.xml`
   (named "ALix keymap" in-app) is symlinked into
-  `~/Library/Application Support/JetBrains/PyCharm2026.2/keymaps/` by `home.nix`. Edits inside
+  `~/Library/Application Support/JetBrains/PyCharm2026.2/keymaps/` by `pycharm.nix` alongside it. Edits inside
   PyCharm fail silently (read-only target) — edit the XML in the repo. **The destination path is
-  version-pinned:** after a minor-version bump (`2026.2` → `2026.3`) update it in `home.nix` or
+  version-pinned:** after a minor-version bump (`2026.2` → `2026.3`) update it in `pycharm.nix` or
   the keymap lands in an unused directory.
 - **Ghostty** *(Homebrew, Nix-managed config)* — `pkgs.ghostty` on Darwin is fragile (Swift/Xcode
   toolchain). Config at `~/.config/ghostty/config` is Nix-owned via `xdg.configFile`; it sets

@@ -5,6 +5,7 @@
     ./modules/apps/rocq.nix
     ./modules/apps/eleventy.nix
     ./modules/apps/nx/nx.nix
+    ./modules/apps/pycharm/pycharm.nix
     ./modules/apps/uvtools.nix
     ./modules/interface/extradock.nix
     ./modules/apps/vscode.nix
@@ -74,7 +75,6 @@
 
   home.packages = [
     pkgs.rectangle
-    pkgs.jetbrains.pycharm
     pkgs.prek
     pkgs.python3
     pkgs.uv
@@ -89,12 +89,6 @@
       exec sudo darwin-rebuild switch --flake ~/.config/nix-darwin "$@"
     '')
   ];
-
-  # PyCharm keymap. Symlinked into the versioned config dir; bump the path
-  # below after a JetBrains minor-version upgrade. Select it in
-  # Settings → Keymap on first use; it appears as "Default for macOS copy".
-  home.file."Library/Application Support/JetBrains/PyCharm2026.2/keymaps/custom-keymap.xml".source =
-    ./modules/apps/pycharm/custom-keymap.xml;
 
   # Ghostty config. The app itself comes from Homebrew (see flake.nix), but
   # the config file is Nix-owned so the first-launch auto-update prompt is
