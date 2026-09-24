@@ -28,11 +28,11 @@ Modifications from FelixKratz's setup:
 
 ## Source patch
 
-We apply a local patch (`extra/sketchybar/layered-window-levels.patch`) that stops the bar dimming after a click on empty bar space
+We apply a local patch (`modules/interface/sketchybar/layered-window-levels.patch`) that stops the bar dimming after a click on empty bar space
 
 ## Re-signing
 
-We resign the installed app, with a stable identity from agenix (`extra/sketchybar/signing.nix`), so that accessibility grants stay between updates.
+We resign the installed app, with a stable identity from agenix (`modules/interface/sketchybar/signing.nix`), so that accessibility grants stay between updates.
 
 Re-signed copy lives at `~/.local/libexec/sketchybar/sketchybar`
 

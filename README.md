@@ -75,7 +75,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Raindrop.io
 - DeepL (translator)
 - DockFlow (Dock preset switcher)
-- ExtraDock 5 (customizable extra docks; direct-download package, see `extra/extradock.nix`)
+- ExtraDock 5 (customizable extra docks; direct-download package, see `modules/interface/extradock.nix`)
 - Xcode
     - *First use*: sign into the Mac App Store (App Store app → Sign In) **before** the first `ns`, otherwise the `mas install` step will fail. Downloads ~15 GB on first activation.
 - Android Studio
@@ -92,7 +92,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Window tiling (Rectangle)
     - Screen-edge gaps are Nix-managed (`flake.nix`): 8pt at the top so windows clear the 40pt SketchyBar, 76pt at the bottom for ExtraDock's docks. Quit and reopen Rectangle after `ns` for changes to apply
 - Raycast
-- SketchyBar ([More info](./extra/sketchybar/README.md))
+- SketchyBar ([More info](./modules/interface/sketchybar/README.md))
 - Top left hot corner: Show desktop
 - Bottom left hot corner: Apps (Launchpad)
 
@@ -105,7 +105,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 
 To adopt settings you've changed in the GUI, re-encrypt from the live files:
 ```bash
-cd ~/.config/nix-darwin/secrets
+cd ~/.config/nix-darwin/modules/secrets
 for f in sources:Sources identities:Identities submission:Submission; do
   agenix -e "mailmate-${f%%:*}.age" -i ~/.config/age/keys.txt \
     < ~/Library/Application\ Support/MailMate/"${f##*:}".plist
@@ -120,9 +120,9 @@ _Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new con
         (rotate the item with `op document edit "nix-darwin age key" ~/.config/age/keys.txt`
         if you regenerate the key later).
     3. `age-keygen -y ~/.config/age/keys.txt` and paste the `age1...`
-        output into `secrets/secrets.nix` in place of the placeholder.
-    4. For each secret listed in `secrets/secrets.nix`, run
-        `cd secrets && EDITOR=vim agenix -e <name>.age`. `git add` the
+        output into `modules/secrets/secrets.nix` in place of the placeholder.
+    4. For each secret listed in `modules/secrets/secrets.nix`, run
+        `cd modules/secrets && EDITOR=vim agenix -e <name>.age`. `git add` the
         `.age` file so the flake sees it.
     5. `ns` — secrets decrypt to `/run/agenix/<name>` and are exported
         in the shell by `programs.zsh.initContent` in `home.nix`.
@@ -132,20 +132,20 @@ _Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new con
     2. `nix-restore-age-key` — pulls the key from 1Password to
         `~/.config/age/keys.txt` with mode 0600.
     3. `ns`.
-- Shared machinery is in `agenix.nix`; **secrets live with whatever uses them** —
-  `extra/envvars.nix` for shell tokens, `extra/mailmate.nix` for the MailMate account
+- Shared machinery is in `modules/secrets/agenix.nix`; **secrets live with whatever uses them** —
+  `modules/secrets/envvars.nix` for shell tokens, `modules/apps/mailmate.nix` for the MailMate account
   config. Add another secret:
     1. Declare `age.secrets.<name>` in the module that consumes it (a new
-        `extra/<feature>.nix` if it's a new feature — add it to `modules` in `flake.nix`).
-    2. Add it to `secrets/secrets.nix` — that file is read by the `agenix` CLI, so it stays
+        `modules/apps/<feature>.nix` if it's a new feature — add it to `modules` in `flake.nix`).
+    2. Add it to `modules/secrets/secrets.nix` — that file is read by the `agenix` CLI, so it stays
         one flat list regardless of which module uses the secret.
-    3. `cd secrets && agenix -e <name>.age -i ~/.config/age/keys.txt < plaintext`,
+    3. `cd modules/secrets && agenix -e <name>.age -i ~/.config/age/keys.txt < plaintext`,
         then `git add` it. Flakes only see git-tracked files, so an unstaged `.age`
         is invisible to `ns`.
     4. If you want it as a shell env var, add a
         `write <VAR> /run/agenix/<name>` line to
         `system.activationScripts.postActivation` in
-        `extra/envvars.nix` — the value lands in
+        `modules/secrets/envvars.nix` — the value lands in
         `~/.config/nix-secrets.env` on rebuild.
     5. `ns`.
 
@@ -162,7 +162,7 @@ _Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new con
 - prek
 - python
 - uv (Python package/project manager) (uv tools added to path)
-    - Python CLIs that aren't in nixpkgs are declared in `extra/uvtools.nix` as `<executable> = "<pinned spec>"` pairs; each becomes a PATH shim that runs `uv tool run --from <spec> <executable>`
+    - Python CLIs that aren't in nixpkgs are declared in `modules/apps/uvtools.nix` as `<executable> = "<pinned spec>"` pairs; each becomes a PATH shim that runs `uv tool run --from <spec> <executable>`
     - uv resolves and caches the environment under `~/.cache/uv` on first run, so the first invocation of each tool needs network access; keep the `==` version pins
 - node
 - pnpm (Node package manager)

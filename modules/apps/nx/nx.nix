@@ -1,16 +1,20 @@
 { pkgs, ... }:
 let
   version = "23.2.1";
-  # Wrapper "project" at ../nx pins nx as a dependency; buildNpmPackage
-  # reads its package-lock.json to fetch every transitive dep as a fixed-
-  # output derivation. Bump: edit ../nx/package.json, rerun
+  # Wrapper "project" alongside this file pins nx as a dependency;
+  # buildNpmPackage reads its package-lock.json to fetch every transitive
+  # dep as a fixed-output derivation. Bump: edit ./package.json, rerun
   # `npm install --package-lock-only --ignore-scripts` in that dir, then
   # set npmDepsHash to pkgs.lib.fakeHash and let the build print the real
   # one.
   nx = pkgs.buildNpmPackage {
     pname = "nx";
     inherit version;
-    src = ../nx;
+    # Just the npm files, so editing this .nix doesn't change the source.
+    src = pkgs.lib.fileset.toSource {
+      root = ./.;
+      fileset = pkgs.lib.fileset.unions [ ./package.json ./package-lock.json ];
+    };
     npmDepsHash = "sha256-2P5Kp+QC8+OTtYXj8CvR72A/QL3/JPCcmbvjDC78wvI=";
     dontNpmBuild = true;
     nativeBuildInputs = [ pkgs.makeWrapper ];

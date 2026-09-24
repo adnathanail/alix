@@ -7,7 +7,7 @@
 # Find IDs with `mas search <name>`.
 #
 # Consumed from flake.nix as:
-#     ./extra/safariexts.nix
+#     ./modules/apps/safariexts.nix
 {
   homebrew.masApps = {
     "1Password for Safari" = 1569813296;

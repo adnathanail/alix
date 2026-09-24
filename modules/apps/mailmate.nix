@@ -1,13 +1,13 @@
 # Everything MailMate: the cask, the account config secrets, and the
 # activation step that provisions them on a fresh machine.
 #
-# Depends on agenix.nix for the agenix module + age identity.
+# Depends on modules/secrets/agenix.nix for the agenix module + age identity.
 # `homebrew.casks` is a listOf and `activationScripts.<name>.text` is
 # types.lines, so both merge with what other modules declare — this file
 # adds to them rather than owning them outright.
 #
 # Consumed from flake.nix as:
-#     (import ./extra/mailmate.nix { inherit username; })
+#     (import ./modules/apps/mailmate.nix { inherit username; })
 #
 # See CLAUDE.md → "Per-tool notes" → MailMate for the Outlook.com/Hotmail
 # host-pairing trap, which is the thing most likely to bite here.
@@ -41,7 +41,7 @@
   # Provision-once, not manage-forever.
   #
   # MailMate rewrites Sources/Identities/Submission.plist on launch, so a
-  # read-only home.file symlink (the pycharm/custom-keymap.xml pattern)
+  # read-only home.file symlink (the modules/apps/pycharm/custom-keymap.xml pattern)
   # would fight it. We only install a file that isn't already there: on a
   # fresh machine this bootstraps the account, and thereafter MailMate owns
   # them. To adopt settings changed in the GUI, re-encrypt from the live

@@ -15,7 +15,7 @@
 # ./signing.nix.
 #
 # Consumed from flake.nix as:
-#     (import ./extra/sketchybar { inherit username; })
+#     (import ./modules/interface/sketchybar { inherit username; })
 { username }:
 
 { lib, pkgs, ... }:

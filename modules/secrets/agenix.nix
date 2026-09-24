@@ -4,11 +4,11 @@
 #   - `nix-restore-age-key`, the fresh-machine bootstrap helper
 #
 # It deliberately declares **no** `age.secrets.<name>` blocks. Secrets live
-# with whatever uses them (see `extra/envvars.nix`, `extra/mailmate.nix`), so
+# with whatever uses them (see `modules/secrets/envvars.nix`, `modules/apps/mailmate.nix`), so
 # a feature is one file rather than a change scattered across the tree.
 #
 # Consumed from flake.nix as:
-#     (import ./agenix.nix { inherit agenix username; })
+#     (import ./modules/secrets/agenix.nix { inherit agenix username; })
 #
 # See README → "Secrets management (agenix)" for the operator flow
 # (generating the age key, encrypting a new secret, fresh-machine bootstrap).
@@ -21,13 +21,13 @@
 
   # Decryption uses the age key at the path below (generate with
   # `age-keygen -o ~/.config/age/keys.txt`, no passphrase). Recipients live
-  # in secrets/secrets.nix, which the `agenix` CLI reads directly — that
+  # in modules/secrets/secrets.nix, which the `agenix` CLI reads directly — that
   # file stays a flat map of filename → publicKeys and can't be split up.
   #
   # To add a secret:
-  #   1. add it to secrets/secrets.nix
+  #   1. add it to modules/secrets/secrets.nix
   #   2. add an `age.secrets.<name>` block to the module that consumes it
-  #   3. `cd secrets && agenix -e <name>.age -i ~/.config/age/keys.txt < plaintext`
+  #   3. `cd modules/secrets && agenix -e <name>.age -i ~/.config/age/keys.txt < plaintext`
   #      (agenix ignores $EDITOR when stdin isn't a TTY — see CLAUDE.md)
   #   4. `git add` the .age file so the flake sees it
   age.identityPaths = [ "/Users/${username}/.config/age/keys.txt" ];

@@ -69,28 +69,28 @@
       modules = [
 
         # ── agenix machinery (secrets themselves live with their users)
-        (import ./agenix.nix { inherit agenix username; })
+        (import ./modules/secrets/agenix.nix { inherit agenix username; })
 
         # ── secrets exposed as shell env vars ───────────────────
-        (import ./extra/envvars.nix { inherit username; })
+        (import ./modules/secrets/envvars.nix { inherit username; })
 
         # ── MailMate: cask + account config ─────────────────────
-        (import ./extra/mailmate.nix { inherit username; })
+        (import ./modules/apps/mailmate.nix { inherit username; })
 
         # ── iOS/Android app dev tooling ───────────────
-        ./extra/appdev.nix
+        ./modules/apps/appdev.nix
 
         # ── Mac App Store apps (Office, iMovie, …) ─────
-        ./extra/macapps.nix
+        ./modules/apps/macapps.nix
 
         # ── Safari extensions (from the App Store) ─────
-        ./extra/safariexts.nix
+        ./modules/apps/safariexts.nix
 
         # ── Graveyard: where things go to die ─
-        ./graveyard/graveyard.nix
+        ./modules/graveyard.nix
 
         # ── SketchyBar: menu-bar replacement ───────────
-        (import ./extra/sketchybar { inherit username; })
+        (import ./modules/interface/sketchybar { inherit username; })
 
         # ── system ──────────────────────────────────────────────
         ({ pkgs, ... }: {
@@ -182,7 +182,7 @@
           # reads them at launch, so restart it after a rebuild that changes
           # them.
           system.defaults.CustomUserPreferences."com.knollsoft.Rectangle" = {
-            # SketchyBar (extra/sketchybar/config/bar.lua) is 40pt;
+            # SketchyBar (modules/interface/sketchybar/config/bar.lua) is 40pt;
             # macOS already reserves 32pt for the hidden notch menu bar.
             screenEdgeGapTop = 8;
             # ExtraDock's bottom docks: 76pt bar thickness, 0pt edge gap

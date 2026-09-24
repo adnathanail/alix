@@ -14,7 +14,7 @@
 # applies. Homebrew wouldn't help — stable path, still ad-hoc signed.
 #
 # This copies the store binary to one fixed path and re-signs it with a
-# certificate kept in agenix (secrets/sketchybar-signing-identity.age: a
+# certificate kept in agenix (modules/secrets/sketchybar-signing-identity.age: a
 # .p12 of a self-signed codeSigning cert + key, generated once with
 # openssl). The requirement becomes
 #     identifier "com.felixkratz.sketchybar" and certificate leaf = H"…"

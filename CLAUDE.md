@@ -26,16 +26,18 @@ living at `~/.config/nix-darwin/`.
 | --- | --- |
 | `flake.nix` | inputs, unstable overlay, `system.defaults`, Homebrew casks/brews, nix-homebrew + HM wiring |
 | `home.nix` | Home Manager user config (packages, git, zsh, PyCharm keymap, Ghostty config) |
-| `agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`, `nix-restore-age-key`. Declares **no** secrets |
-| `extra/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
-| `extra/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
-| `extra/appdev.nix`, `extra/macapps.nix`, `extra/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge); deliberately independent of each other |
-| `extra/rocq.nix`, `extra/eleventy.nix`, `extra/nx.nix`, `extra/uvtools.nix`, `extra/vscode.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
-| `extra/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, signing and restart; `config/` is FelixKratz's vendored Lua config (plus local tweaks), built by `config.nix` along with its C helpers; `signing.nix` re-signs the server binary; `layered-window-levels.patch` is a local SketchyBar fix; `menubar-return.m` is a tiny native status-item helper that returns from the macOS menu bar to SketchyBar |
-| `graveyard/graveyard.nix` | Things we might want to (or already have) killed |
-| `secrets/*.age`, `secrets/secrets.nix` | encrypted secrets + their recipients |
+| `modules/secrets/agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`, `nix-restore-age-key`. Declares **no** secrets |
+| `modules/secrets/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
+| `modules/apps/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
+| `modules/apps/appdev.nix`, `modules/apps/macapps.nix`, `modules/apps/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge); deliberately independent of each other |
+| `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/nx/nx.nix`, `modules/apps/uvtools.nix`, `modules/apps/vscode.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
+| `modules/apps/nx/package.json`, `package-lock.json` | the npm wrapper project `nx.nix` builds from |
+| `modules/apps/pycharm/custom-keymap.xml` | PyCharm keymap, symlinked in by `home.nix` |
+| `modules/interface/extradock.nix` | ExtraDock 5, an HM module imported from `home.nix` |
+| `modules/interface/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, signing and restart; `config/` is FelixKratz's vendored Lua config (plus local tweaks), built by `config.nix` along with its C helpers; `signing.nix` re-signs the server binary; `layered-window-levels.patch` is a local SketchyBar fix; `menubar-return.m` is a tiny native status-item helper that returns from the macOS menu bar to SketchyBar |
+| `modules/graveyard.nix` | Things we might want to (or already have) killed |
+| `modules/secrets/*.age`, `modules/secrets/secrets.nix` | encrypted secrets + their recipients; the modules that consume them live alongside (env vars) or with their feature (MailMate, SketchyBar) |
 | `.claude/skills/update-packages/SKILL.md` | the package-update runbook — flake inputs + manual pins |
-| `pycharm/custom-keymap.xml`, `nx/` | files consumed by the modules above |
 
 ## Rules
 
@@ -117,25 +119,25 @@ designated-requirement signature (Nix's wrap step invalidates it, and HM install
   self-updating is deliberately off for Ghostty and Microsoft AutoUpdate.
 
 ### Secrets via agenix
-**Secrets live with their users, not in one secrets file.** `agenix.nix` holds only the
+**Secrets live with their users, not in one secrets file.** `modules/secrets/agenix.nix` holds only the
 shared machinery — the agenix module, the `agenix` CLI, `age.identityPaths`, and
 `nix-restore-age-key` — and declares no `age.secrets.<name>` blocks itself. Each consuming module
-owns its own: `extra/envvars.nix` for the shell tokens, `extra/mailmate.nix` for the MailMate
-account config. A new secret-using feature gets its own `extra/<feature>.nix` rather than an
+owns its own: `modules/secrets/envvars.nix` for the shell tokens, `modules/apps/mailmate.nix` for the MailMate
+account config. A new secret-using feature gets its own `modules/apps/<feature>.nix` rather than an
 entry in a shared file.
 
 This works because `age.secrets`, `homebrew.casks` and `system.activationScripts.<name>.text`
 all merge across modules rather than conflicting.
 
-Encrypted secrets live in `secrets/*.age` (safe to commit), recipients in `secrets/secrets.nix`.
+Encrypted secrets live in `modules/secrets/*.age` (safe to commit), recipients in `modules/secrets/secrets.nix`.
 Activation decrypts them to `/run/agenix/<name>` using the age identity at
 `~/.config/age/keys.txt`, then writes shell-facing tokens into `~/.config/nix-secrets.env` as
 bash-`%q`-quoted `export` lines (rewritten every `ns`); zsh sources that file.
 
-Adding an env-var secret = two edits in `extra/envvars.nix` (`age.secrets.<name>` block, a
+Adding an env-var secret = two edits in `modules/secrets/envvars.nix` (`age.secrets.<name>` block, a
 `write <VAR> /run/agenix/<name>` line in the activation script) plus an entry in
-`secrets/secrets.nix` and the encrypted file itself. Operator steps are in the README.
-`secrets/secrets.nix` is read by the `agenix` **CLI**, not the module system, so it stays a
+`modules/secrets/secrets.nix` and the encrypted file itself. Operator steps are in the README.
+`modules/secrets/secrets.nix` is read by the `agenix` **CLI**, not the module system, so it stays a
 single flat map of filename → publicKeys and can't be split up per-feature.
 
 Not every secret is a shell env var — `mailmate-*` are files copied into place by the activation
@@ -172,23 +174,23 @@ Nix-managed unless noted.
   `home.sessionVariables.DISABLE_AUTOUPDATER = "1"`. The `claude symlink points to an invalid
   binary` warning is a harmless false positive (Nix wraps it as a script). The VS Code extension
   and PyCharm plugin update independently of the CLI.
-- **uv tools** *(`extra/uvtools.nix`)* — the escape hatch for Python CLIs nixpkgs doesn't carry at
+- **uv tools** *(`modules/apps/uvtools.nix`)* — the escape hatch for Python CLIs nixpkgs doesn't carry at
   a usable version. Each `<executable> = "<pinned spec>"` pair becomes a `writeShellScriptBin`
   shim that execs `uv tool run --from <spec> <executable>`, so the shim is Nix-managed but the
   environment is uv's, cached under `~/.cache/uv`. Keep the `==` pins — they're the only thing
   making it reproducible. Prefer a real nixpkgs package whenever one exists.
 - **VS Code** *(Nix, unstable overlay, Nix-managed config + extensions)* — `programs.vscode` lives
-  in `extra/vscode.nix`, `profiles.default`. Only the `vscode` attr is on unstable;
+  in `modules/apps/vscode.nix`, `profiles.default`. Only the `vscode` attr is on unstable;
   `pkgs.vscode-extensions` still comes from stable, which is fine (a newer editor runs older
-  extensions). `settings.json` is Nix-owned: edit `userSettings` in `extra/vscode.nix`, not
+  extensions). `settings.json` is Nix-owned: edit `userSettings` in `modules/apps/vscode.nix`, not
   in-app. `mutableExtensionsDir = false` means HM fully owns `~/.vscode/extensions`, so extensions
-  can **only** be added by editing `extra/vscode.nix` (or `extra/rocq.nix` / `extra/eleventy.nix`,
+  can **only** be added by editing `modules/apps/vscode.nix` (or `modules/apps/rocq.nix` / `modules/apps/eleventy.nix`,
   which also append to `programs.vscode.profiles.default.extensions`) and rebuilding. Prefer
   `pkgs.vscode-extensions.<publisher>.<name>`; otherwise
   `pkgs.vscode-utils.extensionFromVscodeMarketplace` with publisher, name, version, and hash
   (bump version + hash together). The first eval after adding the extension set is slow.
 - **PyCharm Professional** *(Nix, stable)* — lands at
-  `~/Applications/Home Manager Apps/PyCharm.app`. The keymap at `pycharm/custom-keymap.xml`
+  `~/Applications/Home Manager Apps/PyCharm.app`. The keymap at `modules/apps/pycharm/custom-keymap.xml`
   (named "ALix keymap" in-app) is symlinked into
   `~/Library/Application Support/JetBrains/PyCharm2026.2/keymaps/` by `home.nix`. Edits inside
   PyCharm fail silently (read-only target) — edit the XML in the repo. **The destination path is
@@ -201,7 +203,7 @@ Nix-managed unless noted.
 - **prek** *(Nix, unstable overlay)* — Rust reimplementation of `pre-commit`; on unstable because
   stable lags this fast-moving 0.x tool.
 - **nx** *(Nix, built locally)* — not in nixpkgs; built via `buildNpmPackage` from the wrapper
-  project at `nx/`. See *Routine maintenance*.
+  project at `modules/apps/nx/`. See *Routine maintenance*.
 - **mysql CLI** *(Nix, `pkgs.mariadb.client`)* — MariaDB's client, deliberately. Stable nixpkgs
   has no client-only MySQL build: `mysql84.client` is `finalAttrs.finalPackage`, i.e. the whole
   server (~281 MB closure). `mariadb.client` is a genuine client-only output (~68 MB) and speaks
@@ -229,7 +231,7 @@ Nix-managed unless noted.
   AutoUpdate is disabled via `"com.microsoft.autoupdate2".HowToCheck = "Manual"` so updates flow
   through the cask refresh.
 - **MailMate** *(Homebrew `mailmate@beta`; account config via agenix)* — mechanics are
-  commented in `extra/mailmate.nix`; what follows is only what isn't.
+  commented in `modules/apps/mailmate.nix`; what follows is only what isn't.
   **Accounts are *not* in the defaults domain** — they're three NeXTSTEP-format ASCII plists
   under `~/Library/Application Support/MailMate/` (`Sources.plist` IMAP, `Submission.plist`
   SMTP, `Identities.plist` from-addresses) using MailMate's own `:true`/`:false` encoding, so
@@ -250,7 +252,7 @@ Nix-managed unless noted.
   detection. A stale SMTP password in the Keychain also shadows OAuth; clear it with
   `security delete-internet-password -s smtp-mail.outlook.com -a <address>`.
 - **Mac App Store apps** *(via `mas`)* — Apple ships Xcode, Office, iMovie etc. only through the
-  App Store. Adding one is a one-line entry in whichever `extra/` file fits the category; find
+  App Store. Adding one is a one-line entry in whichever `modules/apps/` file fits the category; find
   IDs with `mas search <name>`. **Requires being signed into the App Store first** — modern `mas`
   can't sign in from the CLI, and activation fails with `Not signed in`. Xcode's first install
   downloads ~15 GB. Afterwards run `sudo xcodebuild -license accept` and
@@ -260,7 +262,7 @@ Nix-managed unless noted.
   `flake.nix`), because SketchyBar and ExtraDock don't reserve screen space: top = SketchyBar height
   (40) − the 32pt macOS reserves for the hidden notch menu bar, bottom = ExtraDock bar thickness
   + edge gap. Keep them in step if either bar changes size. Other prefs live in Rectangle's UI.
-- **ExtraDock** *(Nix, `extra/extradock.nix`)* — v5 isn't in the Homebrew cask, which tracks a
+- **ExtraDock** *(Nix, `modules/interface/extradock.nix`)* — v5 isn't in the Homebrew cask, which tracks a
   different, older upstream repo (`AppitStudio/extra-dock-updates`, v4.x). v5 ships from a
   separate repo (`extra-dock5-updates`) behind a mutable `prod` release tag — the dmg the URL
   points to can change without the URL changing. `fetchurl` + `undmg` unpacks it and copies the
@@ -273,12 +275,12 @@ Nix-managed unless noted.
   every grant (the toggle stays on but no longer applies). Plugin scripts are SketchyBar's
   children, so their requests (e.g. the clock's osascript keystroke → Accessibility) count as
   SketchyBar's. So launchd runs a copy at `~/.local/libexec/sketchybar/sketchybar`, re-signed each
-  activation with the agenix'd `sketchybar-signing-identity` cert (`extra/sketchybar/signing.nix`).
+  activation with the agenix'd `sketchybar-signing-identity` cert (`modules/interface/sketchybar/signing.nix`).
   **Grant permissions to that path, never a store path.** Only the server needs it; the CLI calls
   in the plugins keep using the store binary. Homebrew wouldn't fix it (stable path, still ad-hoc
   signed). The same pattern would work for any other Nix-built binary that needs grants.
-  Also carries a local patch, `extra/sketchybar/layered-window-levels.patch` (applied by an
-  overlay in `extra/sketchybar/default.nix`, `mkAfter` so it lands on top of the unstable swap):
+  Also carries a local patch, `modules/interface/sketchybar/layered-window-levels.patch` (applied by an
+  overlay in `modules/interface/sketchybar/default.nix`, `mkAfter` so it lands on top of the unstable swap):
   macOS raises a clicked window above its same-level siblings, and upstream puts the bar
   background, brackets and items on one level, so clicking empty bar space lifted the
   background over every item and dimmed the whole bar until restart. The patch gives each layer

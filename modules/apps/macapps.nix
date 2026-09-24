@@ -3,7 +3,7 @@
 # Find IDs with `mas search <name>`.
 #
 # Consumed from flake.nix as:
-#     ./extra/macapps.nix
+#     ./modules/apps/macapps.nix
 {
   homebrew.masApps = {
     "Microsoft Word" = 462054704;

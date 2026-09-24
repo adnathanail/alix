@@ -15,6 +15,6 @@ in {
   "mailmate-identities.age".publicKeys = [ alex ];
   "mailmate-submission.age".publicKeys = [ alex ];
 
-  # SketchyBar code-signing identity (cert + private key, .p12) - see extra/sketchybar/signing.nix
+  # SketchyBar code-signing identity (cert + private key, .p12) - see modules/interface/sketchybar/signing.nix
   "sketchybar-signing-identity.age".publicKeys = [ alex ];
 }

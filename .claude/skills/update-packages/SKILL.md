@@ -64,16 +64,16 @@ done
 
 | What | Pinned in | Identity |
 |---|---|---|
-| ExtraDock | `extra/extradock.nix` | `AppitStudio/extra-dock5-updates`, mutable `prod` release tag |
-| VS Code: TikZiT | `extra/vscode.nix` | `alekskissinger.vstikzit` |
-| VS Code: GitButler for IDE | `extra/vscode.nix` | `BartInTheField.gitbutler-for-ide` |
-| VS Code: Highlight | `extra/vscode.nix` | `fabiospampinato.vscode-highlight` |
-| VS Code: Nunjucks | `extra/eleventy.nix` | `ronnidc.nunjucks` |
-| VS Code: WASM WASI Core | `extra/rocq.nix` | `ms-vscode.wasm-wasi-core` |
-| VS Code: coq-lsp | `extra/rocq.nix` | `ejgallego.coq-lsp` |
-| VS Code: vizx | `extra/rocq.nix` | `inqwire.vizx` |
-| `nx` | `extra/nx.nix` + `nx/package.json` | npm package `nx` |
-| uv tools | `extra/uvtools.nix` | one PyPI package per entry — currently `qi` → `quantuminspire` |
+| ExtraDock | `modules/interface/extradock.nix` | `AppitStudio/extra-dock5-updates`, mutable `prod` release tag |
+| VS Code: TikZiT | `modules/apps/vscode.nix` | `alekskissinger.vstikzit` |
+| VS Code: GitButler for IDE | `modules/apps/vscode.nix` | `BartInTheField.gitbutler-for-ide` |
+| VS Code: Highlight | `modules/apps/vscode.nix` | `fabiospampinato.vscode-highlight` |
+| VS Code: Nunjucks | `modules/apps/eleventy.nix` | `ronnidc.nunjucks` |
+| VS Code: WASM WASI Core | `modules/apps/rocq.nix` | `ms-vscode.wasm-wasi-core` |
+| VS Code: coq-lsp | `modules/apps/rocq.nix` | `ejgallego.coq-lsp` |
+| VS Code: vizx | `modules/apps/rocq.nix` | `inqwire.vizx` |
+| `nx` | `modules/apps/nx/nx.nix` + `modules/apps/nx/package.json` | npm package `nx` |
+| uv tools | `modules/apps/uvtools.nix` | one PyPI package per entry — currently `qi` → `quantuminspire` |
 
 Check each, read-only:
 
@@ -84,20 +84,20 @@ mnt=$(mktemp -d)
 hdiutil attach -nobrowse -readonly -mountpoint "$mnt" /tmp/extradock-check.dmg >/dev/null
 /usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$mnt/ExtraDock.app/Contents/Info.plist"
 hdiutil detach "$mnt" >/dev/null
-# compare the printed version to `version` in extra/extradock.nix
+# compare the printed version to `version` in modules/interface/extradock.nix
 
 # VS Code marketplace extensions — one call per publisher.name pair above
 curl -s -X POST "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery" \
   -H "Content-Type: application/json" -H "Accept: application/json;api-version=3.0-preview.1" \
   -d '{"filters":[{"criteria":[{"filterType":7,"value":"<publisher>.<name>"}]}],"flags":103}' \
   | jq -r '.results[0].extensions[0].versions[0].version'
-# compare to the `version` in the relevant extra/*.nix file
+# compare to the `version` in the relevant modules/**/*.nix file
 
 # nx
 curl -s https://registry.npmjs.org/nx/latest | jq -r .version
-# compare to the "nx" version in nx/package.json
+# compare to the "nx" version in modules/apps/nx/package.json
 
-# each uv tool — read the current package name out of extra/uvtools.nix first
+# each uv tool — read the current package name out of modules/apps/uvtools.nix first
 curl -s https://pypi.org/pypi/<package>/json | jq -r .info.version
 # compare to the ==<version> pin for that tool
 ```
@@ -139,15 +139,15 @@ silently lands in an unused directory.
 
 If `<input>` is `nixpkgs-unstable` (SketchyBar comes from there), check whether the
 SketchyBar version moved. It carries a local patch,
-`extra/sketchybar/layered-window-levels.patch`, against `src/bar.c`'s
+`modules/interface/sketchybar/layered-window-levels.patch`, against `src/bar.c`'s
 `bar_order_item_windows`. If a new release no longer applies it, the build fails at
 `patchPhase` — rebase the patch on the new source (keep the three-level idea: bar
 background +0, brackets +1, items +2 above the configured level) and first check the
 upstream changelog in case the bar-dimming-on-click bug was fixed there, in which case
-drop the patch and its overlay in `extra/sketchybar/default.nix`.
+drop the patch and its overlay in `modules/interface/sketchybar/default.nix`.
 
 **ExtraDock:** re-download to get the fresh hash, then edit `version` and `hash` together
-in `extra/extradock.nix`:
+in `modules/interface/extradock.nix`:
 
 ```bash
 curl -sL "https://github.com/AppitStudio/extra-dock5-updates/releases/download/prod/ExtraDock.dmg" -o /tmp/extradock-new.dmg
@@ -156,7 +156,7 @@ nix hash file --sri --type sha256 /tmp/extradock-new.dmg
 
 **VS Code marketplace extension:** fetch the new vsix (note `--compressed` — the gallery
 gzips the response and the raw bytes won't hash-match otherwise), hash it, edit
-`version` + `sha256` together in whichever `extra/*.nix` file owns that extension:
+`version` + `sha256` together in whichever `modules/**/*.nix` file owns that extension:
 
 ```bash
 curl -sL --compressed "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/<publisher>/vsextensions/<name>/<newversion>/vspackage" -o /tmp/ext.vsix
@@ -172,18 +172,18 @@ cat /tmp/ext-extracted/extension/*hangelog* 2>/dev/null
 ```
 
 **nx:** edit the pin, regenerate the lockfile, get the new npm-deps hash, then update
-`extra/nx.nix`'s `version` and `npmDepsHash` together:
+`modules/apps/nx/nx.nix`'s `version` and `npmDepsHash` together:
 
 ```bash
-# edit nx/package.json's "nx" version first
+# edit modules/apps/nx/package.json's "nx" version first
 cd nx && npm install --package-lock-only --ignore-scripts && cd ..
-nix run nixpkgs#prefetch-npm-deps -- nx/package-lock.json
+nix run nixpkgs#prefetch-npm-deps -- modules/apps/nx/package-lock.json
 ```
 
-Commit `nx/package.json`, `nx/package-lock.json`, and `extra/nx.nix` together (per
+Commit `modules/apps/nx/package.json`, `modules/apps/nx/package-lock.json`, and `modules/apps/nx/nx.nix` together (per
 CLAUDE.md) — but only if the user asks for a commit; don't commit unprompted.
 
-**uv tool:** just edit the `==<version>` pin in `extra/uvtools.nix`. No rebuild is
+**uv tool:** just edit the `==<version>` pin in `modules/apps/uvtools.nix`. No rebuild is
 strictly required — uv resolves it lazily on first invocation, cached under
 `~/.cache/uv` — but still confirm with the user before moving on. For a major bump,
 check the PyPI package's `pyproject.toml` (`[project.scripts]`) still exposes the same
@@ -237,7 +237,7 @@ Nothing else about the process changes based on where the session started.
 ## Maintenance note (for Claude, not the user)
 
 The inventory tables above are a snapshot of what's pinned in this repo as of writing.
-**If a new `extra/*.nix` module is added with its own manually-pinned dependency** — a
+**If a new `modules/**/*.nix` module is added with its own manually-pinned dependency** — a
 `fetchurl` with a hash, another `vscode-utils.extensionFromVscodeMarketplace` call, a
 new uv-tool entry, or any other hand-pinned version — add it to the Phase 1 manual-pins
 table the next time this skill is touched. This skill is only as good as its last sync
