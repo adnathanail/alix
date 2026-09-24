@@ -59,6 +59,9 @@
       in {
         claude-code = master.claude-code;
         prek = unstable.prek;
+        # Latest release; stable's 2.23 predates the rendering rework for
+        # macOS 26+.
+        sketchybar = unstable.sketchybar;
         vscode = unstable.vscode;
       };
   in {

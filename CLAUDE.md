@@ -65,7 +65,7 @@ fixes but rarely new modules — a brand-new HM module may exist only on `master
 
 ### Selective unstable overlay
 `unstableOverlay` in `flake.nix` pulls **specific** packages from `nixpkgs-unstable`, leaving
-everything else on stable: `claude-code`, `prek`, `vscode`. Reuse this pattern for anything that
+everything else on stable: `claude-code`, `prek`, `sketchybar`, `vscode`. Reuse this pattern for anything that
 needs to be fresher than the pin.
 
 `claude-code` draws from its own `nixpkgs-master` input — raw `master`, not the
@@ -270,7 +270,7 @@ Nix-managed unless noted.
   signature survives), same pattern as nixpkgs' own `skimpdf`. Bump `version` and refetch the
   hash (`nix-prefetch-url --type sha256 <url>`) whenever AppitStudio ships an update — a stale
   hash fails the build loudly rather than silently serving old bits.
-- **SketchyBar** *(Nix, re-signed)* — TCC pins a privacy grant to path + designated requirement,
+- **SketchyBar** *(Nix, unstable overlay, re-signed)* — TCC pins a privacy grant to path + designated requirement,
   and the nixpkgs binary is ad-hoc signed (requirement = cdhash), so every rebuild silently voids
   every grant (the toggle stays on but no longer applies). Plugin scripts are SketchyBar's
   children, so their requests (e.g. the clock's osascript keystroke → Accessibility) count as
