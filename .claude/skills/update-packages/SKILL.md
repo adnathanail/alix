@@ -45,7 +45,7 @@ user anything — don't mutate `flake.lock` or any source file in this phase.
 These are *locked revisions* of fixed branches. Moving a pinned branch itself (e.g.
 `nix-darwin-26.05` → the next release) is a `flake.nix` edit, not a `nix flake update` —
 and when the `nix-darwin` branch changes, also update the bootstrap command in
-`README.md` → *Setting up a new Mac* (`nix run nix-darwin/<branch>#darwin-rebuild …`),
+`docs/FIRST_USE.md` (`nix run nix-darwin/<branch>#darwin-rebuild …`),
 which names the same branch and must match it.
 
 Check each without touching the lockfile — compare the locked rev to the remote ref's

@@ -49,6 +49,7 @@ living at `~/.config/nix-darwin/`.
 | `modules/graveyard.nix` | Things we might want to (or already have) killed |
 | `modules/secrets/README.md` | operator steps for secrets: key generation, fresh-machine restore, adding/re-encrypting a secret |
 | `modules/secrets/agefiles/*.age`, `modules/secrets/secrets.nix` | encrypted secrets + their recipients (run `agenix` from `modules/secrets/`; keys are `agefiles/<name>.age`); the modules that consume them live alongside (env vars) or with their feature (MailMate, SketchyBar) |
+| `docs/FIRST_USE.md`, `docs/UPDATING_HOMEBREW.md` | the staged new-Mac runbook; how Homebrew app versions move (tap pins) |
 | `.claude/skills/update-packages/SKILL.md` | the package-update runbook — flake inputs + manual pins |
 
 ## Rules
@@ -322,8 +323,7 @@ Nix-managed unless noted.
   rebasing when SketchyBar is bumped — the build fails loudly if it no longer applies.
 
 A fresh machine comes up in stages — core → secrets → interface → apps, each enabled by
-uncommenting its line in `flake.nix` — with the manual steps between them in `README.md` →
-*Setting up a new Mac*. Only these orders evaluate: interface and apps both need secrets' agenix
+uncommenting its line in `flake.nix` — with the manual steps between them in `docs/FIRST_USE.md`. Only these orders evaluate: interface and apps both need secrets' agenix
 module. Manual, non-Nix setup still needed: App Store sign-in (**before** enabling
 `modules/apps`, whose `masApps` otherwise abort activation), per-app sign-ins/licences, and System Settings → Privacy & Security grants — Accessibility
 (Rectangle, Raycast, SketchyBar), Screen Recording (Slack), Input Monitoring (Raycast),

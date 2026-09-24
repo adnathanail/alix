@@ -36,7 +36,7 @@ _Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new con
     it installs 1Password, `op` and `nix-restore-age-key` — then sign into 1Password, turn on
     Settings → Developer → **Integrate with 1Password CLI**, run `nix-restore-age-key` (pulls
     the key to `~/.config/age/keys.txt`, mode 0600), and only then enable `modules/secrets`.
-    Full steps in the [main README](../../README.md#setting-up-a-new-mac).
+    Full steps in [docs/FIRST_USE.md](../../docs/FIRST_USE.md).
 - Shared machinery is in `modules/secrets/agenix.nix`; **secrets live with whatever uses them** —
   `modules/secrets/envvars.nix` for shell tokens, `modules/apps/mailmate.nix` for the MailMate account
   config. Add another secret:
