@@ -8,7 +8,7 @@
 - AeroSpace tiling window manager (`aerospace.nix`)
     - Config is Nix-managed — edit `aerospace.nix`, not `~/.aerospace.toml` (it's ignored)
     - Keyboard-driven — see [AeroSpace shortcuts](#aerospace-shortcuts) below
-    - Pinned apps (`on-window-detected` in `aerospace.nix`): Spotify → workspace 9
+    - Pinned apps (`on-window-detected` in `aerospace.nix`): GitButler → workspace 0, Spotify → workspace 9
     - *First use / after a version bump*: grant Accessibility to AeroSpace in System Settings → Privacy & Security
 - Raycast (`other.nix`)
 - SketchyBar ([More info](./sketchybar/README.md))
@@ -31,8 +31,8 @@ container lays out its windows either **tiles** (all visible, sharing the space)
 | ⌥/ | Tiles layout; press again to flip horizontal ↔ vertical |
 | ⌥, | Accordion layout; press again to flip horizontal ↔ vertical |
 | ⌥- / ⌥= | Shrink / grow the focused window |
-| ⌥1 – ⌥9 | Switch to workspace 1–9 |
-| ⌥⇧1 – ⌥⇧9 | Send the focused window to workspace 1–9 |
+| ⌥§, ⌥1 – ⌥9 | Switch to workspace 0–9 |
+| ⌥⇧§, ⌥⇧1 – ⌥⇧9 | Send the focused window to workspace 0–9 |
 | ⌥Tab | Back to the previous workspace |
 | ⌥⇧Tab | Move the current workspace to the next monitor |
 | ⌥⇧; | Enter service mode |

@@ -33,10 +33,15 @@ local brackets = {}
 -- Whether the bar is in spaces mode (vs app menus); starts in spaces mode.
 local shown = true
 
+-- Workspaces shown by their app icons alone, without the name: 0 is
+-- GitButler's (pinned in ../../../aerospace.nix).
+local unnamed = { ["0"] = true }
+
 for _, ws in ipairs(workspaces) do
   local space = sbar.add("item", "space." .. ws, {
     drawing = false,
     icon = {
+      drawing = not unnamed[ws],
       font = { family = settings.font.numbers },
       string = ws,
       padding_left = 10,
@@ -45,6 +50,8 @@ for _, ws in ipairs(workspaces) do
       highlight_color = colors.red,
     },
     label = {
+      -- With no name, the icons need the name's left padding instead.
+      padding_left = unnamed[ws] and 10 or 0,
       padding_right = 10,
       color = colors.grey,
       highlight_color = colors.white,

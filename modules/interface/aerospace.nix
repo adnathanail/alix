@@ -49,8 +49,20 @@ in
       # Pin apps to workspaces as their windows open. Match on the bundle ID
       # (`aerospace list-windows --all --format '%{app-bundle-id}'`).
       on-window-detected = [
+        { "if".app-id = "com.gitbutler.app"; run = "move-node-to-workspace 0"; }
         { "if".app-id = "com.spotify.client"; run = "move-node-to-workspace 9"; }
+        # Keep last (the first matching rule wins). On startup — `ns` or
+        # login — AeroSpace puts every already-open window on the first
+        # workspace, 0; send everything not pinned above to 1 instead.
+        { "if".during-aerospace-startup = true; run = "move-node-to-workspace 1"; }
       ];
+
+      # Workspaces that exist even when empty — what SketchyBar's spaces
+      # widget builds its pills from. AeroSpace infers 1–9 from the bindings
+      # below, but not 0 (bound to § rather than a digit).
+      persistent-workspaces = [ "0" ] ++ workspaces;
+      # Start on 1 rather than the first workspace in the list (0).
+      after-startup-command = [ "workspace 1" ];
 
       mode.main.binding = {
         alt-slash = "layout tiles horizontal vertical";
@@ -79,7 +91,12 @@ in
         alt-backtick = "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger swap_menus_and_spaces";
       }
       // perWorkspace (w: { name = "alt-${w}"; value = "workspace ${w}"; })
-      // perWorkspace (w: { name = "alt-shift-${w}"; value = "move-node-to-workspace ${w}"; });
+      // perWorkspace (w: { name = "alt-shift-${w}"; value = "move-node-to-workspace ${w}"; })
+      // {
+        # Workspace 0, on the § key left of 1 (British/ISO keyboards).
+        alt-sectionSign = "workspace 0";
+        alt-shift-sectionSign = "move-node-to-workspace 0";
+      };
 
       mode.service.binding = {
         esc = service "reload-config";
