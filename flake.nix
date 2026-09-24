@@ -101,6 +101,9 @@
         # ── Rectangle: window snapping ─────────────────────────
         (import ./modules/interface/rectangle.nix { inherit username; })
 
+        # ── Other interface tools (Raycast) ────────────────────
+        ./modules/interface/other.nix
+
         # ── system ──────────────────────────────────────────────
         ({ pkgs, ... }: {
           nixpkgs.hostPlatform = "aarch64-darwin"; # "x86_64-darwin" on Intel
@@ -114,9 +117,6 @@
           nix.enable = false;
 
           users.users.${username}.home = "/Users/${username}";
-
-          # Enable Touch ID for sudo
-          security.pam.services.sudo_local.touchIdAuth = true;
 
           environment.systemPackages = [ ];
 
@@ -140,7 +140,7 @@
             # below), so `ns` is reproducible: bump with
             # `nix flake update homebrew-cask`.
             greedyCasks = true;
-            casks = [ "1password" "1password-cli" "orbstack" "raycast" "ghostty" "gitbutler" "mimestream" "slack" "todoist-app" "fantastical" "spotify" "whatsapp" "google-drive" "steam" "capcut" "zoom" "audacity" "vlc" "gimp" "utm" "anki" "private-internet-access" "telegram" "signal" "brave-browser" "raindropio" "deepl" "dockflow" ];
+            casks = [ "1password" "1password-cli" "orbstack" "ghostty" "gitbutler" "mimestream" "slack" "todoist-app" "fantastical" "spotify" "whatsapp" "google-drive" "steam" "capcut" "zoom" "audacity" "vlc" "gimp" "utm" "anki" "private-internet-access" "telegram" "signal" "brave-browser" "raindropio" "deepl" "dockflow" ];
             # `mas` is the Mac App Store CLI; needed for `homebrew.masApps`.
             # Explicit so `cleanup = "zap"` doesn't uninstall it.
             brews = [ "mas" "poppler" ];

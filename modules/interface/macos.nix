@@ -1,10 +1,14 @@
-# macOS system settings: Dock, menu-bar clock, Control Center, and
-# system-wide keyboard shortcuts.
+# macOS system settings: Dock, menu-bar clock, Control Center,
+# system-wide keyboard shortcuts, and Touch ID for sudo.
 #
 # Wiring (in flake.nix):
 #     (import ./modules/interface/macos.nix { inherit username; })
 { username }:
 { ... }: {
+  # Touch ID for sudo. Writes /etc/pam.d/sudo_local, which survives macOS
+  # updates; doesn't work inside tmux without pam_reattach.
+  security.pam.services.sudo_local.touchIdAuth = true;
+
   # Hide "Recent applications" section in the Dock.
   system.defaults.dock.show-recents = false;
 

@@ -25,7 +25,9 @@ living at `~/.config/nix-darwin/`.
 | Path | Owns |
 | --- | --- |
 | `flake.nix` | inputs, unstable overlay, Homebrew casks/brews, nix-homebrew + HM wiring |
-| `modules/interface/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey |
+| `modules/interface/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey; Touch ID for sudo |
+| `modules/interface/other.nix` | interface tools too small for their own module — currently the Raycast cask |
+| `modules/interface/README.md` | user-facing list of the interface config (Touch ID, Rectangle, Raycast, SketchyBar, hot corners) |
 | `modules/interface/rectangle.nix` | Rectangle: a darwin module that sets its screen-edge gaps and adds the app to the HM packages |
 | `home.nix` | Home Manager user config (packages, git, zsh, Ghostty config) |
 | `modules/secrets/agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`, `nix-restore-age-key`. Declares **no** secrets |
@@ -47,7 +49,8 @@ living at `~/.config/nix-darwin/`.
 
 - **DO NOT REBUILD — ask the user to do it.** Activation needs root. The command is `ns`
   (alias for `nix-switch`, itself `sudo darwin-rebuild switch --flake ~/.config/nix-darwin`).
-- **Add new software/tools/config to `README.md`.**
+- **Add new software/tools/config to `README.md`** — or, for interface config or secrets,
+  `modules/interface/README.md` / `modules/secrets/README.md`.
 - **Never use a tool's self-updater** — the store is read-only. Update via `nix flake update` +
   rebuild, or the Homebrew cask refresh on rebuild. Disable in-app updaters where exposed.
 
@@ -161,9 +164,9 @@ re-run `op document edit "nix-darwin age key" ~/.config/age/keys.txt`.
 
 ### System defaults
 `modules/interface/macos.nix` covers the Dock (no recents, hot corners, pinned apps), menu-bar
-clock, Control Center and the `pbs` services hotkey (`CustomUserPreferences`). `flake.nix` keeps
-Touch ID for sudo (`security.pam.services.sudo_local.touchIdAuth` — writes
-`/etc/pam.d/sudo_local`, survives macOS updates, doesn't work in tmux without `pam_reattach`).
+clock, Control Center, the `pbs` services hotkey (`CustomUserPreferences`), and Touch ID for sudo
+(`security.pam.services.sudo_local.touchIdAuth` — writes `/etc/pam.d/sudo_local`, survives macOS
+updates, doesn't work in tmux without `pam_reattach`).
 App-specific `CustomUserPreferences` live with their app: `modules/apps/microsoft.nix`,
 `modules/interface/rectangle.nix`. Note some domains are TCC-protected and can't be set
 from the activation script — those stay manual toggles.
@@ -224,7 +227,7 @@ Nix-managed unless noted.
 - **OrbStack** *(Homebrew)* — installs a privileged helper and CLI shims (`docker`,
   `docker compose`, `orb`, `orbctl`) into `/usr/local/bin`. **Do not also install `pkgs.docker` /
   `pkgs.docker-compose`** — PATH conflicts.
-- **Raycast** *(Homebrew)* — Login Items helper + system-wide hotkey; default ⌥Space collides
+- **Raycast** *(Homebrew, `modules/interface/other.nix`)* — Login Items helper + system-wide hotkey; default ⌥Space collides
   with Spotlight (onboarding offers to disable it).
 - **Microsoft Outlook / Office** *(Outlook via Homebrew, Word/Excel/PowerPoint via `mas`; Nix-managed
   prefs; all in `modules/apps/microsoft.nix`)* — prefs are set through
