@@ -137,6 +137,15 @@ symlinks the repo's keymap into a version-pinned path
 PyCharm version changed and, if so, update that path in `home.nix` too, or the keymap
 silently lands in an unused directory.
 
+If `<input>` is `nixpkgs-unstable` (SketchyBar comes from there), check whether the
+SketchyBar version moved. It carries a local patch,
+`extra/sketchybar/layered-window-levels.patch`, against `src/bar.c`'s
+`bar_order_item_windows`. If a new release no longer applies it, the build fails at
+`patchPhase` — rebase the patch on the new source (keep the three-level idea: bar
+background −2, brackets −1, items at the configured level) and first check the
+upstream changelog in case the bar-dimming-on-click bug was fixed there, in which case
+drop the patch and its overlay in `extra/sketchybar/default.nix`.
+
 **ExtraDock:** re-download to get the fresh hash, then edit `version` and `hash` together
 in `extra/extradock.nix`:
 
