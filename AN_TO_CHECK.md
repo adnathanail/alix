@@ -1,16 +1,9 @@
-# SketchyBar
-
-https://github.com/felixkratz/sketchybar
-
-Share your setups
-https://github.com/FelixKratz/SketchyBar/discussions/47?sort=new
-
-Share your plugins
-https://github.com/FelixKratz/SketchyBar/discussions/12?sort=top
-
-Hiding menu bar
-https://github.com/FelixKratz/SketchyBar/discussions/281
-https://github.com/FelixKratz/SketchyBar/discussions/229
-
 # Aerospace
 https://github.com/nikitabobko/AeroSpace
+
+# Yabai
+https://github.com/asmvik/yabai
+
+https://github.com/Sparkylc2/minimal-aerospace-sketchybar-config
+
+Manage all Rectangle config here
