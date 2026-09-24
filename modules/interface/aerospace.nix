@@ -14,7 +14,7 @@
 #
 # Consumed from modules/interface/default.nix as:
 #     ./aerospace.nix
-{ pkgs, ... }:
+{ username, pkgs, ... }:
 let
   workspaces = map toString [ 1 2 3 4 5 6 7 8 9 ];
   perWorkspace = f: builtins.listToAttrs (map f workspaces);
@@ -89,4 +89,11 @@ in
       };
     };
   };
+
+  # Ghostty: ⌘T opens a new window rather than a tab, so each shell is its
+  # own window for AeroSpace to tile. Appends to the config file declared in
+  # modules/core/dev.nix.
+  home-manager.users.${username}.xdg.configFile."ghostty/config".text = ''
+    keybind = super+t=new_window
+  '';
 }

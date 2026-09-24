@@ -30,7 +30,9 @@
 
     # Ghostty config. The file is Nix-owned so the first-launch auto-update
     # prompt is suppressed declaratively. Edits made in the app won't
-    # persist — change this block and rebuild.
+    # persist — change this block and rebuild. Other modules append to it
+    # (`text` is a lines option): modules/interface/aerospace.nix adds its
+    # keybind.
     xdg.configFile."ghostty/config".text = ''
       auto-update = off
     '';
