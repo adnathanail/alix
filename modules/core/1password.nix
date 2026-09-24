@@ -12,9 +12,8 @@
 # the Safari extension in modules/apps/other.nix.
 #
 # Consumed from modules/core/default.nix as:
-#     (import ./1password.nix { inherit username; })
-{ username }:
-{ ... }: {
+#     ./1password.nix
+{ username, ... }: {
   homebrew.casks = [ "1password" "1password-cli" ];
 
   home-manager.users.${username} = { pkgs, ... }: {

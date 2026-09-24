@@ -9,10 +9,8 @@
 # ./secrets.nix and the encrypted file itself.
 #
 # Consumed from modules/secrets/default.nix as:
-#     (import ./envvars.nix { inherit username; })
-{ username }:
-
-{ ... }: {
+#     ./envvars.nix
+{ username, ... }: {
   age.secrets.npm-font-awesome-token = {
     file = ./agefiles/npm-font-awesome-token.age;
     owner = username;

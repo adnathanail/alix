@@ -15,10 +15,8 @@
 # ./signing.nix.
 #
 # Consumed from modules/interface/default.nix as:
-#     (import ./sketchybar { inherit username; })
-{ username }:
-
-{ lib, pkgs, ... }:
+#     ./sketchybar
+{ username, lib, pkgs, ... }:
 let
   # The server binary launchd runs: a stable-path, stably-signed copy of
   # pkgs.sketchybar (./signing.nix). This path is what privacy grants are

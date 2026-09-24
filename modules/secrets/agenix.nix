@@ -10,13 +10,11 @@
 # a feature is one file rather than a change scattered across the tree.
 #
 # Consumed from modules/secrets/default.nix as:
-#     (import ./agenix.nix { inherit agenix username; })
+#     ./agenix.nix
 #
 # See ./README.md for the operator flow
 # (generating the age key, encrypting a new secret, fresh-machine bootstrap).
-{ agenix, username }:
-
-{ pkgs, ... }: {
+{ agenix, username, pkgs, ... }: {
   imports = [ agenix.darwinModules.default ];
 
   environment.systemPackages = [ agenix.packages.${pkgs.stdenv.hostPlatform.system}.default ];

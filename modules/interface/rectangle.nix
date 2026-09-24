@@ -14,9 +14,8 @@
 # and keeps its Accessibility grant.
 #
 # Consumed from modules/interface/default.nix as:
-#     (import ./rectangle.nix { inherit username; })
-{ username }:
-{ pkgs, ... }: {
+#     ./rectangle.nix
+{ username, pkgs, ... }: {
   home-manager.users.${username}.home.packages = [ pkgs.rectangle ];
 
   system.defaults.CustomUserPreferences."com.knollsoft.Rectangle" = {

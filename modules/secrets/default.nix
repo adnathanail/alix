@@ -4,12 +4,12 @@
 # by the `agenix` CLI, not the module system, so it isn't imported here.
 #
 # Wiring (in flake.nix):
-#     (import ./modules/secrets { inherit agenix username; })
-{ agenix, username }:
+#     ./modules/secrets
+{ agenix, username, ... }:
 {
   imports = [
-    (import ./agenix.nix { inherit agenix username; })
-    (import ./envvars.nix { inherit username; })
-    (import ./git-signing.nix { inherit username; })
+    ./agenix.nix
+    ./envvars.nix
+    ./git-signing.nix
   ];
 }

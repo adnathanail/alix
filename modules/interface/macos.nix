@@ -2,9 +2,8 @@
 # system-wide keyboard shortcuts, and Touch ID for sudo.
 #
 # Consumed from modules/interface/default.nix as:
-#     (import ./macos.nix { inherit username; })
-{ username }:
-{ ... }: {
+#     ./macos.nix
+{ username, ... }: {
   # Touch ID for sudo. Writes /etc/pam.d/sudo_local, which survives macOS
   # updates; doesn't work inside tmux without pam_reattach.
   security.pam.services.sudo_local.touchIdAuth = true;

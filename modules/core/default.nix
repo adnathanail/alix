@@ -4,13 +4,13 @@
 # enabled — home.nix sets home.stateVersion.
 #
 # Wiring (in flake.nix):
-#     (import ./modules/core { inherit username; })
-{ username }:
+#     ./modules/core
+{ username, ... }:
 {
   # nix-darwin modules
   imports = [
-    (import ./dev.nix { inherit username; })       # Claude Code, Ghostty, GitButler
-    (import ./1password.nix { inherit username; }) # 1Password + CLI, nix-restore-age-key
+    ./dev.nix       # Claude Code, Ghostty, GitButler
+    ./1password.nix # 1Password + CLI, nix-restore-age-key
   ];
 
   # Home Manager modules

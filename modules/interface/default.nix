@@ -2,15 +2,15 @@
 # line to drop that feature on the next `ns` rebuild.
 #
 # Wiring (in flake.nix):
-#     (import ./modules/interface { inherit username; })
-{ username }:
+#     ./modules/interface
+{ username, ... }:
 {
   # nix-darwin modules
   imports = [
-    (import ./sketchybar { inherit username; })    # SketchyBar: menu-bar replacement
-    (import ./macos.nix { inherit username; })     # Dock, menu bar, shortcuts, Touch ID
-    (import ./rectangle.nix { inherit username; }) # Rectangle: window snapping
-    ./other.nix                                    # Raycast
+    ./sketchybar    # SketchyBar: menu-bar replacement
+    ./macos.nix     # Dock, menu bar, shortcuts, Touch ID
+    ./rectangle.nix # Rectangle: window snapping
+    ./other.nix     # Raycast
   ];
 
   # Home Manager modules

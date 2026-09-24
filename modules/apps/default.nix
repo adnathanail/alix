@@ -2,16 +2,16 @@
 # drop that app on the next `ns` rebuild.
 #
 # Wiring (in flake.nix):
-#     (import ./modules/apps { inherit username; })
-{ username }:
+#     ./modules/apps
+{ username, ... }:
 {
   # nix-darwin modules
   imports = [
-    (import ./other.nix { inherit username; })    # Apps without their own module: casks, brews, prek, Safari extensions
-    (import ./mailmate.nix { inherit username; }) # MailMate: cask + account config
-    ./appdev.nix                                  # iOS/Android app dev tooling
-    ./microsoft.nix                               # Outlook, Word, Excel, PowerPoint
-    ./macapps.nix                                 # Mac App Store apps (iMovie, Reeder, …)
+    ./other.nix     # Apps without their own module: casks, brews, prek, Safari extensions
+    ./mailmate.nix  # MailMate: cask + account config
+    ./appdev.nix    # iOS/Android app dev tooling
+    ./microsoft.nix # Outlook, Word, Excel, PowerPoint
+    ./macapps.nix   # Mac App Store apps (iMovie, Reeder, …)
   ];
 
   # Home Manager modules

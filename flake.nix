@@ -67,22 +67,25 @@
       };
   in {
     darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
+      # Passed to every nix-darwin module as a module argument, so modules
+      # take `{ username, ... }:` and are imported by plain path.
+      specialArgs = { inherit username agenix; };
       modules = [
 
         # ── secrets: agenix machinery + env-var secrets ────────
-        (import ./modules/secrets { inherit agenix username; })
+        ./modules/secrets
 
         # ── core: Claude Code, Ghostty, GitButler, VS Code ─────
-        (import ./modules/core { inherit username; })
+        ./modules/core
 
         # ── apps ────────────────────────────────────────────────
-        (import ./modules/apps { inherit username; })
+        ./modules/apps
 
         # ── interface: SketchyBar, macOS settings, Rectangle, … ─
-        (import ./modules/interface { inherit username; })
+        ./modules/interface
 
         # ── Graveyard: where things go to die ─
-        (import ./modules/graveyard.nix { inherit username; })
+        ./modules/graveyard.nix
 
         # ── system ──────────────────────────────────────────────
         ({ pkgs, ... }: {

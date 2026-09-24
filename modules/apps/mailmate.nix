@@ -7,13 +7,11 @@
 # adds to them rather than owning them outright.
 #
 # Consumed from modules/apps/default.nix as:
-#     (import ./mailmate.nix { inherit username; })
+#     ./mailmate.nix
 #
 # See CLAUDE.md → "Per-tool notes" → MailMate for the Outlook.com/Hotmail
 # host-pairing trap, which is the thing most likely to bite here.
-{ username }:
-
-{ ... }: {
+{ username, ... }: {
   # 2.0 beta. The cask isn't `auto_updates` and carries `sha256 :no_check`
   # against a rolling MailMateBeta.tbz, so `brew upgrade --cask mailmate@beta`
   # pulls whatever the current beta is.

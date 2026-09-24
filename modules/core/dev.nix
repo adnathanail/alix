@@ -1,9 +1,8 @@
 # Core dev tools: Claude Code, Ghostty, GitButler.
 #
 # Consumed from modules/core/default.nix as:
-#     (import ./dev.nix { inherit username; })
-{ username }:
-{ ... }: {
+#     ./dev.nix
+{ username, ... }: {
   # Ghostty needs Homebrew: pkgs.ghostty on Darwin is fragile (Swift/Xcode
   # toolchain). GitButler needs /Applications.
   homebrew.casks = [ "ghostty" "gitbutler" ];

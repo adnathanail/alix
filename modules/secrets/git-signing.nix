@@ -3,9 +3,8 @@
 # "Use the SSH agent" on; until then signed commits fail.
 #
 # Consumed from modules/secrets/default.nix as:
-#     (import ./git-signing.nix { inherit username; })
-{ username }:
-{ ... }:
+#     ./git-signing.nix
+{ username, ... }:
 let
   # The *public* half of the signing key; the private half never leaves
   # 1Password.

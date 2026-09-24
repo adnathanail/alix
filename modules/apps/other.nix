@@ -6,9 +6,8 @@
 # on `ns`, since flake.nix sets cleanup = "zap".
 #
 # Consumed from modules/apps/default.nix as:
-#     (import ./other.nix { inherit username; })
-{ username }:
-{ pkgs, ... }: {
+#     ./other.nix
+{ username, pkgs, ... }: {
   home-manager.users.${username}.home.packages = [
     # Rust reimplementation of pre-commit; from unstable because stable
     # lags this fast-moving 0.x tool.
