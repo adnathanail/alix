@@ -62,6 +62,17 @@ let
   # it (and you with it) once a profile's prefix appears. Only for a new window — VS Code's title
   # changes with every file switched to, so watching for good would undo
   # manual moves. AEROSPACE_WINDOW_ID is the detected window.
+  # Sends every window with a rule home: re-runs the window rules below
+  # (on-window-detected) on every window. The VS Code profile rules take
+  # focus along, so it returns you to the workspace you were on afterwards.
+  # Bound to service mode's S; also on PATH as `aerospace-sort`.
+  aerospaceSort = pkgs.writeShellScriptBin "aerospace-sort" ''
+    aerospace=${aerospace}/bin/aerospace
+    ws=$($aerospace list-workspaces --focused)
+    $aerospace run-callback --for-every-window on-window-detected
+    $aerospace workspace "$ws"
+  '';
+
   vscodeTitleWatch = pkgs.writeShellScript "aerospace-vscode-title-watch" ''
     aerospace=${aerospace}/bin/aerospace
     id=''${AEROSPACE_WINDOW_ID:-$($aerospace list-windows --focused --format '%{window-id}')}
@@ -79,6 +90,8 @@ let
   '';
 in
 {
+  environment.systemPackages = [ aerospaceSort ];
+
   services.aerospace = {
     enable = true;
     package = aerospace;
@@ -103,12 +116,24 @@ in
       # The profiles' workspaces (./profiles.nix).
       ++ lib.concatMap profileRules profiles
       ++ [
-        # 1: every other VS Code window. After the profile rules above, as
-        # the first match wins. The watcher moves it on if a profile's title
-        # turns up late.
+      ]
+      # Every other VS Code window (after the profile rules above, as the
+      # first match wins): opened on a profile's workspace, it goes to 1 —
+      # unlabelled projects don't belong there; anywhere else, it stays put.
+      # Either way the watcher moves it on if a profile's title turns up late.
+      ++ map (p: {
+        "if" = {
+          app-id = "com.microsoft.VSCode";
+          workspace = toString p.workspace;
+        };
+        run = [ "move-node-to-workspace 1" "exec-and-forget ${vscodeTitleWatch}" ];
+      }) profiles
+      ++ [
         {
           "if".app-id = "com.microsoft.VSCode";
-          run = [ "move-node-to-workspace 1" "exec-and-forget ${vscodeTitleWatch}" ];
+          run = "exec-and-forget ${vscodeTitleWatch}";
+          # Still let the startup rule below send it to 1.
+          check-further-callbacks = true;
         }
 
         # Keep last (the first matching rule wins). On startup — `ns` or
@@ -162,6 +187,7 @@ in
         esc = service "reload-config";
         r = service "flatten-workspace-tree";
         f = service "layout floating tiling";
+        s = service "exec-and-forget ${aerospaceSort}/bin/aerospace-sort";
 
         alt-shift-h = service "join-with left";
         alt-shift-j = service "join-with down";

@@ -20,7 +20,7 @@ local mode = sbar.add("item", "aerospace.mode", {
     padding_right = 6,
   },
   label = {
-    string = "F float · R reset · ⌥⇧HJKL join · esc reload",
+    string = "F float · R reset · S sort · ⌥⇧HJKL join · esc reload",
     color = colors.black,
     font = { style = settings.font.style_map["Semibold"], size = 12.0 },
     padding_right = 10,
