@@ -7,12 +7,11 @@
 {
   # nix-darwin modules
   imports = [
-    (import ./other.nix { inherit username; })    # Apps without their own module: casks, brews, prek
+    (import ./other.nix { inherit username; })    # Apps without their own module: casks, brews, prek, Safari extensions
     (import ./mailmate.nix { inherit username; }) # MailMate: cask + account config
     ./appdev.nix                                  # iOS/Android app dev tooling
     ./microsoft.nix                               # Outlook, Word, Excel, PowerPoint
     ./macapps.nix                                 # Mac App Store apps (iMovie, Reeder, …)
-    ./safariexts.nix                              # Safari extensions (from the App Store)
   ];
 
   # Home Manager modules

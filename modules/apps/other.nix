@@ -16,8 +16,6 @@
   ];
 
   homebrew.casks = [
-    "1password"
-    "1password-cli"
     "orbstack"
     "mimestream"
     "slack"
@@ -50,4 +48,10 @@
     # PDF tools (pdftotext, pdftoppm, pdfinfo, …).
     "poppler"
   ];
+
+  # Safari extensions, from the Mac App Store (find IDs with `mas search`).
+  # These are container apps shipping a Safari App Extension; after install,
+  # enable them in Safari → Settings → Extensions (that toggle is per-user
+  # state, not Nix-managed).
+  homebrew.masApps."Save to Raindrop.io" = 1549370672;
 }

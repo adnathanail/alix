@@ -1,4 +1,4 @@
-{ pkgs, config, ... }: {
+{ pkgs, ... }: {
   home.stateVersion = "25.11";
 
   programs.zsh = {
@@ -11,17 +11,7 @@
   programs.git = {
     enable = true;
     lfs.enable = true;
-    # SSH commit signing through 1Password. The signer is 1Password's own
-    # binary (Homebrew cask, see modules/apps/other.nix), which prompts for biometrics
-    # and holds the private key — nothing secret lands on disk or in Nix.
-    # `key` is the *public* key literal; git accepts that in place of a
-    # path when gpg.format = "ssh". signByDefault also signs tags.
-    signing = {
-      format = "ssh";
-      signer = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign";
-      key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAJsvq2utLp2Y8KEL1xZPi9fggjoJDGiVcL8EjYRo4FJ";
-      signByDefault = true;
-    };
+    # Commit signing through 1Password: modules/secrets/1password.nix.
     settings = {
       user = {
         name = "Alex Nathanail";
@@ -29,17 +19,8 @@
       };
       init.defaultBranch = "main";
       pull.rebase = true;
-      # Lets `git log --show-signature` verify your own commits locally;
-      # without it git can sign but reports "No signature" on verify.
-      gpg.ssh.allowedSignersFile = "${config.xdg.configHome}/git/allowed_signers";
     };
   };
-
-  # Trusted signing keys for local verification. Add other people's keys
-  # here as `<email> <key type> <public key>` lines if you need to verify
-  # their commits too.
-  xdg.configFile."git/allowed_signers".text =
-    "7809723+adnathanail@users.noreply.github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAJsvq2utLp2Y8KEL1xZPi9fggjoJDGiVcL8EjYRo4FJ\n";
 
   home.packages = [
     pkgs.python3

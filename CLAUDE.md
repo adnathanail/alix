@@ -25,7 +25,7 @@ living at `~/.config/nix-darwin/`.
 | Path | Owns |
 | --- | --- |
 | `flake.nix` | inputs, unstable overlay, Homebrew settings (`onActivation`, `greedyCasks`), nix-homebrew + HM wiring |
-| `modules/apps/other.nix` | apps too small for their own module: the Homebrew casks and brews, plus `prek` (added to the HM packages) |
+| `modules/apps/other.nix` | apps too small for their own module: the Homebrew casks and brews, the Save to Raindrop.io Safari extension, plus `prek` (added to the HM packages) |
 | `modules/interface/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey; Touch ID for sudo |
 | `modules/interface/other.nix` | interface tools too small for their own module — currently the Raycast cask |
 | `modules/interface/README.md` | user-facing list of the interface config (Touch ID, Rectangle, Raycast, SketchyBar, hot corners) |
@@ -35,10 +35,11 @@ living at `~/.config/nix-darwin/`.
 | `modules/core/vscode.nix` | VS Code: editor from unstable, settings, extensions (HM module) |
 | `modules/{core,apps,interface,secrets}/default.nix` | each directory's entry point, imported once from `flake.nix`: lists its nix-darwin modules in `imports` and its HM modules in `home-manager.users.${username}.imports`. Add a new module to its directory's `default.nix`, not the root files |
 | `modules/secrets/agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`, `nix-restore-age-key`. Declares **no** secrets |
+| `modules/secrets/1password.nix` | 1Password: the app + `op` casks, the Safari extension, and git SSH commit signing via `op-ssh-sign` (+ `allowed_signers`) |
 | `modules/secrets/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
 | `modules/apps/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
 | `modules/apps/microsoft.nix` | everything Microsoft Office: the Outlook cask, Word/Excel/PowerPoint `masApps`, and the Office/Outlook/AutoUpdate prefs |
-| `modules/apps/appdev.nix`, `modules/apps/macapps.nix`, `modules/apps/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge, along with `microsoft.nix`'s); deliberately independent of each other |
+| `modules/apps/appdev.nix`, `modules/apps/macapps.nix` | darwin modules, each adding to `homebrew.masApps` (they merge, along with `microsoft.nix`'s, `other.nix`'s and `1password.nix`'s); deliberately independent of each other |
 | `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/nx/nx.nix`, `modules/apps/pycharm/pycharm.nix`, `modules/apps/uvtools.nix` | optional HM feature modules, imported by `modules/apps/default.nix` — comment out a line to drop the feature |
 | `modules/apps/nx/package.json`, `package-lock.json` | the npm wrapper project `nx.nix` builds from |
 | `modules/apps/pycharm/` | PyCharm: `pycharm.nix` (an HM module imported by `modules/apps/default.nix`) installs it and symlinks in `custom-keymap.xml` |
@@ -237,7 +238,7 @@ Nix-managed unless noted.
 - **git** *(Nix)* — `programs.git` owns identity and `~/.gitconfig`. Installing git via Nix
   sidesteps Apple's Command Line Tools prompt; CLT is still needed for build systems that
   hardcode `/usr/bin/git` or need Apple SDK headers.
-- **1Password + CLI** *(Homebrew)* — `pkgs._1password-gui` refuses to run outside `/Applications`,
+- **1Password + CLI** *(Homebrew, `modules/secrets/1password.nix`, with the Safari extension)* — `pkgs._1password-gui` refuses to run outside `/Applications`,
   and the desktop ↔ CLI biometric handshake verifies AgileBits' signature on `op`, which Nix's
   wrap step invalidates. Homebrew ships both signed binaries as-is.
 - **OrbStack** *(Homebrew)* — installs a privileged helper and CLI shims (`docker`,

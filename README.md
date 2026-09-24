@@ -94,8 +94,8 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
     - *First use on a fresh machine*: 1Password → Settings → Developer → **Use the SSH
       agent**, and add the public key to GitHub under **Settings → SSH and GPG keys** as a
       **Signing key** (a key added only as an Authentication key won't mark commits verified)
-    - Rotating the key = update `programs.git.signing.key` and the `allowed_signers` line in
-      `home.nix`, then `ns`
+    - Rotating the key = update `signingKey` in `modules/secrets/1password.nix` (used for both
+      the signing key and the `allowed_signers` line), then `ns`
 - prek
 - python
 - uv (Python package/project manager) (uv tools added to path)
