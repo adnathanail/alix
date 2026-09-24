@@ -19,6 +19,8 @@ let
   # Unstable: fast-moving 0.x beta that tracks new macOS releases.
   aerospace = pkgs.unstable.aerospace;
 
+  profiles = import ./profiles.nix;
+
   workspaces = map toString [ 1 2 3 4 5 6 7 8 9 ];
   perWorkspace = f: builtins.listToAttrs (map f workspaces);
 
@@ -32,33 +34,32 @@ let
   # Run a service-mode command, then drop back to main mode.
   service = cmd: [ cmd ] ++ toMode "main";
 
-  # Window rule: an app's windows whose title starts with `prefix`.
-  titlePrefix = appId: prefix: ws: {
-    "if" = {
-      app-id = appId;
-      window-title-regex-substring = "^${prefix}";
-    };
-    run = "move-node-to-workspace ${ws}";
-  };
-  # Safari starts each window's title with its profile name.
-  safariProfile = profile: titlePrefix "com.apple.Safari" "${profile} — ";
-
-  # VS Code windows titled "<context> - …" (from window.title in the
-  # project's settings) → workspace. Each also needs a
-  # `(vscodeContext "<context>")` rule below.
-  vscodeContexts = {
-    Fermioniq = "4";
-    ASAC = "5";
-  };
-  # A new project window takes you along to its workspace.
-  vscodeContext = context:
-    titlePrefix "com.microsoft.VSCode" "${context} - " vscodeContexts.${context}
-    // { run = "move-node-to-workspace --focus-follows-window ${vscodeContexts.${context}}"; };
+  # Window rules sending a profile's windows (see ./profiles.nix) to its
+  # workspace: its apps, Safari windows in its Safari profile (Safari starts
+  # each window's title with the profile name), and VS Code windows titled
+  # "<name> - …" — a new project window takes you along with it.
+  profileRules = p:
+    let
+      ws = toString p.workspace;
+      titled = appId: prefix: run: {
+        "if" = {
+          app-id = appId;
+          window-title-regex-substring = "^${prefix}";
+        };
+        inherit run;
+      };
+    in
+    map (app: { "if".app-id = app; run = "move-node-to-workspace ${ws}"; }) (p.apps or [ ])
+    ++ [
+      (titled "com.apple.Safari" "${p.name} — " "move-node-to-workspace ${ws}")
+      (titled "com.microsoft.VSCode" "${p.name} - "
+        "move-node-to-workspace --focus-follows-window ${ws}")
+    ];
 
   # VS Code often shows a window before it has set the project's title, so
   # the rules above can miss it. The catch-all VS Code rule runs this for
   # each window it catches: for 10s it re-reads the window's title and moves
-  # it (and you with it) once a context prefix appears. Only for a new window — VS Code's title
+  # it (and you with it) once a profile's prefix appears. Only for a new window — VS Code's title
   # changes with every file switched to, so watching for good would undo
   # manual moves. AEROSPACE_WINDOW_ID is the detected window.
   vscodeTitleWatch = pkgs.writeShellScript "aerospace-vscode-title-watch" ''
@@ -71,9 +72,9 @@ let
         | sed -n "s/^$id|//p")
       [ -n "$title" ] || exit 0 # window closed
       case "$title" in
-    ${lib.concatStrings (lib.mapAttrsToList (context: ws: ''
-        "${context} - "*) exec $aerospace move-node-to-workspace --focus-follows-window --window-id "$id" ${ws} ;;
-    '') vscodeContexts)}  esac
+    ${lib.concatMapStrings (p: ''
+        "${p.name} - "*) exec $aerospace move-node-to-workspace --focus-follows-window --window-id "$id" ${toString p.workspace} ;;
+    '') profiles}  esac
     done
   '';
 in
@@ -98,18 +99,12 @@ in
       on-window-detected = [
         { "if".app-id = "com.gitbutler.app"; run = "move-node-to-workspace 0"; }
         { "if".app-id = "com.spotify.client"; run = "move-node-to-workspace 9"; }
-
-        # 4: Fermioniq (work) — Slack, its Safari profile and VS Code projects.
-        { "if".app-id = "com.tinyspeck.slackmacgap"; run = "move-node-to-workspace 4"; }
-        (safariProfile "Fermioniq" "4")
-        (vscodeContext "Fermioniq")
-
-        # 5: ASAC — its Safari profile and VS Code projects.
-        (safariProfile "ASAC" "5")
-        (vscodeContext "ASAC")
-
-        # 1: every other VS Code window. After the context rules above, as
-        # the first match wins. The watcher moves it on if a context title
+      ]
+      # The profiles' workspaces (./profiles.nix).
+      ++ lib.concatMap profileRules profiles
+      ++ [
+        # 1: every other VS Code window. After the profile rules above, as
+        # the first match wins. The watcher moves it on if a profile's title
         # turns up late.
         {
           "if".app-id = "com.microsoft.VSCode";

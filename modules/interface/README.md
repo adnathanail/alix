@@ -8,7 +8,12 @@
 - AeroSpace tiling window manager (`aerospace.nix`)
     - Config is Nix-managed — edit `aerospace.nix`, not `~/.aerospace.toml` (it's ignored)
     - Keyboard-driven — see [AeroSpace shortcuts](#aerospace-shortcuts) below
-    - Pinned apps (`on-window-detected` in `aerospace.nix`): GitButler → 0, Fermioniq (Slack + Safari's Fermioniq profile + VS Code windows titled `Fermioniq - …`) → 4, ASAC (Safari's ASAC profile + VS Code windows titled `ASAC - …`) → 5, other VS Code windows → 1 (re-checked for 10s after opening, in case the project title appears late), Spotify → 9
+    - Pinned apps (`on-window-detected` in `aerospace.nix`): GitButler → 0, Spotify → 9, other VS Code windows → 1 (re-checked for 10s after opening, in case a profile's title appears late)
+    - Profiles (`profiles.nix`): each has a name, workspace, colour and optional apps. Its apps, Safari windows in the Safari profile of the same name, and VS Code windows titled `<name> - …` go to its workspace, and SketchyBar colours that workspace's pill. Currently Fermioniq (4, + Slack) and ASAC (5)
+        - To label a VS Code project with a profile, set its window title in the project's `.vscode/settings.json` (the rest after the prefix is VS Code's default title):
+          ```json
+          "window.title": "Fermioniq - ${activeEditorShort}${separator}${rootName}${separator}${profileName}"
+          ```
     - *First use / after a version bump*: grant Accessibility to AeroSpace in System Settings → Privacy & Security
 - Raycast (`other.nix`)
 - SketchyBar ([More info](./sketchybar/README.md))

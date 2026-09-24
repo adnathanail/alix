@@ -37,13 +37,12 @@ local shown = true
 -- GitButler's (pinned in ../../../aerospace.nix).
 local unnamed = { ["0"] = true }
 
--- Per-context colours (the workspaces are set up in ../../../aerospace.nix).
--- The pill's background: a faint tint of it when inactive, the full colour
--- when active (with a white number, as red clashes with the colours).
-local accents = {
-  ["4"] = 0xffee8076, -- Fermioniq
-  ["5"] = 0xffd25bf7, -- ASAC
-}
+-- Per-profile colours, keyed by workspace: ../profiles.lua, generated from
+-- modules/interface/profiles.nix. The pill's background: a faint tint of it
+-- when inactive, the full colour when active (with a white number, as red
+-- clashes with the colours).
+local accents = {}
+for ws, profile in pairs(require("profiles")) do accents[ws] = profile.colour end
 local tint_alpha = 0.3
 
 for _, ws in ipairs(workspaces) do

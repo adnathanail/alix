@@ -25,6 +25,7 @@
 #   - helpers/app_icons.lua: replaced — loads the icon map that ships with
 #     sketchybar-app-font (substituted in below) plus a local overrides
 #     table, instead of upstream's hand-copied snapshot
+#   - profiles.lua: new, generated below from ../profiles.nix
 #   - items/aerospace_mode.lua (+ its require): new, AeroSpace key-hint
 #     pills — one in service mode, one while Option is held
 #
@@ -47,7 +48,25 @@
 { pkgs }:
 
 let
+  inherit (pkgs) lib;
   lua = pkgs.lua5_5;
+
+  # The profiles (../profiles.nix) as profiles.lua, keyed by workspace:
+  #   return { ["4"] = { name = "Fermioniq", colour = 0xffee8076 }, … }
+  # for items/spaces.lua's pill colours. "#rrggbb" becomes SketchyBar's
+  # 0xAARRGGBB, fully opaque.
+  argb = colour:
+    let hex = lib.removePrefix "#" colour; in
+    assert lib.assertMsg (builtins.match "[0-9a-fA-F]{6}" hex != null)
+      "profiles.nix: colour must be \"#rrggbb\", got \"${colour}\"";
+    "0xff${hex}";
+  profilesLua = pkgs.writeText "profiles.lua" ''
+    -- Generated from modules/interface/profiles.nix by ../config.nix.
+    return {
+    ${lib.concatMapStrings (p: ''
+      ["${toString p.workspace}"] = { name = "${p.name}", colour = ${argb p.colour} },
+    '') (import ../profiles.nix)}}
+  '';
 in
 pkgs.stdenv.mkDerivation {
   pname = "sketchybar-config";
@@ -77,6 +96,7 @@ pkgs.stdenv.mkDerivation {
   installPhase = ''
     runHook preInstall
     cp -R . $out
+    cp ${profilesLua} $out/profiles.lua
     runHook postInstall
   '';
 }
