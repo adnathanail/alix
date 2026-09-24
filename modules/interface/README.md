@@ -46,7 +46,6 @@ Press ⌥⇧; then one key — each runs its command and returns to main mode. S
 | F | Toggle the focused window between floating and tiled |
 | R | Reset the workspace layout (flatten the tree) |
 | ⌥⇧H / ⌥⇧J / ⌥⇧K / ⌥⇧L | Join the focused window with its neighbour into a new nested container |
-| Backspace | Close every window on the workspace except the focused one |
 | Esc | Reload the config |
 
 ### CLI

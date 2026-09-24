@@ -5,7 +5,8 @@
 #
 # A custom config replaces AeroSpace's built-in one wholesale, so the key
 # bindings below are its defaults re-declared (minus the alt-<letter>
-# workspaces, which clobber ⌥-typed characters). Anything not listed is
+# workspaces, which clobber ⌥-typed characters, and service mode's
+# close-all-windows-but-current on backspace). Anything not listed is
 # unbound.
 #
 # The upstream release is ad-hoc signed, so its Accessibility grant is
@@ -80,7 +81,6 @@ in
         esc = service "reload-config";
         r = service "flatten-workspace-tree";
         f = service "layout floating tiling";
-        backspace = service "close-all-windows-but-current";
 
         alt-shift-h = service "join-with left";
         alt-shift-j = service "join-with down";
