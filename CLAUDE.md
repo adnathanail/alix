@@ -24,13 +24,14 @@ living at `~/.config/nix-darwin/`.
 
 | Path | Owns |
 | --- | --- |
-| `flake.nix` | inputs, unstable overlay, app `CustomUserPreferences` (Microsoft, Rectangle), Homebrew casks/brews, nix-homebrew + HM wiring |
+| `flake.nix` | inputs, unstable overlay, Rectangle `CustomUserPreferences`, Homebrew casks/brews, nix-homebrew + HM wiring |
 | `modules/interface/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey |
 | `home.nix` | Home Manager user config (packages, git, zsh, Ghostty config) |
 | `modules/secrets/agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`, `nix-restore-age-key`. Declares **no** secrets |
 | `modules/secrets/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
 | `modules/apps/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
-| `modules/apps/appdev.nix`, `modules/apps/macapps.nix`, `modules/apps/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge); deliberately independent of each other |
+| `modules/apps/microsoft.nix` | everything Microsoft Office: the Outlook cask, Word/Excel/PowerPoint `masApps`, and the Office/Outlook/AutoUpdate prefs |
+| `modules/apps/appdev.nix`, `modules/apps/macapps.nix`, `modules/apps/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge, along with `microsoft.nix`'s); deliberately independent of each other |
 | `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/nx/nx.nix`, `modules/apps/pycharm/pycharm.nix`, `modules/apps/uvtools.nix`, `modules/apps/vscode.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
 | `modules/apps/nx/package.json`, `package-lock.json` | the npm wrapper project `nx.nix` builds from |
 | `modules/apps/pycharm/` | PyCharm: `pycharm.nix` (an HM module imported from `home.nix`) installs it and symlinks in `custom-keymap.xml` |
@@ -161,7 +162,7 @@ re-run `op document edit "nix-darwin age key" ~/.config/age/keys.txt`.
 clock, Control Center and the `pbs` services hotkey (`CustomUserPreferences`). `flake.nix` keeps
 Touch ID for sudo (`security.pam.services.sudo_local.touchIdAuth` — writes
 `/etc/pam.d/sudo_local`, survives macOS updates, doesn't work in tmux without `pam_reattach`) and
-`CustomUserPreferences` for Microsoft's domains and Rectangle. Note some domains are TCC-protected and can't be set
+Rectangle's `CustomUserPreferences`; Microsoft's live in `modules/apps/microsoft.nix`. Note some domains are TCC-protected and can't be set
 from the activation script — those stay manual toggles.
 
 ## Per-tool notes
@@ -222,7 +223,8 @@ Nix-managed unless noted.
   `pkgs.docker-compose`** — PATH conflicts.
 - **Raycast** *(Homebrew)* — Login Items helper + system-wide hotkey; default ⌥Space collides
   with Spotlight (onboarding offers to disable it).
-- **Microsoft Outlook / Office** *(Homebrew, Nix-managed prefs)* — prefs are set through
+- **Microsoft Outlook / Office** *(Outlook via Homebrew, Word/Excel/PowerPoint via `mas`; Nix-managed
+  prefs; all in `modules/apps/microsoft.nix`)* — prefs are set through
   `system.defaults.CustomUserPreferences` on `com.microsoft.Outlook` and `com.microsoft.office`.
   This works for a sandboxed app because Microsoft documents `defaults write` as the supported
   mechanism (CFPreferences redirects into the container plist). Currently:
