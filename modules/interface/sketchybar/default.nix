@@ -55,6 +55,18 @@ in {
       sketchybar = final.unstable.sketchybar.overrideAttrs (old: {
         patches = (old.patches or [ ]) ++ [ ./layered-window-levels.patch ];
       });
+
+      # Custom app icons, built into the font alongside upstream's: each
+      # ./app-font/svgs/:name:.svg is a glyph (24x24, solid shapes only —
+      # colour is ignored) and ./app-font/mappings/:name: lists the app names
+      # that get it, e.g. "GitButler". The font's generated icon map picks
+      # them up, so config/helpers/app_icons.lua needs no entry.
+      sketchybar-app-font = prev.sketchybar-app-font.overrideAttrs (old: {
+        postPatch = (old.postPatch or "") + ''
+          cp ${./app-font/svgs}/* svgs/
+          cp ${./app-font/mappings}/* mappings/
+        '';
+      });
     })
   ];
 

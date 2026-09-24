@@ -22,6 +22,9 @@
 #   - items/spaces.lua: AeroSpace workspaces instead of native Spaces/yabai;
 #     it now shows/hides its own items on swap_menus_and_spaces (menus.lua
 #     no longer sets them)
+#   - helpers/app_icons.lua: replaced — loads the icon map that ships with
+#     sketchybar-app-font (substituted in below) plus a local overrides
+#     table, instead of upstream's hand-copied snapshot
 #   - items/aerospace_mode.lua (+ its require): new, a pill shown while
 #     AeroSpace is in service mode
 #
@@ -52,6 +55,8 @@ pkgs.stdenv.mkDerivation {
   src = ./config;
 
   postPatch = ''
+    substituteInPlace helpers/app_icons.lua \
+      --replace-fail '@iconMap@' '${pkgs.sketchybar-app-font}/lib/sketchybar-app-font/icon_map.lua'
     substituteInPlace sketchybarrc \
       --replace-fail '#!/usr/bin/env lua' '#!${lua}/bin/lua'
     substituteInPlace helpers/init.lua \

@@ -24,6 +24,8 @@ Modifications from FelixKratz's setup:
 - Add open WiFi settings button to WiFi popup
 - Add button to swap sketchybar for macOS bar and back
 - Spaces show AeroSpace workspaces (focused + non-empty ones) instead of native macOS Spaces; click one to switch to it
+- Spaces' app icons use the icon map shipped with `sketchybar-app-font` (so every app the font knows gets its icon); point an app at a different glyph in the `overrides` table in `config/helpers/app_icons.lua`
+- Custom app icons built into the font from `app-font/` (currently GitButler): add `svgs/:name:.svg` (24×24, solid shapes) and `mappings/:name:` (the app names, e.g. `"GitButler"`)
 - Red "SERVICE" pill with the key hints while AeroSpace is in service mode
 - Lock/unlock animation ([Source](https://github.com/nicolas-martin/awesome-sketchybar/blob/master/plugins/Simple-LockUnlock-Animation.md))
 - Replace media with Spotify-specific setup, because macOS removed their private media API
