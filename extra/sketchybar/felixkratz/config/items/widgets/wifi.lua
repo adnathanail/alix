@@ -199,7 +199,12 @@ local function toggle_details()
     sbar.exec("ipconfig getifaddr en0", function(result)
       ip:set({ label = result })
     end)
-    sbar.exec("ipconfig getsummary en0 | awk -F ' SSID : '  '/ SSID : / {print $2}'", function(result)
+    -- `ipconfig getsummary`'s SSID (and `networksetup -getairportnetwork`)
+    -- are redacted without Location Services on this machine, but
+    -- `-listpreferredwirelessnetworks` isn't, and macOS keeps the connected
+    -- network at the top of that list. That list is also populated while
+    -- disconnected, so check the interface is active first.
+    sbar.exec("ipconfig getsummary en0 | grep -Fxq '  Active : FALSE' || networksetup -listpreferredwirelessnetworks en0 | sed -n '2s/^\t//p'", function(result)
       ssid:set({ label = result })
     end)
     sbar.exec("networksetup -getinfo Wi-Fi | awk -F 'Subnet mask: ' '/^Subnet mask: / {print $2}'", function(result)
