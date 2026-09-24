@@ -152,6 +152,19 @@ local router = sbar.add("item", {
   },
 })
 
+local open_settings = sbar.add("item", {
+  position = "popup." .. wifi_bracket.name,
+  icon = {
+    align = "left",
+    string = icons.gear,
+  },
+  label = {
+    align = "left",
+    string = "Open Wi-Fi Settings",
+  },
+  width = popup_width,
+})
+
 sbar.add("item", { position = "right", width = settings.group_paddings })
 
 wifi_up:subscribe("network_update", function(env)
@@ -237,3 +250,8 @@ hostname:subscribe("mouse.clicked", copy_label_to_clipboard)
 ip:subscribe("mouse.clicked", copy_label_to_clipboard)
 mask:subscribe("mouse.clicked", copy_label_to_clipboard)
 router:subscribe("mouse.clicked", copy_label_to_clipboard)
+
+open_settings:subscribe("mouse.clicked", function(env)
+  hide_details()
+  sbar.exec("open 'x-apple.systempreferences:com.apple.wifi-settings-extension'")
+end)

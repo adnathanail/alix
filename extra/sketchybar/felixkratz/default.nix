@@ -5,7 +5,8 @@
 # and re-apply the local tweaks (carried over from ../classic):
 #   - items/calendar.lua: click opens Fantastical's Mini Window, not Calendar
 #   - items/widgets/wifi.lua: SSID read from the preferred-networks list, as
-#     ipconfig's is redacted without Location Services
+#     ipconfig's is redacted without Location Services; plus an "Open Wi-Fi
+#     Settings" row at the bottom of its popup
 #
 # Upstream assumes a mutable ~/.config/sketchybar, which the store isn't, so
 # this derivation fixes up the three places that break:
