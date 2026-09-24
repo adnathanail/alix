@@ -29,6 +29,7 @@ living at `~/.config/nix-darwin/`.
 | `modules/interface/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey; Touch ID for sudo |
 | `modules/interface/other.nix` | interface tools too small for their own module — currently the Raycast cask |
 | `modules/interface/README.md` | user-facing list of the interface config (Touch ID, Rectangle, Raycast, SketchyBar, hot corners) |
+| `modules/interface/aerospace.nix` | AeroSpace: `services.aerospace` (nix-darwin's module — launchd agent + generated TOML), from unstable; default key bindings re-declared, outer gaps matching Rectangle's |
 | `modules/interface/rectangle.nix` | Rectangle: a darwin module that sets its screen-edge gaps and adds the app to the HM packages |
 | `modules/core/home.nix` | base Home Manager config (git identity, zsh, python/uv/node, `nix-switch`) and `home.stateVersion` — imported by `modules/core/default.nix`, so core must always be enabled |
 | `modules/core/dev.nix` | Claude Code (`programs.claude-code`, updater opt-out, `claude-work` and `ncc` aliases), the Ghostty + GitButler casks, and Ghostty's config file — a darwin module with its HM part under `home-manager.users.${username}` |
@@ -86,6 +87,7 @@ feature module picks its own fresher package where it's used:
 
 - `modules/core/dev.nix` — `pkgs.master.claude-code` (as `programs.claude-code.package`)
 - `modules/apps/other.nix` — `pkgs.unstable.prek`
+- `modules/interface/aerospace.nix` — `services.aerospace.package = pkgs.unstable.aerospace`
 - `modules/core/vscode.nix` — `programs.vscode.package = pkgs.unstable.vscode`
 - `modules/interface/sketchybar/default.nix` — its patch overlay builds from
   `final.unstable.sketchybar`
@@ -326,5 +328,5 @@ A fresh machine comes up in stages — core → secrets → interface → apps, 
 uncommenting its line in `flake.nix` — with the manual steps between them in `docs/FIRST_USE.md`. Only these orders evaluate: interface and apps both need secrets' agenix
 module. Manual, non-Nix setup still needed: App Store sign-in (**before** enabling
 `modules/apps`, whose `masApps` otherwise abort activation), per-app sign-ins/licences, and System Settings → Privacy & Security grants — Accessibility
-(Rectangle, Raycast, SketchyBar), Screen Recording (Slack, Pika), Input Monitoring (Raycast),
+(Rectangle, Raycast, SketchyBar, AeroSpace), Screen Recording (Slack, Pika), Input Monitoring (Raycast),
 Notifications/Calendar/Contacts/Mic/Camera per app.

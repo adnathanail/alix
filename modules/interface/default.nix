@@ -9,7 +9,8 @@
   imports = [
     ./sketchybar    # SketchyBar: menu-bar replacement
     ./macos.nix     # Dock, menu bar, shortcuts, Touch ID
-    ./rectangle.nix # Rectangle: window snapping
+    # ./rectangle.nix # Rectangle: window snapping
+    ./aerospace.nix # AeroSpace: tiling window manager + workspaces
     ./other.nix     # Raycast
   ];
 
