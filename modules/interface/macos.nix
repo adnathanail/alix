@@ -24,9 +24,6 @@
     { spacer = { small = true; }; }
     { app = "/Users/${username}/Applications/Home Manager Apps/Visual Studio Code.app"; }
     { app = "/Applications/GitButler.app"; }
-    { spacer = { small = true; }; }
-    { app = "/Applications/MailMate.app"; }
-    { spacer = { small = true; }; }
   ];
 
   # Menu-bar clock: 24h time with seconds, no date.
