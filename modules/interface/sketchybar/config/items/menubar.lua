@@ -60,9 +60,8 @@ local menubar = sbar.add("item", "widgets.menubar", {
 sbar.add("bracket", "widgets.menubar.bracket", { menubar.name }, {
   background = { color = colors.bg1 }
 })
--- No group-padding item after it, unlike the widgets: the Spotify cover to
--- its left has no pill, so the cover's own padding already makes the usual
--- 5pt gap.
+-- No group-padding item after it, unlike the widgets: the Safari button to
+-- its left (items/safari.lua) adds its own.
 
 sbar.exec("f=\"" .. image .. "\"; mkdir -p \"$(dirname \"$f\")\";"
   .. " osascript -l JavaScript \"$CONFIG_DIR/helpers/render_symbol.js\" eye"

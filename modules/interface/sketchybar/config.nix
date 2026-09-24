@@ -26,6 +26,8 @@
 #     sketchybar-app-font (substituted in below) plus a local overrides
 #     table, instead of upstream's hand-copied snapshot
 #   - profiles.lua: new, generated below from ../profiles.nix
+#   - items/safari.lua (+ its require): new, a Safari button for the focused
+#     workspace's profile (menubar.lua's padding note updated to match)
 #   - items/aerospace_mode.lua (+ its require): new, AeroSpace key-hint
 #     pills — one in service mode, one while Option is held
 #

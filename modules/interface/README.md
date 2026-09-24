@@ -10,6 +10,7 @@
     - Keyboard-driven — see [AeroSpace shortcuts](#aerospace-shortcuts) below
     - Pinned apps (`on-window-detected` in `aerospace.nix`): GitButler → 0, Spotify → 9, Safari and VS Code windows that match no profile but were opened on a profile's workspace → 1 (and any Safari or VS Code window is re-checked for 10s after opening, in case a profile's title appears late)
     - Profiles (`profiles.nix`): each has a name, workspace, colour and optional apps. Its apps, Safari windows in the Safari profile of the same name, and VS Code windows titled `<name> - …` go to its workspace, and SketchyBar colours that workspace's pill. Currently Fermioniq (4, + Slack) and ASAC (5)
+        - SketchyBar's Safari button (left of the eye) takes the current workspace's profile colour; clicking it focuses that profile's Safari window, or opens one (Personal on workspaces without a profile)
         - To label a VS Code project with a profile, set its window title in the project's `.vscode/settings.json` (the rest after the prefix is VS Code's default title):
           ```json
           "window.title": "Fermioniq - ${activeEditorShort}${separator}${rootName}${separator}${profileName}"
