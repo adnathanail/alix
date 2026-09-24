@@ -14,8 +14,11 @@
 #
 # Consumed from modules/interface/default.nix as:
 #     ./aerospace.nix
-{ username, pkgs, ... }:
+{ username, lib, pkgs, ... }:
 let
+  # Unstable: fast-moving 0.x beta that tracks new macOS releases.
+  aerospace = pkgs.unstable.aerospace;
+
   workspaces = map toString [ 1 2 3 4 5 6 7 8 9 ];
   perWorkspace = f: builtins.listToAttrs (map f workspaces);
 
@@ -29,21 +32,55 @@ let
   # Run a service-mode command, then drop back to main mode.
   service = cmd: [ cmd ] ++ toMode "main";
 
-  # Window rule: Safari windows in a given profile. Safari starts each
-  # window's title with the profile name.
-  safariProfile = profile: ws: {
+  # Window rule: an app's windows whose title starts with `prefix`.
+  titlePrefix = appId: prefix: ws: {
     "if" = {
-      app-id = "com.apple.Safari";
-      window-title-regex-substring = "^${profile} — ";
+      app-id = appId;
+      window-title-regex-substring = "^${prefix}";
     };
     run = "move-node-to-workspace ${ws}";
   };
+  # Safari starts each window's title with its profile name.
+  safariProfile = profile: titlePrefix "com.apple.Safari" "${profile} — ";
+
+  # VS Code windows titled "<context> - …" (from window.title in the
+  # project's settings) → workspace. Each also needs a
+  # `(vscodeContext "<context>")` rule below.
+  vscodeContexts = {
+    Fermioniq = "4";
+    ASAC = "5";
+  };
+  # A new project window takes you along to its workspace.
+  vscodeContext = context:
+    titlePrefix "com.microsoft.VSCode" "${context} - " vscodeContexts.${context}
+    // { run = "move-node-to-workspace --focus-follows-window ${vscodeContexts.${context}}"; };
+
+  # VS Code often shows a window before it has set the project's title, so
+  # the rules above can miss it. The catch-all VS Code rule runs this for
+  # each window it catches: for 10s it re-reads the window's title and moves
+  # it (and you with it) once a context prefix appears. Only for a new window — VS Code's title
+  # changes with every file switched to, so watching for good would undo
+  # manual moves. AEROSPACE_WINDOW_ID is the detected window.
+  vscodeTitleWatch = pkgs.writeShellScript "aerospace-vscode-title-watch" ''
+    aerospace=${aerospace}/bin/aerospace
+    id=''${AEROSPACE_WINDOW_ID:-$($aerospace list-windows --focused --format '%{window-id}')}
+    [ -n "$id" ] || exit 0
+    for _ in $(seq 20); do
+      sleep 0.5
+      title=$($aerospace list-windows --all --format '%{window-id}|%{window-title}' \
+        | sed -n "s/^$id|//p")
+      [ -n "$title" ] || exit 0 # window closed
+      case "$title" in
+    ${lib.concatStrings (lib.mapAttrsToList (context: ws: ''
+        "${context} - "*) exec $aerospace move-node-to-workspace --focus-follows-window --window-id "$id" ${ws} ;;
+    '') vscodeContexts)}  esac
+    done
+  '';
 in
 {
   services.aerospace = {
     enable = true;
-    # Unstable: fast-moving 0.x beta that tracks new macOS releases.
-    package = pkgs.unstable.aerospace;
+    package = aerospace;
 
     settings = {
       # Keep tiled windows clear of the custom bars, neither of which
@@ -62,12 +99,22 @@ in
         { "if".app-id = "com.gitbutler.app"; run = "move-node-to-workspace 0"; }
         { "if".app-id = "com.spotify.client"; run = "move-node-to-workspace 9"; }
 
-        # 4: Fermioniq (work) — Slack, and its Safari profile.
+        # 4: Fermioniq (work) — Slack, its Safari profile and VS Code projects.
         { "if".app-id = "com.tinyspeck.slackmacgap"; run = "move-node-to-workspace 4"; }
         (safariProfile "Fermioniq" "4")
+        (vscodeContext "Fermioniq")
 
-        # 5: ASAC — its Safari profile.
+        # 5: ASAC — its Safari profile and VS Code projects.
         (safariProfile "ASAC" "5")
+        (vscodeContext "ASAC")
+
+        # 1: every other VS Code window. After the context rules above, as
+        # the first match wins. The watcher moves it on if a context title
+        # turns up late.
+        {
+          "if".app-id = "com.microsoft.VSCode";
+          run = [ "move-node-to-workspace 1" "exec-and-forget ${vscodeTitleWatch}" ];
+        }
 
         # Keep last (the first matching rule wins). On startup — `ns` or
         # login — AeroSpace puts every already-open window on the first
