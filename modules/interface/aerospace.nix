@@ -149,6 +149,17 @@ in
       ++ strays "com.apple.Safari" " — " ""
       ++ strays "com.microsoft.VSCode" " - " "--focus-follows-window"
       ++ [
+        # 0 is GitButler's alone (pinned first, above): anything else opened
+        # there goes to 1, taking you with it. Not at startup, when every
+        # window starts on 0 — the rule below handles that.
+        {
+          "if" = {
+            workspace = "0";
+            during-aerospace-startup = false;
+          };
+          run = "move-node-to-workspace --focus-follows-window 1";
+        }
+
         # Keep last (the first matching rule wins). On startup — `ns` or
         # login — AeroSpace puts every already-open window on the first
         # workspace, 0; send everything not pinned above to 1 instead.
