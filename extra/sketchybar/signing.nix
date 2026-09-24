@@ -1,10 +1,10 @@
 # Re-signs SketchyBar with a stable self-signed identity so its privacy
 # grants (System Settings → Privacy & Security) survive updates.
 #
-# SketchyBar and the plugin scripts it spawns need TCC grants for some
-# things — e.g. Accessibility for ./felixkratz's menus helper reading the
-# front app's menu bar, or ./classic/clock.nix's osascript keystroke that
-# opens Fantastical's Mini Window. The scripts and helpers are SketchyBar's
+# SketchyBar and the scripts and helpers it spawns need TCC grants for some
+# things — e.g. Accessibility for the config's menus helper reading the
+# front app's menu bar, or the calendar's osascript keystroke that opens
+# Fantastical's Mini Window. The scripts and helpers are SketchyBar's
 # children, so macOS attributes their requests to SketchyBar itself.
 #
 # TCC pins a grant to the binary's path *and* its designated requirement.
@@ -27,9 +27,9 @@
 # The signing keychain is throwaway: created in a temp dir, never added to
 # the search list, deleted on exit. Nothing persists outside $dest.
 #
-# Only the launchd-run server needs this. The `sketchybar --set …` CLI calls
-# in sketchybarrc and the plugins just message the server, so they keep
-# using the store binary.
+# Only the launchd-run server needs this. `sketchybar --set …` CLI calls in
+# the config's click scripts just message the server, so they keep using the
+# store binary.
 #
 # Returns a script taking: <store binary> <.p12> <destination>. Run it as
 # the user (see default.nix), so the keychain lives in their security

@@ -1,8 +1,8 @@
-# FelixKratz's own SketchyBar config (the SketchyBar author), in Lua via
+# The bar config: FelixKratz's own (the SketchyBar author), in Lua via
 # SbarLua. ./config is a copy of .config/sketchybar from
 # github.com/FelixKratz/dotfiles @ 67ad686 (2025-10-04), GPL-3.0 (./LICENSE).
 # Edit it in place; to re-sync with upstream, copy the directory over again
-# and re-apply the local tweaks (carried over from ../classic):
+# and re-apply the local tweaks:
 #   - items/calendar.lua: click opens Fantastical's Mini Window, not Calendar
 #   - items/widgets/wifi.lua: SSID read from the preferred-networks list, as
 #     ipconfig's is redacted without Location Services; plus an "Open Wi-Fi
@@ -22,7 +22,7 @@
 # --replace-fail makes a re-sync that moves any of these lines fail the build
 # rather than silently leaving the upstream behaviour in.
 #
-# Returns the finished config directory; ../default.nix links it to
+# Returns the finished config directory; ./default.nix links it to
 # ~/.config/sketchybar.
 { pkgs }:
 
@@ -30,7 +30,7 @@ let
   lua = pkgs.lua5_5;
 in
 pkgs.stdenv.mkDerivation {
-  pname = "sketchybar-config-felixkratz";
+  pname = "sketchybar-config";
   version = "0-unstable-2025-10-04";
   src = ./config;
 

@@ -182,7 +182,7 @@
           # reads them at launch, so restart it after a rebuild that changes
           # them.
           system.defaults.CustomUserPreferences."com.knollsoft.Rectangle" = {
-            # SketchyBar (extra/sketchybar/felixkratz/config/bar.lua) is 40pt;
+            # SketchyBar (extra/sketchybar/config/bar.lua) is 40pt;
             # macOS already reserves 32pt for the hidden notch menu bar.
             screenEdgeGapTop = 8;
             # ExtraDock's bottom docks: 76pt bar thickness, 0pt edge gap
