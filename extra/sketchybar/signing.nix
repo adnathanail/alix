@@ -2,8 +2,9 @@
 # grants (System Settings → Privacy & Security) survive updates.
 #
 # SketchyBar and the plugin scripts it spawns need TCC grants for some
-# things — e.g. Accessibility for the clock's osascript keystroke that opens
-# Fantastical's Mini Window (./clock.nix). The scripts are SketchyBar's
+# things — e.g. Accessibility for ./felixkratz's menus helper reading the
+# front app's menu bar, or ./classic/clock.nix's osascript keystroke that
+# opens Fantastical's Mini Window. The scripts and helpers are SketchyBar's
 # children, so macOS attributes their requests to SketchyBar itself.
 #
 # TCC pins a grant to the binary's path *and* its designated requirement.

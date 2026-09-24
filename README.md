@@ -92,11 +92,11 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Window tiling (Rectangle)
 - Raycast
 - SketchyBar (menu-bar replacement, see `extra/sketchybar/`)
-    - Minimal starter config (front app, wifi, battery, clock) at `~/.config/sketchybar/`; edit and rebuild to extend — https://felixkratz.github.io/SketchyBar/config
-    - Battery shows charge percentage; icon reflects level and turns red at ≤10%, green with a bolt while on AC power
-    - Clock shows the date and time; click opens Fantastical's Mini Window
+    - Two bar configs, swapped via `barConfig` in `extra/sketchybar/default.nix`; either is linked to `~/.config/sketchybar/` — https://felixkratz.github.io/SketchyBar/config
+    - **Active:** FelixKratz's own Lua config (`extra/sketchybar/felixkratz/`, vendored from his dotfiles) — Apple menu, the front app's menus / spaces toggle, media, CPU graph, network up/down + WiFi popup, volume + output-device popup, battery, calendar. Runs on SbarLua; its C helpers are built by Nix. Uses SF Pro + SF Mono (Homebrew `font-sf-pro` / `font-sf-mono`), SwitchAudioSource and nowplaying-cli. Clicking a space does nothing (it calls `yabai`, which isn't installed). The app-menu helper needs SketchyBar's Accessibility grant (below)
+    - **Disconnected:** the original bash widgets (`extra/sketchybar/classic/`) — Apple menu, front app, WiFi, battery (icon reflects level, red at ≤10%, green bolt on AC), clock (click opens Fantastical's Mini Window)
     - Autostarts via a launchd user agent (`launchd.user.agents.sketchybar`), the Nix equivalent of `brew services start sketchybar`
-    - launchd runs a copy at `~/.local/libexec/sketchybar/sketchybar`, re-signed on every rebuild with a stable identity from agenix (`extra/sketchybar/signing.nix`), so privacy grants survive updates. Give any grant SketchyBar needs (e.g. Accessibility, for the clock's Fantastical keystroke) to that path — in the file picker, ⌘⇧G and paste it — then `launchctl kickstart -k gui/$(id -u)/org.nixos.sketchybar`. A grant on a `/nix/store/…` path breaks on the next rebuild
+    - launchd runs a copy at `~/.local/libexec/sketchybar/sketchybar`, re-signed on every rebuild with a stable identity from agenix (`extra/sketchybar/signing.nix`), so privacy grants survive updates. Give any grant SketchyBar needs (e.g. Accessibility, for the app-menu helper or the classic clock's Fantastical keystroke) to that path — in the file picker, ⌘⇧G and paste it — then `launchctl kickstart -k gui/$(id -u)/org.nixos.sketchybar`. A grant on a `/nix/store/…` path breaks on the next rebuild
     - To actually replace the native menu bar, hide it in System Settings → Control Center → Menu Bar (not Nix-managed)
 - Top left hot corner: Show desktop
 - Bottom left hot corner: Apps (Launchpad)

@@ -31,7 +31,7 @@ living at `~/.config/nix-darwin/`.
 | `extra/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
 | `extra/appdev.nix`, `extra/macapps.nix`, `extra/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge); deliberately independent of each other |
 | `extra/rocq.nix`, `extra/eleventy.nix`, `extra/nx.nix`, `extra/uvtools.nix`, `extra/vscode.nix` | optional HM feature modules, imported from `home.nix` — comment out a line to drop the feature |
-| `extra/sketchybar/` | SketchyBar: `default.nix` wires the per-widget files together; `signing.nix` re-signs the server binary |
+| `extra/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, restart and picks the bar config (`barConfig`); `felixkratz/` (active, vendored Lua config + Nix build of its helpers) and `classic/` (disconnected bash widgets) each build a config directory; `signing.nix` re-signs the server binary |
 | `graveyard/graveyard.nix` | Things we might want to (or already have) killed |
 | `secrets/*.age`, `secrets/secrets.nix` | encrypted secrets + their recipients |
 | `.claude/skills/update-packages/SKILL.md` | the package-update runbook — flake inputs + manual pins |
