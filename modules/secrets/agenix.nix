@@ -10,7 +10,7 @@
 # Consumed from flake.nix as:
 #     (import ./modules/secrets/agenix.nix { inherit agenix username; })
 #
-# See README → "Secrets management (agenix)" for the operator flow
+# See ./README.md for the operator flow
 # (generating the age key, encrypting a new secret, fresh-machine bootstrap).
 { agenix, username }:
 
@@ -27,7 +27,7 @@
   # To add a secret:
   #   1. add it to modules/secrets/secrets.nix
   #   2. add an `age.secrets.<name>` block to the module that consumes it
-  #   3. `cd modules/secrets && agenix -e <name>.age -i ~/.config/age/keys.txt < plaintext`
+  #   3. `cd modules/secrets && agenix -e agefiles/<name>.age -i ~/.config/age/keys.txt < plaintext`
   #      (agenix ignores $EDITOR when stdin isn't a TTY — see CLAUDE.md)
   #   4. `git add` the .age file so the flake sees it
   age.identityPaths = [ "/Users/${username}/.config/age/keys.txt" ];
@@ -36,7 +36,7 @@
     home.packages = [
       # Fetches the age identity from 1Password on a fresh machine.
       # Refuses to overwrite an existing key. Upload command (run once,
-      # after key generation) is in the README.
+      # after key generation) is in ./README.md.
       (pkgs.writeShellScriptBin "nix-restore-age-key" ''
         set -euo pipefail
         key="$HOME/.config/age/keys.txt"

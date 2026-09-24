@@ -59,7 +59,7 @@ in {
   ];
 
   age.secrets.sketchybar-signing-identity = {
-    file = ../../secrets/sketchybar-signing-identity.age;
+    file = ../../secrets/agefiles/sketchybar-signing-identity.age;
     owner = username;
     mode = "0400";
   };

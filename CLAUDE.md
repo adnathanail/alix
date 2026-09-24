@@ -39,7 +39,8 @@ living at `~/.config/nix-darwin/`.
 | `modules/interface/extradock.nix` | ExtraDock 5, an HM module imported from `home.nix` |
 | `modules/interface/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, signing and restart; `config/` is FelixKratz's vendored Lua config (plus local tweaks), built by `config.nix` along with its C helpers; `signing.nix` re-signs the server binary; `layered-window-levels.patch` is a local SketchyBar fix; `menubar-return.m` is a tiny native status-item helper that returns from the macOS menu bar to SketchyBar |
 | `modules/graveyard.nix` | Things we might want to (or already have) killed |
-| `modules/secrets/*.age`, `modules/secrets/secrets.nix` | encrypted secrets + their recipients; the modules that consume them live alongside (env vars) or with their feature (MailMate, SketchyBar) |
+| `modules/secrets/README.md` | operator steps for secrets: key generation, fresh-machine restore, adding/re-encrypting a secret |
+| `modules/secrets/agefiles/*.age`, `modules/secrets/secrets.nix` | encrypted secrets + their recipients (run `agenix` from `modules/secrets/`; keys are `agefiles/<name>.age`); the modules that consume them live alongside (env vars) or with their feature (MailMate, SketchyBar) |
 | `.claude/skills/update-packages/SKILL.md` | the package-update runbook — flake inputs + manual pins |
 
 ## Rules
@@ -132,14 +133,14 @@ entry in a shared file.
 This works because `age.secrets`, `homebrew.casks` and `system.activationScripts.<name>.text`
 all merge across modules rather than conflicting.
 
-Encrypted secrets live in `modules/secrets/*.age` (safe to commit), recipients in `modules/secrets/secrets.nix`.
+Encrypted secrets live in `modules/secrets/agefiles/*.age` (safe to commit), recipients in `modules/secrets/secrets.nix`.
 Activation decrypts them to `/run/agenix/<name>` using the age identity at
 `~/.config/age/keys.txt`, then writes shell-facing tokens into `~/.config/nix-secrets.env` as
 bash-`%q`-quoted `export` lines (rewritten every `ns`); zsh sources that file.
 
 Adding an env-var secret = two edits in `modules/secrets/envvars.nix` (`age.secrets.<name>` block, a
 `write <VAR> /run/agenix/<name>` line in the activation script) plus an entry in
-`modules/secrets/secrets.nix` and the encrypted file itself. Operator steps are in the README.
+`modules/secrets/secrets.nix` and the encrypted file itself. Operator steps are in `modules/secrets/README.md`.
 `modules/secrets/secrets.nix` is read by the `agenix` **CLI**, not the module system, so it stays a
 single flat map of filename → publicKeys and can't be split up per-feature.
 
@@ -147,8 +148,8 @@ Not every secret is a shell env var — `mailmate-*` are files copied into place
 script instead (see *MailMate* below).
 
 **Encrypting non-interactively:** `agenix -e` **ignores `$EDITOR` when stdin isn't a TTY** and
-substitutes `cp -- /dev/stdin`, so pipe the content in — `agenix -e <name>.age -i
-~/.config/age/keys.txt < plaintext`. Setting `EDITOR="cp src"` silently yields a **200-byte
+substitutes `cp -- /dev/stdin`, so pipe the content in — `agenix -e agefiles/<name>.age -i
+~/.config/age/keys.txt < plaintext` (from `modules/secrets/`). Setting `EDITOR="cp src"` silently yields a **200-byte
 empty** secret that only fails at activation. `agenix` also can't find the age identity on its
 own (it looks for `~/.ssh/id_*`), so pass `-i ~/.config/age/keys.txt` for both `-e` and `-d`.
 Sanity-check any new secret by decrypting it and diffing against the source.

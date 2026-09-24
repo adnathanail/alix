@@ -14,12 +14,12 @@
 
 { ... }: {
   age.secrets.npm-font-awesome-token = {
-    file = ./npm-font-awesome-token.age;
+    file = ./agefiles/npm-font-awesome-token.age;
     owner = username;
     mode = "0400";
   };
   age.secrets.npm-github-packages-token = {
-    file = ./npm-github-packages-token.age;
+    file = ./agefiles/npm-github-packages-token.age;
     owner = username;
     mode = "0400";
   };

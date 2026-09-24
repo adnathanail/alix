@@ -23,17 +23,17 @@
   # live in the login Keychain, never in these files — but they carry a
   # personal email address and this repo is public.
   age.secrets.mailmate-sources = {
-    file = ../secrets/mailmate-sources.age;
+    file = ../secrets/agefiles/mailmate-sources.age;
     owner = username;
     mode = "0400";
   };
   age.secrets.mailmate-identities = {
-    file = ../secrets/mailmate-identities.age;
+    file = ../secrets/agefiles/mailmate-identities.age;
     owner = username;
     mode = "0400";
   };
   age.secrets.mailmate-submission = {
-    file = ../secrets/mailmate-submission.age;
+    file = ../secrets/agefiles/mailmate-submission.age;
     owner = username;
     mode = "0400";
   };
