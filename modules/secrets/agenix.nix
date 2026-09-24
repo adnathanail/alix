@@ -1,7 +1,9 @@
 # Shared agenix machinery — the base every secret-using module builds on:
 #   - the agenix darwin module + the `agenix` CLI on PATH
 #   - the age identity path
-#   - `nix-restore-age-key`, the fresh-machine bootstrap helper
+#
+# The age key itself is restored on a fresh machine with
+# `nix-restore-age-key`, from modules/core/1password.nix.
 #
 # It deliberately declares **no** `age.secrets.<name>` blocks. Secrets live
 # with whatever uses them (see `modules/secrets/envvars.nix`, `modules/apps/mailmate.nix`), so
@@ -31,24 +33,4 @@
   #      (agenix ignores $EDITOR when stdin isn't a TTY — see CLAUDE.md)
   #   4. `git add` the .age file so the flake sees it
   age.identityPaths = [ "/Users/${username}/.config/age/keys.txt" ];
-
-  home-manager.users.${username} = { pkgs, ... }: {
-    home.packages = [
-      # Fetches the age identity from 1Password on a fresh machine.
-      # Refuses to overwrite an existing key. Upload command (run once,
-      # after key generation) is in ./README.md.
-      (pkgs.writeShellScriptBin "nix-restore-age-key" ''
-        set -euo pipefail
-        key="$HOME/.config/age/keys.txt"
-        if [ -e "$key" ]; then
-          echo "Refusing to overwrite existing $key — move it aside first." >&2
-          exit 1
-        fi
-        mkdir -p "$(dirname "$key")"
-        op document get "nix-darwin age key" --vault Private --out-file "$key"
-        chmod 600 "$key"
-        echo "Restored age key to $key"
-      '')
-    ];
-  };
 }

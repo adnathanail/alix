@@ -30,14 +30,13 @@ _Note `agenix -e` ignores `$EDITOR` when stdin isn't a TTY and reads the new con
     4. For each secret listed in `modules/secrets/secrets.nix`, run
         `cd modules/secrets && EDITOR=vim agenix -e agefiles/<name>.age`. `git add` the
         `.age` file so the flake sees it.
-    5. `ns` — secrets decrypt to `/run/agenix/<name>` and are exported
-        in the shell by `programs.zsh.initContent` in `home.nix`.
-- *First use on a fresh machine* (key already in 1Password):
-    1. Bootstrap up to the point where `op` is on PATH (see the top of the
-        [main README](../../README.md)).
-    2. `nix-restore-age-key` — pulls the key from 1Password to
-        `~/.config/age/keys.txt` with mode 0600.
-    3. `ns`.
+    5. `ns` — secrets decrypt to `/run/agenix/<name>`, and the env-var ones are exported
+        in the shell via `~/.config/nix-secrets.env` (see `envvars.nix`).
+- *First use on a fresh machine* (key already in 1Password): enable `modules/core` first —
+    it installs 1Password, `op` and `nix-restore-age-key` — then sign into 1Password, turn on
+    Settings → Developer → **Integrate with 1Password CLI**, run `nix-restore-age-key` (pulls
+    the key to `~/.config/age/keys.txt`, mode 0600), and only then enable `modules/secrets`.
+    Full steps in the [main README](../../README.md#setting-up-a-new-mac).
 - Shared machinery is in `modules/secrets/agenix.nix`; **secrets live with whatever uses them** —
   `modules/secrets/envvars.nix` for shell tokens, `modules/apps/mailmate.nix` for the MailMate account
   config. Add another secret:

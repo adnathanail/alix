@@ -49,8 +49,9 @@
   ];
 
   homebrew.brews = [
-    # The Mac App Store CLI; needed for `homebrew.masApps`. Explicit so
-    # `cleanup = "zap"` doesn't uninstall it.
+    # The Mac App Store CLI, for `mas search <name>` to find app IDs.
+    # nix-darwin brings its own mas for installing `homebrew.masApps`, so
+    # this is only for interactive use.
     "mas"
     # PDF tools (pdftotext, pdftoppm, pdfinfo, …).
     "poppler"
@@ -60,5 +61,8 @@
   # These are container apps shipping a Safari App Extension; after install,
   # enable them in Safari → Settings → Extensions (that toggle is per-user
   # state, not Nix-managed).
-  homebrew.masApps."Save to Raindrop.io" = 1549370672;
+  homebrew.masApps = {
+    "1Password for Safari" = 1569813296;
+    "Save to Raindrop.io" = 1549370672;
+  };
 }

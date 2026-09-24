@@ -25,21 +25,22 @@ living at `~/.config/nix-darwin/`.
 | Path | Owns |
 | --- | --- |
 | `flake.nix` | inputs, unstable overlay, Homebrew settings (`onActivation`, `greedyCasks`), nix-homebrew + HM wiring |
-| `modules/apps/other.nix` | apps too small for their own module: the Homebrew casks and brews, the Save to Raindrop.io Safari extension, and small CLIs added to the HM packages (`prek`, `pnpm`, `gh`, `doctl`, `psql`, the MariaDB client) |
+| `modules/apps/other.nix` | apps too small for their own module: the Homebrew casks and brews, the Safari extensions (1Password, Save to Raindrop.io), and small CLIs added to the HM packages (`prek`, `pnpm`, `gh`, `doctl`, `psql`, the MariaDB client) |
 | `modules/interface/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey; Touch ID for sudo |
 | `modules/interface/other.nix` | interface tools too small for their own module — currently the Raycast cask |
 | `modules/interface/README.md` | user-facing list of the interface config (Touch ID, Rectangle, Raycast, SketchyBar, hot corners) |
 | `modules/interface/rectangle.nix` | Rectangle: a darwin module that sets its screen-edge gaps and adds the app to the HM packages |
-| `home.nix` | Home Manager user config (packages, git, zsh) |
+| `modules/core/home.nix` | base Home Manager config (git identity, zsh, python/uv/node, `nix-switch`) and `home.stateVersion` — imported by `modules/core/default.nix`, so core must always be enabled |
 | `modules/core/dev.nix` | Claude Code (`programs.claude-code`, updater opt-out, `claude-work` alias), the Ghostty + GitButler casks, and Ghostty's config file — a darwin module with its HM part under `home-manager.users.${username}` |
 | `modules/core/vscode.nix` | VS Code: editor from unstable, settings, extensions (HM module) |
 | `modules/{core,apps,interface,secrets}/default.nix` | each directory's entry point, imported once from `flake.nix`: lists its nix-darwin modules in `imports` and its HM modules in `home-manager.users.${username}.imports`. Add a new module to its directory's `default.nix`, not the root files |
-| `modules/secrets/agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`, `nix-restore-age-key`. Declares **no** secrets |
-| `modules/secrets/1password.nix` | 1Password: the app + `op` casks, the Safari extension, and git SSH commit signing via `op-ssh-sign` (+ `allowed_signers`) |
+| `modules/secrets/agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`. Declares **no** secrets |
+| `modules/core/1password.nix` | 1Password: the app + `op` casks and `nix-restore-age-key`. In core because it bootstraps secrets |
+| `modules/secrets/git-signing.nix` | git SSH commit signing via 1Password's `op-ssh-sign`, plus `allowed_signers` |
 | `modules/secrets/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
 | `modules/apps/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
 | `modules/apps/microsoft.nix` | everything Microsoft Office: the Outlook cask, Word/Excel/PowerPoint `masApps`, and the Office/Outlook/AutoUpdate prefs |
-| `modules/apps/appdev.nix`, `modules/apps/macapps.nix` | darwin modules, each adding to `homebrew.masApps` (they merge, along with `microsoft.nix`'s, `other.nix`'s and `1password.nix`'s); deliberately independent of each other |
+| `modules/apps/appdev.nix`, `modules/apps/macapps.nix` | darwin modules, each adding to `homebrew.masApps` (they merge, along with `microsoft.nix`'s and `other.nix`'s); deliberately independent of each other |
 | `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/nx/nx.nix`, `modules/apps/pycharm/pycharm.nix`, `modules/apps/uvtools.nix` | optional HM feature modules, imported by `modules/apps/default.nix` — comment out a line to drop the feature |
 | `modules/apps/nx/package.json`, `package-lock.json` | the npm wrapper project `nx.nix` builds from |
 | `modules/apps/pycharm/` | PyCharm: `pycharm.nix` (an HM module imported by `modules/apps/default.nix`) installs it and symlinks in `custom-keymap.xml` |
@@ -53,7 +54,7 @@ living at `~/.config/nix-darwin/`.
 ## Rules
 
 - **DO NOT REBUILD — ask the user to do it.** Activation needs root. The command is `ns`
-  (alias for `nix-switch`, itself `sudo darwin-rebuild switch --flake ~/.config/nix-darwin`).
+  (alias for `nix-switch`, itself `sudo darwin-rebuild switch --flake ~/.config/nix-darwin#Alexs-MacBook-Pro`).
 - **Add new software/tools/config to `README.md`** — or, for interface config or secrets,
   `modules/interface/README.md` / `modules/secrets/README.md`.
 - **Never use a tool's self-updater** — the store is read-only. Update via `nix flake update` +
@@ -143,8 +144,8 @@ designated-requirement signature (Nix's wrap step invalidates it, and HM install
 
 ### Secrets via agenix
 **Secrets live with their users, not in one secrets file.** `modules/secrets/agenix.nix` holds only the
-shared machinery — the agenix module, the `agenix` CLI, `age.identityPaths`, and
-`nix-restore-age-key` — and declares no `age.secrets.<name>` blocks itself. Each consuming module
+shared machinery — the agenix module, the `agenix` CLI and `age.identityPaths` — and declares
+no `age.secrets.<name>` blocks itself. Each consuming module
 owns its own: `modules/secrets/envvars.nix` for the shell tokens, `modules/apps/mailmate.nix` for the MailMate
 account config. A new secret-using feature gets its own `modules/apps/<feature>.nix` rather than an
 entry in a shared file.
@@ -175,7 +176,8 @@ Sanity-check any new secret by decrypting it and diffing against the source.
 
 A dedicated age key (not the SSH key) means activation never hits a passphrase prompt. The
 private key is **not** Nix-managed; it's backed up to 1Password as document `nix-darwin age key`
-(Private vault) and restored on a fresh machine with `nix-restore-age-key`. After rotating,
+(Private vault) and restored on a fresh machine with `nix-restore-age-key` (from
+`modules/core/1password.nix`, so it exists before secrets are enabled). After rotating,
 re-run `op document edit "nix-darwin age key" ~/.config/age/keys.txt`.
 
 ### System defaults
@@ -238,7 +240,7 @@ Nix-managed unless noted.
 - **git** *(Nix)* — `programs.git` owns identity and `~/.gitconfig`. Installing git via Nix
   sidesteps Apple's Command Line Tools prompt; CLT is still needed for build systems that
   hardcode `/usr/bin/git` or need Apple SDK headers.
-- **1Password + CLI** *(Homebrew, `modules/secrets/1password.nix`, with the Safari extension)* — `pkgs._1password-gui` refuses to run outside `/Applications`,
+- **1Password + CLI** *(Homebrew, `modules/core/1password.nix`; Safari extension in `modules/apps/other.nix`)* — `pkgs._1password-gui` refuses to run outside `/Applications`,
   and the desktop ↔ CLI biometric handshake verifies AgileBits' signature on `op`, which Nix's
   wrap step invalidates. Homebrew ships both signed binaries as-is.
 - **OrbStack** *(Homebrew)* — installs a privileged helper and CLI shims (`docker`,
@@ -319,7 +321,10 @@ Nix-managed unless noted.
   the click instead was tried and fixed it, but flashed for the length of the click. May need
   rebasing when SketchyBar is bumped — the build fails loudly if it no longer applies.
 
-Manual, non-Nix setup a fresh machine still needs: App Store sign-in (**before** the first `ns`),
-per-app sign-ins/licences, and System Settings → Privacy & Security grants — Accessibility
+A fresh machine comes up in stages — core → secrets → interface → apps, each enabled by
+uncommenting its line in `flake.nix` — with the manual steps between them in `README.md` →
+*Setting up a new Mac*. Only these orders evaluate: interface and apps both need secrets' agenix
+module. Manual, non-Nix setup still needed: App Store sign-in (**before** enabling
+`modules/apps`, whose `masApps` otherwise abort activation), per-app sign-ins/licences, and System Settings → Privacy & Security grants — Accessibility
 (Rectangle, Raycast, SketchyBar), Screen Recording (Slack), Input Monitoring (Raycast),
 Notifications/Calendar/Contacts/Mic/Camera per app.

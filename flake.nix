@@ -42,7 +42,10 @@
   outputs = inputs@{ self, nix-darwin, nixpkgs, nixpkgs-unstable, nixpkgs-master, home-manager, nix-homebrew, homebrew-core, homebrew-cask, agenix }:
   let
     username = "adnathanail";        # `whoami`
-    hostname = "Alexs-MacBook-Pro";  # `scutil --get LocalHostName`
+    # The darwinConfigurations name. Also named explicitly in nix-switch
+    # (modules/core/home.nix) and the README's bootstrap command, so it
+    # needn't match a new Mac's `scutil --get LocalHostName`.
+    hostname = "Alexs-MacBook-Pro";
 
     # Everything stays on stable by default. This exposes the fresher package
     # sets as `pkgs.unstable` and `pkgs.master`, so each module picks its own
@@ -162,8 +165,8 @@
           home-manager.useGlobalPkgs = true;     # use the overlaid pkgs above
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "hm-backup";
-
-          home-manager.users.${username} = import ./home.nix;
+          # The user's config itself comes from modules/core (home.nix) and
+          # the other modules' home-manager.users.${username} blocks.
         }
       ];
     };
