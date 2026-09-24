@@ -45,6 +45,12 @@ in
         right = 0;
       };
 
+      # Pin apps to workspaces as their windows open. Match on the bundle ID
+      # (`aerospace list-windows --all --format '%{app-bundle-id}'`).
+      on-window-detected = [
+        { "if".app-id = "com.spotify.client"; run = "move-node-to-workspace 9"; }
+      ];
+
       mode.main.binding = {
         alt-slash = "layout tiles horizontal vertical";
         alt-comma = "layout accordion horizontal vertical";

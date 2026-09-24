@@ -8,6 +8,7 @@
 - AeroSpace tiling window manager (`aerospace.nix`)
     - Config is Nix-managed — edit `aerospace.nix`, not `~/.aerospace.toml` (it's ignored)
     - Keyboard-driven — see [AeroSpace shortcuts](#aerospace-shortcuts) below
+    - Pinned apps (`on-window-detected` in `aerospace.nix`): Spotify → workspace 9
     - *First use / after a version bump*: grant Accessibility to AeroSpace in System Settings → Privacy & Security
 - Raycast (`other.nix`)
 - SketchyBar ([More info](./sketchybar/README.md))
