@@ -10,6 +10,8 @@
 #   - items/menubar.lua (+ its require in items/init.lua): new, a toggle for
 #     the native macOS menu bar, plus the `menubar_hide` event that
 #     ../menubar-return.m triggers
+#   - bar.lua: `topmost = "on"`; colors.lua: bar background fully opaque —
+#     together these keep a hover-revealed native menu bar out of sight
 #
 # Upstream assumes a mutable ~/.config/sketchybar, which the store isn't, so
 # this derivation fixes up the three places that break:
