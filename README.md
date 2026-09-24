@@ -18,7 +18,7 @@ Ask Claude Code to run the `update-packages` skill
 - [First use](./docs/FIRST_USE.md)
 - [Interface configuration](./modules/interface/README.md)
 - [Updating Homebrew apps](./docs/UPDATING_HOMEBREW.md)
-- [Interface configuration](./modules/secrets/README.md)
+- [Secrets management](./modules/secrets/README.md)
 
 ## Features
 
@@ -58,7 +58,6 @@ CLI
 - WhatsApp
 - Google Drive
 - Steam
-- Discord
 - CapCut
 - Zoom
 - Audacity
