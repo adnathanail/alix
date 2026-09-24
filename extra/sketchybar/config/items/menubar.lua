@@ -20,23 +20,36 @@
 -- restart.
 
 local colors = require("colors")
-local settings = require("settings")
 
--- SF Symbol "eye" (codepoint found by rendering SF Pro — it only names its
--- symbol glyphs by codepoint). eye.fill, eye.slash, eye.slash.fill follow
--- at 0x1002EE–0x1002F0.
-local icon = utf8.char(0x1002ED)
+-- The icon is the SF Symbol "eye" turned upright, to keep the widget narrow.
+-- SketchyBar can't rotate text, so rather than an SF Pro glyph it's an image:
+-- helpers/render_symbol.js draws the symbol (by name) in the bar's text
+-- colour, sips turns it 90°, and it's shown as the item's background.
+-- Re-rendered into the cache on every start, so it follows colors.white.
+local image = os.getenv("HOME") .. "/Library/Caches/sketchybar/eye-vertical.png"
 
+-- Rendered at 25.5pt the eye is 40×26px, so upright at scale 0.5 it's
+-- 13×20pt with exactly one image pixel per Retina pixel. SketchyBar scales
+-- images without smoothing, so any other ratio comes out jagged.
+--
+-- The item sizes to the image; its padding is 8pt a side (the default 5,
+-- plus the 3pt of icon padding the other widgets have) so its pill matches
+-- theirs. Not a fixed `width`: SketchyBar then stops leaving room for the
+-- padding when placing neighbours, and the pill overlaps them.
 local menubar = sbar.add("item", "widgets.menubar", {
   position = "right",
-  icon = {
-    string = icon,
-    font = {
-      style = settings.font.style_map["Regular"],
-      size = 16.0,
+  padding_left = 8,
+  padding_right = 8,
+  icon = { drawing = false },
+  background = {
+    drawing = true,
+    color = colors.transparent,
+    border_width = 0,
+    image = {
+      scale = 0.5,
+      border_width = 0,
+      corner_radius = 0,
     },
-    padding_left = 8,
-    padding_right = 8,
   },
   label = { drawing = false },
   -- The config's default is "when_shown", and while the native bar is up the
@@ -47,11 +60,18 @@ local menubar = sbar.add("item", "widgets.menubar", {
 sbar.add("bracket", "widgets.menubar.bracket", { menubar.name }, {
   background = { color = colors.bg1 }
 })
+-- No group-padding item after it, unlike the widgets: the Spotify cover to
+-- its left has no pill, so the cover's own padding already makes the usual
+-- 5pt gap.
 
-sbar.add("item", "widgets.menubar.padding", {
-  position = "right",
-  width = settings.group_paddings
-})
+sbar.exec("f=\"" .. image .. "\"; mkdir -p \"$(dirname \"$f\")\";"
+  .. " osascript -l JavaScript \"$CONFIG_DIR/helpers/render_symbol.js\" eye"
+  .. " \"$f.tmp.png\" " .. string.format("%06x", colors.white & 0xffffff) .. " 25.5"
+  .. " >/dev/null && sips -r 90 \"$f.tmp.png\" --out \"$f\" >/dev/null;"
+  .. " rm -f \"$f.tmp.png\"",
+  function()
+    menubar:set({ background = { image = { string = image } } })
+  end)
 
 local function show_state(autohide)
   sbar.bar({ hidden = autohide and "off" or "on" })

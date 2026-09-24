@@ -7,6 +7,8 @@
 #   - items/widgets/wifi.lua: SSID read from the preferred-networks list, as
 #     ipconfig's is redacted without Location Services; plus an "Open Wi-Fi
 #     Settings" row at the bottom of its popup
+#   - helpers/render_symbol.js: new, renders an SF Symbol to a PNG (for
+#     items/menubar.lua's upright eye; SketchyBar can't rotate glyphs)
 #   - items/menubar.lua (+ its require in items/init.lua): new, a toggle for
 #     the native macOS menu bar, plus the `menubar_hide` event that
 #     ../menubar-return.m triggers
