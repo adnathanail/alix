@@ -41,6 +41,24 @@ let
       runHook postInstall
     '';
   };
+
+  # Watches for Option being held, for the AeroSpace key hints
+  # (./option-hint.c).
+  optionHint = pkgs.stdenv.mkDerivation {
+    name = "sketchybar-option-hint";
+    src = pkgs.replaceVars ./option-hint.c { inherit (pkgs) sketchybar; };
+    dontUnpack = true;
+    buildPhase = ''
+      runHook preBuild
+      $CC -O2 -framework ApplicationServices -x c $src -o option-hint
+      runHook postBuild
+    '';
+    installPhase = ''
+      runHook preInstall
+      install -Dm755 option-hint $out/bin/option-hint
+      runHook postInstall
+    '';
+  };
 in {
   # Local patch: put the bar background, brackets and items on three
   # separate window levels. Upstream shares one, and macOS raises a clicked
@@ -151,6 +169,16 @@ in {
       RunAtLoad = true;
       KeepAlive = true;
       StandardErrorPath = "/Users/${username}/Library/Logs/sketchybar-menubar-return.err.log";
+    };
+  };
+
+  # Shows AeroSpace's key hints in the bar while Option is held.
+  launchd.user.agents.sketchybar-option-hint = lib.mkIf aerospace.enable {
+    serviceConfig = {
+      ProgramArguments = [ "${optionHint}/bin/option-hint" ];
+      RunAtLoad = true;
+      KeepAlive = true;
+      StandardErrorPath = "/Users/${username}/Library/Logs/sketchybar-option-hint.err.log";
     };
   };
 

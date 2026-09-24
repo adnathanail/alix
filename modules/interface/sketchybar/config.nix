@@ -25,8 +25,8 @@
 #   - helpers/app_icons.lua: replaced — loads the icon map that ships with
 #     sketchybar-app-font (substituted in below) plus a local overrides
 #     table, instead of upstream's hand-copied snapshot
-#   - items/aerospace_mode.lua (+ its require): new, a pill shown while
-#     AeroSpace is in service mode
+#   - items/aerospace_mode.lua (+ its require): new, AeroSpace key-hint
+#     pills — one in service mode, one while Option is held
 #
 # Upstream assumes a mutable ~/.config/sketchybar, which the store isn't, so
 # this derivation fixes up the three places that break:
