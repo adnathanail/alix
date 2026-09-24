@@ -55,12 +55,4 @@
       exec sudo darwin-rebuild switch --flake ~/.config/nix-darwin "$@"
     '')
   ];
-
-  # Ghostty config. The app itself comes from Homebrew (see modules/apps/other.nix), but
-  # the config file is Nix-owned so the first-launch auto-update prompt is
-  # suppressed declaratively. Edits made in the app won't persist — change
-  # this block and rebuild.
-  xdg.configFile."ghostty/config".text = ''
-    auto-update = off
-  '';
 }

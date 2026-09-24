@@ -19,8 +19,6 @@
     "1password"
     "1password-cli"
     "orbstack"
-    "ghostty"
-    "gitbutler"
     "mimestream"
     "slack"
     "todoist-app"

@@ -65,9 +65,9 @@ done
 | What | Pinned in | Identity |
 |---|---|---|
 | ExtraDock | `modules/interface/extradock.nix` | `AppitStudio/extra-dock5-updates`, mutable `prod` release tag |
-| VS Code: TikZiT | `modules/apps/vscode.nix` | `alekskissinger.vstikzit` |
-| VS Code: GitButler for IDE | `modules/apps/vscode.nix` | `BartInTheField.gitbutler-for-ide` |
-| VS Code: Highlight | `modules/apps/vscode.nix` | `fabiospampinato.vscode-highlight` |
+| VS Code: TikZiT | `modules/core/vscode.nix` | `alekskissinger.vstikzit` |
+| VS Code: GitButler for IDE | `modules/core/vscode.nix` | `BartInTheField.gitbutler-for-ide` |
+| VS Code: Highlight | `modules/core/vscode.nix` | `fabiospampinato.vscode-highlight` |
 | VS Code: Nunjucks | `modules/apps/eleventy.nix` | `ronnidc.nunjucks` |
 | VS Code: WASM WASI Core | `modules/apps/rocq.nix` | `ms-vscode.wasm-wasi-core` |
 | VS Code: coq-lsp | `modules/apps/rocq.nix` | `ejgallego.coq-lsp` |

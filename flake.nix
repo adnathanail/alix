@@ -46,7 +46,7 @@
 
     # Everything stays on stable by default. This exposes the fresher package
     # sets as `pkgs.unstable` and `pkgs.master`, so each module picks its own
-    # newer package where it's used (apps/dev.nix, apps/vscode.nix,
+    # newer package where it's used (core/dev.nix, core/vscode.nix,
     # interface/sketchybar/) instead of swapping it here.
     unstableOverlay = final: prev:
       let
@@ -68,6 +68,9 @@
 
         # ── secrets: agenix machinery + env-var secrets ────────
         (import ./modules/secrets { inherit agenix username; })
+
+        # ── core: Claude Code, Ghostty, GitButler, VS Code ─────
+        (import ./modules/core { inherit username; })
 
         # ── apps ────────────────────────────────────────────────
         (import ./modules/apps { inherit username; })

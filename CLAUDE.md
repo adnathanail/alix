@@ -30,14 +30,16 @@ living at `~/.config/nix-darwin/`.
 | `modules/interface/other.nix` | interface tools too small for their own module — currently the Raycast cask |
 | `modules/interface/README.md` | user-facing list of the interface config (Touch ID, Rectangle, Raycast, SketchyBar, hot corners) |
 | `modules/interface/rectangle.nix` | Rectangle: a darwin module that sets its screen-edge gaps and adds the app to the HM packages |
-| `home.nix` | Home Manager user config (packages, git, zsh, Ghostty config) |
-| `modules/{apps,interface,secrets}/default.nix` | each directory's entry point, imported once from `flake.nix`: lists its nix-darwin modules in `imports` and its HM modules in `home-manager.users.${username}.imports`. Add a new module to its directory's `default.nix`, not the root files |
+| `home.nix` | Home Manager user config (packages, git, zsh) |
+| `modules/core/dev.nix` | Claude Code (`programs.claude-code`, updater opt-out, `claude-work` alias), the Ghostty + GitButler casks, and Ghostty's config file — a darwin module with its HM part under `home-manager.users.${username}` |
+| `modules/core/vscode.nix` | VS Code: editor from unstable, settings, extensions (HM module) |
+| `modules/{core,apps,interface,secrets}/default.nix` | each directory's entry point, imported once from `flake.nix`: lists its nix-darwin modules in `imports` and its HM modules in `home-manager.users.${username}.imports`. Add a new module to its directory's `default.nix`, not the root files |
 | `modules/secrets/agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`, `nix-restore-age-key`. Declares **no** secrets |
 | `modules/secrets/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
 | `modules/apps/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
 | `modules/apps/microsoft.nix` | everything Microsoft Office: the Outlook cask, Word/Excel/PowerPoint `masApps`, and the Office/Outlook/AutoUpdate prefs |
 | `modules/apps/appdev.nix`, `modules/apps/macapps.nix`, `modules/apps/safariexts.nix` | darwin modules, each adding to `homebrew.masApps` (they merge, along with `microsoft.nix`'s); deliberately independent of each other |
-| `modules/apps/dev.nix`, `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/nx/nx.nix`, `modules/apps/pycharm/pycharm.nix`, `modules/apps/uvtools.nix`, `modules/apps/vscode.nix` | optional HM feature modules, imported by `modules/apps/default.nix` — comment out a line to drop the feature |
+| `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/nx/nx.nix`, `modules/apps/pycharm/pycharm.nix`, `modules/apps/uvtools.nix` | optional HM feature modules, imported by `modules/apps/default.nix` — comment out a line to drop the feature |
 | `modules/apps/nx/package.json`, `package-lock.json` | the npm wrapper project `nx.nix` builds from |
 | `modules/apps/pycharm/` | PyCharm: `pycharm.nix` (an HM module imported by `modules/apps/default.nix`) installs it and symlinks in `custom-keymap.xml` |
 | `modules/interface/extradock.nix` | ExtraDock 5, an HM module imported by `modules/interface/default.nix` |
@@ -79,9 +81,9 @@ Everything is on stable by default. `unstableOverlay` in `flake.nix` swaps nothi
 exposes `nixpkgs-unstable` as `pkgs.unstable` and `nixpkgs-master` as `pkgs.master`, and each
 feature module picks its own fresher package where it's used:
 
-- `modules/apps/dev.nix` — `pkgs.master.claude-code` (as `programs.claude-code.package`)
+- `modules/core/dev.nix` — `pkgs.master.claude-code` (as `programs.claude-code.package`)
 - `modules/apps/other.nix` — `pkgs.unstable.prek`
-- `modules/apps/vscode.nix` — `programs.vscode.package = pkgs.unstable.vscode`
+- `modules/core/vscode.nix` — `programs.vscode.package = pkgs.unstable.vscode`
 - `modules/interface/sketchybar/default.nix` — its patch overlay builds from
   `final.unstable.sketchybar`
 
@@ -190,7 +192,7 @@ Only the surprising bits. The full software list and first-use steps live in `RE
 Per-app state (sign-ins, caches, prefs, licences) lives under `~/Library/…` and is **not**
 Nix-managed unless noted.
 
-- **Claude Code** *(Nix, `pkgs.master.claude-code`, `modules/apps/dev.nix`)* —
+- **Claude Code** *(Nix, `pkgs.master.claude-code`, `modules/core/dev.nix`)* —
   `programs.claude-code`, plus the `claude-work` alias (separate `CLAUDE_CONFIG_DIR` for the work
   account). Self-updater off via
   `home.sessionVariables.DISABLE_AUTOUPDATER = "1"`. The `claude symlink points to an invalid
@@ -202,11 +204,11 @@ Nix-managed unless noted.
   environment is uv's, cached under `~/.cache/uv`. Keep the `==` pins — they're the only thing
   making it reproducible. Prefer a real nixpkgs package whenever one exists.
 - **VS Code** *(Nix, `pkgs.unstable.vscode`, Nix-managed config + extensions)* — `programs.vscode` lives
-  in `modules/apps/vscode.nix`, `profiles.default`. Only the editor (`programs.vscode.package`) is on unstable;
+  in `modules/core/vscode.nix`, `profiles.default`. Only the editor (`programs.vscode.package`) is on unstable;
   `pkgs.vscode-extensions` still comes from stable, which is fine (a newer editor runs older
-  extensions). `settings.json` is Nix-owned: edit `userSettings` in `modules/apps/vscode.nix`, not
+  extensions). `settings.json` is Nix-owned: edit `userSettings` in `modules/core/vscode.nix`, not
   in-app. `mutableExtensionsDir = false` means HM fully owns `~/.vscode/extensions`, so extensions
-  can **only** be added by editing `modules/apps/vscode.nix` (or `modules/apps/rocq.nix` / `modules/apps/eleventy.nix`,
+  can **only** be added by editing `modules/core/vscode.nix` (or `modules/apps/rocq.nix` / `modules/apps/eleventy.nix`,
   which also append to `programs.vscode.profiles.default.extensions`) and rebuilding. Prefer
   `pkgs.vscode-extensions.<publisher>.<name>`; otherwise
   `pkgs.vscode-utils.extensionFromVscodeMarketplace` with publisher, name, version, and hash
@@ -218,7 +220,7 @@ Nix-managed unless noted.
   PyCharm fail silently (read-only target) — edit the XML in the repo. **The destination path is
   version-pinned:** after a minor-version bump (`2026.2` → `2026.3`) update it in `pycharm.nix` or
   the keymap lands in an unused directory.
-- **Ghostty** *(Homebrew, Nix-managed config)* — `pkgs.ghostty` on Darwin is fragile (Swift/Xcode
+- **Ghostty** *(Homebrew, Nix-managed config, `modules/core/dev.nix`)* — `pkgs.ghostty` on Darwin is fragile (Swift/Xcode
   toolchain). Config at `~/.config/ghostty/config` is Nix-owned via `xdg.configFile`; it sets
   `auto-update = off` to suppress Sparkle's prompt. In-app config edits don't persist. If the
   config grows, consider the HM `programs.ghostty` module (check it's on `release-26.05` first).

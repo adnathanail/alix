@@ -17,12 +17,10 @@
 
   # Home Manager modules
   home-manager.users.${username}.imports = [
-    ./dev.nix           # Claude Code
     ./rocq.nix
     ./eleventy.nix
     ./nx/nx.nix
     ./pycharm/pycharm.nix
     ./uvtools.nix
-    ./vscode.nix
   ];
 }
