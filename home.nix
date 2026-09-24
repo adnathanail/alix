@@ -68,13 +68,7 @@
   xdg.configFile."git/allowed_signers".text =
     "7809723+adnathanail@users.noreply.github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAJsvq2utLp2Y8KEL1xZPi9fggjoJDGiVcL8EjYRo4FJ\n";
 
-  # Rectangle — Magnet-style window snapping. Configure keybindings/snap
-  # areas in Rectangle's own preferences UI; it persists them to
-  # ~/Library/Preferences/com.knollsoft.Rectangle.plist (not Nix-managed,
-  # except the screen-edge gaps set in flake.nix's CustomUserPreferences).
-
   home.packages = [
-    pkgs.rectangle
     pkgs.prek
     pkgs.python3
     pkgs.uv

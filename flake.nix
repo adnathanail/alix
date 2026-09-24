@@ -98,6 +98,9 @@
         # ── macOS settings: Dock, menu bar, shortcuts ──────────
         (import ./modules/interface/macos.nix { inherit username; })
 
+        # ── Rectangle: window snapping ─────────────────────────
+        (import ./modules/interface/rectangle.nix { inherit username; })
+
         # ── system ──────────────────────────────────────────────
         ({ pkgs, ... }: {
           nixpkgs.hostPlatform = "aarch64-darwin"; # "x86_64-darwin" on Intel
@@ -106,21 +109,6 @@
 
           system.stateVersion = 6;
           system.primaryUser = username;
-
-          # Rectangle: keep snapped/maximised windows clear of the custom bars,
-          # neither of which reserves screen space the way the native menu bar
-          # and Dock do. Only these keys are Nix-managed — the rest of
-          # Rectangle's prefs (shortcuts etc.) still live in its UI. Rectangle
-          # reads them at launch, so restart it after a rebuild that changes
-          # them.
-          system.defaults.CustomUserPreferences."com.knollsoft.Rectangle" = {
-            # SketchyBar (modules/interface/sketchybar/config/bar.lua) is 40pt;
-            # macOS already reserves 32pt for the hidden notch menu bar.
-            screenEdgeGapTop = 8;
-            # ExtraDock's bottom docks: 76pt bar thickness, 0pt edge gap
-            # (in-app settings, not Nix-managed — update this if they change).
-            screenEdgeGapBottom = 76;
-          };
 
           # Lix installer owns Nix + /etc/nix/nix.conf.
           nix.enable = false;

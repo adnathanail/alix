@@ -24,8 +24,9 @@ living at `~/.config/nix-darwin/`.
 
 | Path | Owns |
 | --- | --- |
-| `flake.nix` | inputs, unstable overlay, Rectangle `CustomUserPreferences`, Homebrew casks/brews, nix-homebrew + HM wiring |
+| `flake.nix` | inputs, unstable overlay, Homebrew casks/brews, nix-homebrew + HM wiring |
 | `modules/interface/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey |
+| `modules/interface/rectangle.nix` | Rectangle: a darwin module that sets its screen-edge gaps and adds the app to the HM packages |
 | `home.nix` | Home Manager user config (packages, git, zsh, Ghostty config) |
 | `modules/secrets/agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`, `nix-restore-age-key`. Declares **no** secrets |
 | `modules/secrets/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
@@ -161,8 +162,9 @@ re-run `op document edit "nix-darwin age key" ~/.config/age/keys.txt`.
 `modules/interface/macos.nix` covers the Dock (no recents, hot corners, pinned apps), menu-bar
 clock, Control Center and the `pbs` services hotkey (`CustomUserPreferences`). `flake.nix` keeps
 Touch ID for sudo (`security.pam.services.sudo_local.touchIdAuth` — writes
-`/etc/pam.d/sudo_local`, survives macOS updates, doesn't work in tmux without `pam_reattach`) and
-Rectangle's `CustomUserPreferences`; Microsoft's live in `modules/apps/microsoft.nix`. Note some domains are TCC-protected and can't be set
+`/etc/pam.d/sudo_local`, survives macOS updates, doesn't work in tmux without `pam_reattach`).
+App-specific `CustomUserPreferences` live with their app: `modules/apps/microsoft.nix`,
+`modules/interface/rectangle.nix`. Note some domains are TCC-protected and can't be set
 from the activation script — those stay manual toggles.
 
 ## Per-tool notes
@@ -260,9 +262,9 @@ Nix-managed unless noted.
   can't sign in from the CLI, and activation fails with `Not signed in`. Xcode's first install
   downloads ~15 GB. Afterwards run `sudo xcodebuild -license accept` and
   `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`.
-- **Rectangle** *(Nix)* — fetched from the official `.dmg`. Only `screenEdgeGapTop` /
-  `screenEdgeGapBottom` are Nix-managed (`CustomUserPreferences."com.knollsoft.Rectangle"` in
-  `flake.nix`), because SketchyBar and ExtraDock don't reserve screen space: top = SketchyBar height
+- **Rectangle** *(Nix, `modules/interface/rectangle.nix`)* — fetched from the official `.dmg`.
+  Only `screenEdgeGapTop` / `screenEdgeGapBottom` are Nix-managed
+  (`CustomUserPreferences."com.knollsoft.Rectangle"`), because SketchyBar and ExtraDock don't reserve screen space: top = SketchyBar height
   (40) − the 32pt macOS reserves for the hidden notch menu bar, bottom = ExtraDock bar thickness
   + edge gap. Keep them in step if either bar changes size. Other prefs live in Rectangle's UI.
 - **ExtraDock** *(Nix, `modules/interface/extradock.nix`)* — v5 isn't in the Homebrew cask, which tracks a

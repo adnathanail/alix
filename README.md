@@ -90,7 +90,7 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 
 - Touch ID for sudo
 - Window tiling (Rectangle)
-    - Screen-edge gaps are Nix-managed (`flake.nix`): 8pt at the top so windows clear the 40pt SketchyBar, 76pt at the bottom for ExtraDock's docks. Quit and reopen Rectangle after `ns` for changes to apply
+    - Screen-edge gaps are Nix-managed (`modules/interface/rectangle.nix`): 8pt at the top so windows clear the 40pt SketchyBar, 76pt at the bottom for ExtraDock's docks. Quit and reopen Rectangle after `ns` for changes to apply
 - Raycast
 - SketchyBar ([More info](./modules/interface/sketchybar/README.md))
 - Top left hot corner: Show desktop
