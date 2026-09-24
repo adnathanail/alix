@@ -62,17 +62,31 @@ local function show_state(autohide)
   end
 end
 
-menubar:subscribe("mouse.clicked", function(env)
+-- `value` is AppleScript: "true", "false", or "not autohide menu bar" to
+-- toggle. Reads the setting back afterwards so the state shown is the real
+-- one.
+local function set_autohide(value)
   sbar.exec(
     "osascript"
       .. " -e 'tell application \"System Events\" to tell dock preferences"
-      .. " to set autohide menu bar to not autohide menu bar'"
+      .. " to set autohide menu bar to " .. value .. "'"
       .. " -e 'tell application \"System Events\" to get autohide menu bar"
       .. " of dock preferences'",
     function(result)
       show_state(result:match("true") ~= nil)
     end
   )
+end
+
+menubar:subscribe("mouse.clicked", function(env)
+  set_autohide("not autohide menu bar")
+end)
+
+-- Fired by the native menu-bar icon (../../menubar-return.m) — the way back
+-- when the native bar is showing. Always hides, never toggles.
+sbar.add("event", "menubar_hide")
+menubar:subscribe("menubar_hide", function(env)
+  set_autohide("true")
 end)
 
 -- `defaults` avoids an Apple Event at startup. The key is absent until the

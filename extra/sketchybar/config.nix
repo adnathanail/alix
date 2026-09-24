@@ -8,7 +8,8 @@
 #     ipconfig's is redacted without Location Services; plus an "Open Wi-Fi
 #     Settings" row at the bottom of its popup
 #   - items/menubar.lua (+ its require in items/init.lua): new, a toggle for
-#     the native macOS menu bar
+#     the native macOS menu bar, plus the `menubar_hide` event that
+#     ../menubar-return.m triggers
 #
 # Upstream assumes a mutable ~/.config/sketchybar, which the store isn't, so
 # this derivation fixes up the three places that break:

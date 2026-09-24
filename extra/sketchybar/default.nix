@@ -25,6 +25,23 @@ let
   # given to, so don't move it.
   signedBin = "/Users/${username}/.local/libexec/sketchybar/sketchybar";
   signSketchybar = import ./signing.nix { inherit pkgs; };
+
+  # Native menu-bar icon that returns to SketchyBar (./menubar-return.m).
+  menubarReturn = pkgs.stdenv.mkDerivation {
+    name = "sketchybar-menubar-return";
+    src = pkgs.replaceVars ./menubar-return.m { inherit (pkgs) sketchybar; };
+    dontUnpack = true;
+    buildPhase = ''
+      runHook preBuild
+      $CC -fobjc-arc -O2 -framework Cocoa -x objective-c $src -o menubar-return
+      runHook postBuild
+    '';
+    installPhase = ''
+      runHook preInstall
+      install -Dm755 menubar-return $out/bin/menubar-return
+      runHook postInstall
+    '';
+  };
 in {
   # Local patch: put the bar background, brackets and items on three
   # separate window levels. Upstream shares one, and macOS raises a clicked
@@ -90,6 +107,19 @@ in {
       KeepAlive = true;
       StandardOutPath = "/Users/${username}/Library/Logs/sketchybar.log";
       StandardErrorPath = "/Users/${username}/Library/Logs/sketchybar.err.log";
+    };
+  };
+
+  # The way back from the native menu bar: a status item in it that tells
+  # SketchyBar to hide it again. Runs whether or not the native bar is
+  # showing — auto-hidden, the icon just isn't seen. Its plist names the
+  # store path, so nix-darwin restarts it whenever the binary changes.
+  launchd.user.agents.sketchybar-menubar-return = {
+    serviceConfig = {
+      ProgramArguments = [ "${menubarReturn}/bin/menubar-return" ];
+      RunAtLoad = true;
+      KeepAlive = true;
+      StandardErrorPath = "/Users/${username}/Library/Logs/sketchybar-menubar-return.err.log";
     };
   };
 
