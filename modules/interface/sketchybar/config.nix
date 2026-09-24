@@ -19,6 +19,8 @@
 #   - items/spotify.lua (upstream's items/media.lua, renamed): Spotify-only,
 #     driven by Spotify's own notification + AppleScript instead of
 #     SketchyBar's dead media_change event; covers shrunk to 28pt
+#   - items/menus.lua, items/spaces.lua, items/front_app.lua: start in
+#     menus mode (app menus shown, spaces + front app hidden)
 #
 # Upstream assumes a mutable ~/.config/sketchybar, which the store isn't, so
 # this derivation fixes up the three places that break:

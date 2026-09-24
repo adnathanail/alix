@@ -23,6 +23,7 @@ Modifications from FelixKratz's setup:
 - Open Fantastical mini-window when clicking date/tiem
 - Add open WiFi settings button to WiFi popup
 - Add button to swap sketchybar for macOS bar and back
+- Start showing the current app's menus instead of the spaces (the switch icon next to them still toggles)
 - Lock/unlock animation ([Source](https://github.com/nicolas-martin/awesome-sketchybar/blob/master/plugins/Simple-LockUnlock-Animation.md))
 - Replace media with Spotify-specific setup, because macOS removed their private media API
 

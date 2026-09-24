@@ -8,6 +8,7 @@ local spaces = {}
 for i = 1, 10, 1 do
   local space = sbar.add("space", "space." .. i, {
     space = i,
+    drawing = false,
     icon = {
       font = { family = settings.font.numbers },
       string = i,
@@ -50,6 +51,7 @@ for i = 1, 10, 1 do
   sbar.add("space", "space.padding." .. i, {
     space = i,
     script = "",
+    drawing = false,
     width = settings.group_paddings,
   })
 
@@ -106,7 +108,7 @@ local spaces_indicator = sbar.add("item", {
     padding_left = 8,
     padding_right = 9,
     color = colors.grey,
-    string = icons.switch.on,
+    string = icons.switch.off,
   },
   label = {
     width = 0,
