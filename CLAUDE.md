@@ -268,10 +268,15 @@ Nix-managed unless noted.
   downloads ~15 GB. Afterwards run `sudo xcodebuild -license accept` and
   `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`.
 - **Rectangle** *(Nix, `modules/interface/rectangle.nix`)* — fetched from the official `.dmg`.
-  Only `screenEdgeGapTop` / `screenEdgeGapBottom` are Nix-managed
-  (`CustomUserPreferences."com.knollsoft.Rectangle"`), because SketchyBar and ExtraDock don't reserve screen space: top = SketchyBar height
-  (40) − the 32pt macOS reserves for the hidden notch menu bar, bottom = ExtraDock bar thickness
-  + edge gap. Keep them in step if either bar changes size. Other prefs live in Rectangle's UI.
+  All non-default prefs are Nix-managed (`CustomUserPreferences."com.knollsoft.Rectangle"`) —
+  Rectangle only writes changed settings to its plist, so that list is the whole config; its own
+  state keys (save panel, menu-bar icon position, versions) are deliberately left out. To adopt a
+  setting changed in the UI, `defaults read com.knollsoft.Rectangle` and copy the key across
+  (check the type with `defaults read-type` — booleans read back as `1`/`0`). `launchOnLogin`
+  only ticks the checkbox; the real login item lives in macOS's SMAppService registry.
+  The screen-edge gaps exist because SketchyBar and ExtraDock don't reserve screen space: top =
+  SketchyBar height (40) − the 32pt macOS reserves for the hidden notch menu bar, bottom =
+  ExtraDock bar thickness + edge gap. Keep them in step if either bar changes size.
 - **ExtraDock** *(Nix, `modules/interface/extradock.nix`)* — v5 isn't in the Homebrew cask, which tracks a
   different, older upstream repo (`AppitStudio/extra-dock-updates`, v4.x). v5 ships from a
   separate repo (`extra-dock5-updates`) behind a mutable `prod` release tag — the dmg the URL
