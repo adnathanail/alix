@@ -79,7 +79,7 @@
         (import ./modules/interface { inherit username; })
 
         # ── Graveyard: where things go to die ─
-        ./modules/graveyard.nix
+        (import ./modules/graveyard.nix { inherit username; })
 
         # ── system ──────────────────────────────────────────────
         ({ pkgs, ... }: {

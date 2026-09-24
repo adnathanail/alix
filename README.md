@@ -65,7 +65,6 @@ nix run nix-darwin/master#darwin-rebuild -- switch --flake ~/.config/nix-darwin
 - Audacity
 - VLC
 - GIMP
-- Ghidra
 - UTM
 - Anki
 - Private Internet Access (VPN)

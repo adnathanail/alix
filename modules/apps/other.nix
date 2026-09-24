@@ -13,6 +13,13 @@
     # Rust reimplementation of pre-commit; from unstable because stable
     # lags this fast-moving 0.x tool.
     pkgs.unstable.prek
+    pkgs.pnpm
+    pkgs.gh
+    pkgs.doctl
+    pkgs.postgresql     # psql client
+    # MySQL CLI: MariaDB's client-only output, since stable has no
+    # client-only MySQL build (see CLAUDE.md → mysql CLI).
+    pkgs.mariadb.client
   ];
 
   homebrew.casks = [

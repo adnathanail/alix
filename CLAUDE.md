@@ -25,7 +25,7 @@ living at `~/.config/nix-darwin/`.
 | Path | Owns |
 | --- | --- |
 | `flake.nix` | inputs, unstable overlay, Homebrew settings (`onActivation`, `greedyCasks`), nix-homebrew + HM wiring |
-| `modules/apps/other.nix` | apps too small for their own module: the Homebrew casks and brews, the Save to Raindrop.io Safari extension, plus `prek` (added to the HM packages) |
+| `modules/apps/other.nix` | apps too small for their own module: the Homebrew casks and brews, the Save to Raindrop.io Safari extension, and small CLIs added to the HM packages (`prek`, `pnpm`, `gh`, `doctl`, `psql`, the MariaDB client) |
 | `modules/interface/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey; Touch ID for sudo |
 | `modules/interface/other.nix` | interface tools too small for their own module — currently the Raycast cask |
 | `modules/interface/README.md` | user-facing list of the interface config (Touch ID, Rectangle, Raycast, SketchyBar, hot corners) |
@@ -229,7 +229,7 @@ Nix-managed unless noted.
   stable lags this fast-moving 0.x tool.
 - **nx** *(Nix, built locally)* — not in nixpkgs; built via `buildNpmPackage` from the wrapper
   project at `modules/apps/nx/`. See *Routine maintenance*.
-- **mysql CLI** *(Nix, `pkgs.mariadb.client`)* — MariaDB's client, deliberately. Stable nixpkgs
+- **mysql CLI** *(Nix, `pkgs.mariadb.client`, `modules/apps/other.nix`)* — MariaDB's client, deliberately. Stable nixpkgs
   has no client-only MySQL build: `mysql84.client` is `finalAttrs.finalPackage`, i.e. the whole
   server (~281 MB closure). `mariadb.client` is a genuine client-only output (~68 MB) and speaks
   the MySQL protocol, `caching_sha2_password` included. Unstable *does* split out an Oracle
