@@ -39,13 +39,13 @@ for _, ws in ipairs(workspaces) do
     icon = {
       font = { family = settings.font.numbers },
       string = ws,
-      padding_left = 15,
-      padding_right = 8,
+      padding_left = 10,
+      padding_right = 5,
       color = colors.white,
       highlight_color = colors.red,
     },
     label = {
-      padding_right = 20,
+      padding_right = 10,
       color = colors.grey,
       highlight_color = colors.white,
       font = "sketchybar-app-font:Regular:16.0",
