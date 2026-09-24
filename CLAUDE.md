@@ -257,8 +257,11 @@ Nix-managed unless noted.
   can't sign in from the CLI, and activation fails with `Not signed in`. Xcode's first install
   downloads ~15 GB. Afterwards run `sudo xcodebuild -license accept` and
   `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`.
-- **Rectangle** *(Nix)* — fetched from the official `.dmg`. Prefs aren't Nix-managed; could be
-  promoted via `system.defaults.CustomUserPreferences."com.knollsoft.Rectangle"`.
+- **Rectangle** *(Nix)* — fetched from the official `.dmg`. Only `screenEdgeGapTop` /
+  `screenEdgeGapBottom` are Nix-managed (`CustomUserPreferences."com.knollsoft.Rectangle"` in
+  `flake.nix`), because SketchyBar and ExtraDock don't reserve screen space: top = SketchyBar height
+  (40) − the 32pt macOS reserves for the hidden notch menu bar, bottom = ExtraDock bar thickness
+  + edge gap. Keep them in step if either bar changes size. Other prefs live in Rectangle's UI.
 - **ExtraDock** *(Nix, `extra/extradock.nix`)* — v5 isn't in the Homebrew cask, which tracks a
   different, older upstream repo (`AppitStudio/extra-dock-updates`, v4.x). v5 ships from a
   separate repo (`extra-dock5-updates`) behind a mutable `prod` release tag — the dmg the URL
