@@ -38,7 +38,7 @@ container lays out its windows either **tiles** (all visible, sharing the space)
 
 ### Service mode
 
-Press ⌥⇧; then one key — each runs its command and returns to main mode.
+Press ⌥⇧; then one key — each runs its command and returns to main mode. SketchyBar shows a red **SERVICE** pill while it's active.
 
 | Key | Does |
 | --- | --- |

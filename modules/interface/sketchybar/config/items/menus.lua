@@ -4,7 +4,7 @@ local settings = require("settings")
 
 local menu_watcher = sbar.add("item", {
   drawing = false,
-  updates = true,
+  updates = false,
 })
 local space_menu_swap = sbar.add("item", {
   drawing = false,
@@ -70,8 +70,5 @@ space_menu_swap:subscribe("swap_menus_and_spaces", function(env)
     update_menus()
   end
 end)
-
--- Start in menus mode; spaces.lua and front_app.lua start hidden to match
-update_menus()
 
 return menu_watcher

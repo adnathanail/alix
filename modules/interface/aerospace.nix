@@ -17,6 +17,16 @@
 let
   workspaces = map toString [ 1 2 3 4 5 6 7 8 9 ];
   perWorkspace = f: builtins.listToAttrs (map f workspaces);
+
+  # AeroSpace has no mode-change callback, so the bindings that switch mode
+  # tell SketchyBar's service-mode indicator
+  # (sketchybar/config/items/aerospace_mode.lua) themselves.
+  toMode = m: [
+    "mode ${m}"
+    "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_change MODE=${m}"
+  ];
+  # Run a service-mode command, then drop back to main mode.
+  service = cmd: [ cmd ] ++ toMode "main";
 in
 {
   services.aerospace = {
@@ -55,21 +65,21 @@ in
         alt-tab = "workspace-back-and-forth";
         alt-shift-tab = "move-workspace-to-monitor --wrap-around next";
 
-        alt-shift-semicolon = "mode service";
+        alt-shift-semicolon = toMode "service";
       }
       // perWorkspace (w: { name = "alt-${w}"; value = "workspace ${w}"; })
       // perWorkspace (w: { name = "alt-shift-${w}"; value = "move-node-to-workspace ${w}"; });
 
       mode.service.binding = {
-        esc = [ "reload-config" "mode main" ];
-        r = [ "flatten-workspace-tree" "mode main" ];
-        f = [ "layout floating tiling" "mode main" ];
-        backspace = [ "close-all-windows-but-current" "mode main" ];
+        esc = service "reload-config";
+        r = service "flatten-workspace-tree";
+        f = service "layout floating tiling";
+        backspace = service "close-all-windows-but-current";
 
-        alt-shift-h = [ "join-with left" "mode main" ];
-        alt-shift-j = [ "join-with down" "mode main" ];
-        alt-shift-k = [ "join-with up" "mode main" ];
-        alt-shift-l = [ "join-with right" "mode main" ];
+        alt-shift-h = service "join-with left";
+        alt-shift-j = service "join-with down";
+        alt-shift-k = service "join-with up";
+        alt-shift-l = service "join-with right";
       };
     };
   };

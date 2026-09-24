@@ -24,7 +24,7 @@ Modifications from FelixKratz's setup:
 - Add open WiFi settings button to WiFi popup
 - Add button to swap sketchybar for macOS bar and back
 - Spaces show AeroSpace workspaces (focused + non-empty ones) instead of native macOS Spaces; click one to switch to it
-- Start showing the current app's menus instead of the spaces (the switch icon next to them still toggles)
+- Red "SERVICE" pill with the key hints while AeroSpace is in service mode
 - Lock/unlock animation ([Source](https://github.com/nicolas-martin/awesome-sketchybar/blob/master/plugins/Simple-LockUnlock-Animation.md))
 - Replace media with Spotify-specific setup, because macOS removed their private media API
 

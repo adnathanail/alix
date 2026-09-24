@@ -30,8 +30,8 @@ local workspaces = list_workspaces()
 local spaces = {}
 local paddings = {}
 local brackets = {}
--- Whether the bar is in spaces mode (vs app menus); starts in menus mode.
-local shown = false
+-- Whether the bar is in spaces mode (vs app menus); starts in spaces mode.
+local shown = true
 
 for _, ws in ipairs(workspaces) do
   local space = sbar.add("item", "space." .. ws, {
@@ -156,7 +156,7 @@ local spaces_indicator = sbar.add("item", {
     padding_left = 8,
     padding_right = 9,
     color = colors.grey,
-    string = icons.switch.off,
+    string = icons.switch.on,
   },
   label = {
     width = 0,
