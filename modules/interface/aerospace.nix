@@ -150,6 +150,19 @@ in
       ++ strays "com.apple.Safari" " — " ""
       ++ strays "com.microsoft.VSCode" " - " "--focus-follows-window"
       ++ [
+        # Except 1Password, whose unlock/approval prompts pop up over
+        # GitButler when it signs a commit: leave those on 0 rather than
+        # dragging you off to 1. The move is a no-op; matching is what stops
+        # the rule below from firing.
+        {
+          "if" = {
+            app-id = "com.1password.1password";
+            workspace = "0";
+            during-aerospace-startup = false;
+          };
+          run = "move-node-to-workspace 0";
+        }
+
         # 0 is GitButler's alone (pinned first, above): anything else opened
         # there goes to 1, taking you with it. Not at startup, when every
         # window starts on 0 — the rule below handles that.
