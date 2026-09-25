@@ -122,8 +122,14 @@ local function cache_artwork(url, callback)
     function(path) callback(path ~= "" and path or nil) end)
 end
 
+local function hide()
+  media_artist:set({ drawing = false })
+  media_title:set({ drawing = false })
+  media_cover:set({ drawing = false, popup = { drawing = false } })
+end
+
 local last_title = nil
-local function update()
+local function query_and_show()
   sbar.exec(query, function(result)
     local lines = {}
     for line in result:gmatch("[^\n]+") do lines[#lines + 1] = line end
@@ -151,6 +157,19 @@ local function update()
       sbar.delay(5, animate_detail)
     end
   end)
+end
+
+-- Spotify's notification carries its state ("Player State" in the
+-- userInfo, which SketchyBar passes as env.INFO). Anything but Playing just
+-- hides the widget without asking Spotify: quitting Spotify sends Stopped
+-- while it's still shutting down, and an AppleScript `tell` then — past the
+-- is-running check — relaunches it.
+local function update(env)
+  local info = env and env.INFO
+  if type(info) == "table" and info["Player State"] ~= "Playing" then
+    return hide()
+  end
+  query_and_show()
 end
 
 sbar.add("event", "spotify_change", "com.spotify.client.PlaybackStateChanged")
