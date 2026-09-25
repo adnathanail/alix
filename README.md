@@ -9,6 +9,11 @@ Rebuild `nix-darwin` config
 ns  # alias for nix-switch
 ```
 
+Open Claude Code in this repo
+```bash
+ncc
+```
+
 ## Updating
 
 Ask Claude Code to run the `update-packages` skill

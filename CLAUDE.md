@@ -31,7 +31,7 @@ living at `~/.config/nix-darwin/`.
 | `modules/interface/README.md` | user-facing list of the interface config (Touch ID, Rectangle, Raycast, SketchyBar, hot corners) |
 | `modules/interface/rectangle.nix` | Rectangle: a darwin module that sets its screen-edge gaps and adds the app to the HM packages |
 | `modules/core/home.nix` | base Home Manager config (git identity, zsh, python/uv/node, `nix-switch`) and `home.stateVersion` — imported by `modules/core/default.nix`, so core must always be enabled |
-| `modules/core/dev.nix` | Claude Code (`programs.claude-code`, updater opt-out, `claude-work` alias), the Ghostty + GitButler casks, and Ghostty's config file — a darwin module with its HM part under `home-manager.users.${username}` |
+| `modules/core/dev.nix` | Claude Code (`programs.claude-code`, updater opt-out, `claude-work` and `ncc` aliases), the Ghostty + GitButler casks, and Ghostty's config file — a darwin module with its HM part under `home-manager.users.${username}` |
 | `modules/core/vscode.nix` | VS Code: editor from unstable, settings, extensions (HM module) |
 | `modules/{core,apps,interface,secrets}/default.nix` | each directory's entry point, imported once from `flake.nix`: lists its nix-darwin modules in `imports` and its HM modules in `home-manager.users.${username}.imports`. Add a new module to its directory's `default.nix` (by plain path), not the root files. `username` and `agenix` reach every nix-darwin module through `specialArgs` in `flake.nix`, so a module that needs them just takes `{ username, ... }:` — HM modules don't get them (use `config.home.username` there if ever needed) |
 | `modules/secrets/agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`. Declares **no** secrets |

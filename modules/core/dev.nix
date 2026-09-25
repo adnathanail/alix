@@ -25,6 +25,9 @@
     # ~/.claude) so logging in here doesn't clobber the personal session.
     programs.zsh.shellAliases.claude-work = "CLAUDE_CONFIG_DIR=$HOME/.claude-work claude";
 
+    # Jump into this config repo and start a Claude Code session there.
+    programs.zsh.shellAliases.ncc = "cd ~/.config/nix-darwin && claude";
+
     # Ghostty config. The file is Nix-owned so the first-launch auto-update
     # prompt is suppressed declaratively. Edits made in the app won't
     # persist — change this block and rebuild.
