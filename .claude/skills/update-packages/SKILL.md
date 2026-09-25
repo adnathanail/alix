@@ -1,6 +1,6 @@
 ---
 name: update-packages
-description: "Check for and apply package/dependency updates across this nix-darwin config — the 9 flake inputs (nixpkgs-master tracks raw master for claude-code) plus everything pinned outside the flake-lock system (ExtraDock, VS Code marketplace extensions, nx, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
+description: "Check for and apply package/dependency updates across this nix-darwin config — the 9 flake inputs (nixpkgs-master tracks raw master for claude-code) plus everything pinned outside the flake-lock system (ExtraDock, aerospace-swipe, VS Code marketplace extensions, nx, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
 ---
 
 # Update packages
@@ -71,6 +71,7 @@ done
 | What | Pinned in | Identity |
 |---|---|---|
 | ExtraDock | `modules/interface/extradock.nix` | `AppitStudio/extra-dock5-updates`, mutable `prod` release tag |
+| aerospace-swipe | `modules/interface/aerospace-swipe.nix` | `acsandmann/aerospace-swipe`, a commit on `main` (no releases) |
 | VS Code: TikZiT | `modules/core/vscode.nix` | `alekskissinger.vstikzit` |
 | VS Code: GitButler for IDE | `modules/core/vscode.nix` | `BartInTheField.gitbutler-for-ide` |
 | VS Code: Highlight | `modules/core/vscode.nix` | `fabiospampinato.vscode-highlight` |
@@ -91,6 +92,10 @@ hdiutil attach -nobrowse -readonly -mountpoint "$mnt" /tmp/extradock-check.dmg >
 /usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$mnt/ExtraDock.app/Contents/Info.plist"
 hdiutil detach "$mnt" >/dev/null
 # compare the printed version to `version` in modules/interface/extradock.nix
+
+# aerospace-swipe — latest commit on main
+gh api repos/acsandmann/aerospace-swipe/commits/main --jq '.sha + " " + .commit.committer.date'
+# compare to `rev` in modules/interface/aerospace-swipe.nix
 
 # VS Code marketplace extensions — one call per publisher.name pair above
 curl -s -X POST "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery" \
@@ -159,6 +164,19 @@ in `modules/interface/extradock.nix`:
 curl -sL "https://github.com/AppitStudio/extra-dock5-updates/releases/download/prod/ExtraDock.dmg" -o /tmp/extradock-new.dmg
 nix hash file --sri --type sha256 /tmp/extradock-new.dmg
 ```
+
+**aerospace-swipe:** edit `rev`, the `version` date and `hash` together in
+`modules/interface/aerospace-swipe.nix`:
+
+```bash
+nix-prefetch-url --unpack https://github.com/acsandmann/aerospace-swipe/archive/<rev>.tar.gz \
+  | xargs nix hash to-sri --type sha256
+```
+
+Skim the commits since the old `rev` — the module compiles the sources by hand, so a new
+or renamed file under `src/` needs adding to its `buildPhase`, and new config keys may
+be worth setting. The rebuilt binary loses its Accessibility grant (it's ad-hoc
+signed): tell the user to re-grant it after `ns`.
 
 **VS Code marketplace extension:** fetch the new vsix (note `--compressed` — the gallery
 gzips the response and the raw bytes won't hash-match otherwise), hash it, edit

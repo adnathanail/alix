@@ -1,5 +1,7 @@
 # Interface
 
+Loose ends to deal with later: [TODO.md](./TODO.md)
+
 - Touch ID for sudo (`macos.nix`)
 - Window tiling (Rectangle)
     - All settings are Nix-managed (`rectangle.nix`) — change them there, not in the app, or `ns` will revert them. Quit and reopen Rectangle after `ns` for changes to apply
@@ -16,6 +18,9 @@
           "window.title": "Fermioniq - ${activeEditorShort}${separator}${rootName}${separator}${profileName}"
           ```
     - *First use / after a version bump*: grant Accessibility to AeroSpace in System Settings → Privacy & Security
+    - Four-finger swipe left / right moves to the next / previous workspace with windows on it, like swiping between Spaces (`aerospace-swipe.nix`, using [aerospace-swipe](https://github.com/acsandmann/aerospace-swipe)). macOS's own three- and four-finger swipe between Spaces is turned off so they don't both fire; you may need to log out and back in for that
+        - Settings are `config.json` in `aerospace-swipe.nix`; after changing them, restart it with `launchctl kickstart -k gui/$(id -u)/org.nixos.aerospace-swipe`
+        - *First use / after it's rebuilt* (a pin bump, or a nixpkgs update): it asks for Accessibility; grant it in System Settings → Privacy & Security. Logs are in `~/Library/Logs/aerospace-swipe*.log`
 - Raycast (`other.nix`)
 - SketchyBar ([More info](./sketchybar/README.md))
 - Hot corners (`macos.nix`)
