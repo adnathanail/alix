@@ -72,7 +72,11 @@ sbar.exec("f=\"" .. image .. "\"; mkdir -p \"$(dirname \"$f\")\";"
     menubar:set({ background = { image = { string = image } } })
   end)
 
+-- Whether the native bar is deliberately shown (and SketchyBar hidden).
+local native_shown = false
+
 local function show_state(autohide)
+  native_shown = not autohide
   sbar.bar({ hidden = autohide and "off" or "on" })
 end
 
@@ -101,6 +105,19 @@ end)
 sbar.add("event", "menubar_hide")
 menubar:subscribe("menubar_hide", function(env)
   set_autohide("true")
+end)
+
+-- Fired by AeroSpace's ⌥` (aerospace.nix): the way back while the native
+-- bar is showing, otherwise the usual swap between app menus and
+-- workspaces. It can't just be swap_menus_and_spaces, as that would only
+-- swap them in the hidden bar.
+sbar.add("event", "menus_key")
+menubar:subscribe("menus_key", function(env)
+  if native_shown then
+    set_autohide("true")
+  else
+    sbar.trigger("swap_menus_and_spaces")
+  end
 end)
 
 -- `defaults` avoids an Apple Event at startup. The key is absent until the
