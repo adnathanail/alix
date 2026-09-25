@@ -32,6 +32,7 @@ living at `~/.config/nix-darwin/`.
 | `modules/interface/profiles.nix` | the profiles (Fermioniq, ASAC, …): name, workspace, colour, optional app bundle IDs. Plain data, imported by `aerospace.nix` (window rules) and `sketchybar/config.nix` (generates `profiles.lua` for the pill colours) |
 | `modules/interface/aerospace.nix` | AeroSpace: `services.aerospace` (nix-darwin's module — launchd agent + generated TOML), from unstable; default key bindings re-declared, outer gaps matching Rectangle's; also appends Ghostty's ⌘T → new-window keybind to the config file `dev.nix` owns |
 | `modules/interface/aerospace-swipe.nix` | aerospace-swipe: four-finger trackpad swipes switch AeroSpace workspaces. Built from a pinned GitHub commit, run as a launchd agent; also turns off macOS's own horizontal Spaces swipes |
+| `modules/interface/hammerspoon/` | Hammerspoon: the cask, its prefs (config path, updater off) and `init.lua` — Fn+2 → €, Fn+3 → #, standing in for the ⌥ characters AeroSpace's bindings take over |
 | `modules/interface/rectangle.nix` | Rectangle: a darwin module that sets its screen-edge gaps and adds the app to the HM packages |
 | `modules/core/home.nix` | base Home Manager config (git identity, zsh, python/uv/node, `nix-switch`) and `home.stateVersion` — imported by `modules/core/default.nix`, so core must always be enabled |
 | `modules/core/dev.nix` | Claude Code (`programs.claude-code`, updater opt-out, `claude-work` and `ncc` aliases), the Ghostty + GitButler casks, and Ghostty's config file — a darwin module with its HM part under `home-manager.users.${username}` |
@@ -330,5 +331,5 @@ A fresh machine comes up in stages — core → secrets → interface → apps, 
 uncommenting its line in `flake.nix` — with the manual steps between them in `docs/FIRST_USE.md`. Only these orders evaluate: interface and apps both need secrets' agenix
 module. Manual, non-Nix setup still needed: App Store sign-in (**before** enabling
 `modules/apps`, whose `masApps` otherwise abort activation), per-app sign-ins/licences, and System Settings → Privacy & Security grants — Accessibility
-(Rectangle, Raycast, SketchyBar, AeroSpace, aerospace-swipe), Screen Recording (Slack, Pika), Input Monitoring (Raycast),
+(Rectangle, Raycast, SketchyBar, AeroSpace, aerospace-swipe, Hammerspoon), Screen Recording (Slack, Pika), Input Monitoring (Raycast),
 Notifications/Calendar/Contacts/Mic/Camera per app.

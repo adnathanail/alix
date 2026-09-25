@@ -21,6 +21,9 @@ Loose ends to deal with later: [TODO.md](./TODO.md)
     - Four-finger swipe left / right moves to the next / previous workspace with windows on it, like swiping between Spaces (`aerospace-swipe.nix`, using [aerospace-swipe](https://github.com/acsandmann/aerospace-swipe)). macOS's own three- and four-finger swipe between Spaces is turned off so they don't both fire; you may need to log out and back in for that
         - Settings are `config.json` in `aerospace-swipe.nix`; after changing them, restart it with `launchctl kickstart -k gui/$(id -u)/org.nixos.aerospace-swipe`
         - *First use / after it's rebuilt* (a pin bump, or a nixpkgs update): it asks for Accessibility; grant it in System Settings → Privacy & Security. Logs are in `~/Library/Logs/aerospace-swipe*.log`
+- Fn+2 types €, Fn+3 types # — the characters ⌥2 / ⌥3 would type, which AeroSpace's bindings take over (Hammerspoon, `hammerspoon/`)
+    - Config is Nix-managed — edit `hammerspoon/init.lua` (add more keys to `fnChars`), not `~/.config/hammerspoon`. Hammerspoon reloads it itself after `ns`
+    - *First use*: open Hammerspoon once and grant it Accessibility in System Settings → Privacy & Security (it's a signed app, so this survives updates)
 - Raycast (`other.nix`)
 - SketchyBar ([More info](./sketchybar/README.md))
 - Hot corners (`macos.nix`)
