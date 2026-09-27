@@ -68,7 +68,7 @@ git -C ~/.config/nix-darwin remote set-url origin git@github.com:adnathanail/ali
 Uncomment `modules/interface`, then `ns`.
 
 Then:
-1. Hammerspoon: open it once so it registers its login item, then grant Accessibility as above.
+1. Hammerspoon: open it once so it registers its login item, then grant Accessibility.
 2. Log out and back in, so turning off macOS's own swipe between Spaces takes effect
    (aerospace-swipe replaces it).
 3. Raycast: work through onboarding (let it take ⌥Space from Spotlight).
