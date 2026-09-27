@@ -72,17 +72,17 @@
       specialArgs = { inherit username agenix; };
       modules = [
 
+        # ── core: Claude Code, Ghostty, GitButler, VS Code, macOS settings
+        ./modules/core
+
         # ── secrets: agenix machinery + env-var secrets ────────
         ./modules/secrets
 
-        # ── core: Claude Code, Ghostty, GitButler, VS Code ─────
-        ./modules/core
+        # ── interface: SketchyBar, AeroSpace, Rectangle, … ─────
+        ./modules/interface
 
         # ── apps ────────────────────────────────────────────────
         ./modules/apps
-
-        # ── interface: SketchyBar, macOS settings, Rectangle, … ─
-        ./modules/interface
 
         # ── Graveyard: where things go to die ─
         ./modules/graveyard.nix

@@ -1,7 +1,7 @@
 # macOS system settings: Dock, menu-bar clock, Control Center,
 # system-wide keyboard shortcuts, and Touch ID for sudo.
 #
-# Consumed from modules/interface/default.nix as:
+# Consumed from modules/core/default.nix as:
 #     ./macos.nix
 { username, ... }: {
   # Touch ID for sudo. Writes /etc/pam.d/sudo_local, which survives macOS

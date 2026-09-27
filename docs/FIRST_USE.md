@@ -9,9 +9,13 @@ Don't run a partial config on a Mac that already has everything installed:
 
 ## 0. Prerequisites
 
+When setting up the laptop, make sure the username is `adnathanail`
+
 [Install Lix](https://lix.systems/install/#on-any-other-linuxmacos-system)
 ```bash
 curl -sSf -L https://install.lix.systems/lix | sh -s -- install
+# Enable flakes? Y
+# Proceed? Y
 ```
 
 Install the Xcode command line tools (this also provides `git`)
@@ -27,7 +31,7 @@ git clone https://github.com/adnathanail/alix.git ~/.config/nix-darwin
 In `flake.nix`, comment out the `modules/secrets`, `modules/apps` and `modules/interface`
 lines, leaving `modules/core`.
 
-## 1. Core — terminal, editor, Claude Code, 1Password
+## 1. Core — terminal, editor, Claude Code, 1Password, macOS settings
 
 Bootstrap `nix-darwin` (the branch must match the `nix-darwin` input in `flake.nix`, and the
 `#Alexs-MacBook-Pro` must match `hostname` there — a new Mac's own hostname may differ)
@@ -37,7 +41,8 @@ sudo nix run nix-darwin/nix-darwin-26.05#darwin-rebuild -- switch --flake ~/.con
 This asks for `sudo` to take ownership of `/opt/homebrew`. Open a new terminal (Ghostty) and
 `ns` works from here on.
 
-Installs Ghostty, GitButler, VS Code, Claude Code, 1Password + `op`, git, zsh, python/uv/node.
+Installs Ghostty, GitButler, VS Code, Claude Code, 1Password + `op`, git, zsh, python/uv/node,
+and sets the Dock, hot corners, menu-bar clock and Touch ID for sudo (`modules/core/macos.nix`).
 
 Then:
 1. Sign into 1Password. In Settings → Developer, turn on **Integrate with 1Password CLI** and
@@ -58,7 +63,7 @@ Switch the repo's remote to SSH now that 1Password's agent holds the key:
 git -C ~/.config/nix-darwin remote set-url origin git@github.com:adnathanail/alix.git
 ```
 
-## 3. Interface — SketchyBar, Dock, Rectangle, Raycast
+## 3. Interface — SketchyBar, AeroSpace, ExtraDock, Raycast
 
 Uncomment `modules/interface`, then `ns`.
 

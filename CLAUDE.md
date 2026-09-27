@@ -26,9 +26,8 @@ living at `~/.config/nix-darwin/`.
 | --- | --- |
 | `flake.nix` | inputs, unstable overlay, Homebrew settings (`onActivation`, `greedyCasks`), nix-homebrew + HM wiring |
 | `modules/apps/other.nix` | apps too small for their own module: the Homebrew casks and brews, the Safari extensions (1Password, Save to Raindrop.io), and small CLIs added to the HM packages (`prek`, `pnpm`, `gh`, `doctl`, `psql`, the MariaDB client) |
-| `modules/interface/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey; Touch ID for sudo |
 | `modules/interface/other.nix` | interface tools too small for their own module — currently the Raycast cask |
-| `modules/interface/README.md` | user-facing list of the interface config (Touch ID, Rectangle, Raycast, SketchyBar, hot corners) |
+| `modules/interface/README.md` | user-facing list of the interface config (Rectangle, AeroSpace, Hammerspoon, Raycast, SketchyBar) |
 | `modules/interface/profiles.nix` | the profiles (Fermioniq, ASAC, …): name, workspace, colour, optional app bundle IDs. Plain data, imported by `aerospace.nix` (window rules) and `sketchybar/config.nix` (generates `profiles.lua` for the pill colours) |
 | `modules/interface/aerospace.nix` | AeroSpace: `services.aerospace` (nix-darwin's module — launchd agent + generated TOML), from unstable; default key bindings re-declared, outer gaps matching Rectangle's; also appends Ghostty's ⌘T → new-window keybind to the config file `dev.nix` owns |
 | `modules/interface/aerospace-swipe.nix` | aerospace-swipe: four-finger trackpad swipes switch AeroSpace workspaces. Built from a pinned GitHub commit, run as a launchd agent; also turns off macOS's own horizontal Spaces swipes |
@@ -36,6 +35,7 @@ living at `~/.config/nix-darwin/`.
 | `modules/interface/rectangle.nix` | Rectangle: a darwin module that sets its screen-edge gaps and adds the app to the HM packages |
 | `modules/core/home.nix` | base Home Manager config (git identity, zsh, python/uv/node, `nix-switch`) and `home.stateVersion` — imported by `modules/core/default.nix`, so core must always be enabled |
 | `modules/core/dev.nix` | Claude Code (`programs.claude-code`, updater opt-out, `claude-work` and `ncc` aliases), the Ghostty + GitButler casks, and Ghostty's config file — a darwin module with its HM part under `home-manager.users.${username}` |
+| `modules/core/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey; Touch ID for sudo |
 | `modules/core/vscode.nix` | VS Code: editor from unstable, settings, extensions (HM module) |
 | `modules/{core,apps,interface,secrets}/default.nix` | each directory's entry point, imported once from `flake.nix`: lists its nix-darwin modules in `imports` and its HM modules in `home-manager.users.${username}.imports`. Add a new module to its directory's `default.nix` (by plain path), not the root files. `username` and `agenix` reach every nix-darwin module through `specialArgs` in `flake.nix`, so a module that needs them just takes `{ username, ... }:` — HM modules don't get them (use `config.home.username` there if ever needed) |
 | `modules/secrets/agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`. Declares **no** secrets |
@@ -187,7 +187,7 @@ private key is **not** Nix-managed; it's backed up to 1Password as document `nix
 re-run `op document edit "nix-darwin age key" ~/.config/age/keys.txt`.
 
 ### System defaults
-`modules/interface/macos.nix` covers the Dock (no recents, hot corners, pinned apps), menu-bar
+`modules/core/macos.nix` covers the Dock (no recents, hot corners, pinned apps), menu-bar
 clock, Control Center, the `pbs` services hotkey (`CustomUserPreferences`), and Touch ID for sudo
 (`security.pam.services.sudo_local.touchIdAuth` — writes `/etc/pam.d/sudo_local`, survives macOS
 updates, doesn't work in tmux without `pam_reattach`).
@@ -327,7 +327,7 @@ Nix-managed unless noted.
   the click instead was tried and fixed it, but flashed for the length of the click. May need
   rebasing when SketchyBar is bumped — the build fails loudly if it no longer applies.
 
-A fresh machine comes up in stages — core → secrets → interface → apps, each enabled by
+A fresh machine comes up in stages — core (including the macOS `system.defaults`) → secrets → interface → apps, each enabled by
 uncommenting its line in `flake.nix` — with the manual steps between them in `docs/FIRST_USE.md`. Only these orders evaluate: interface and apps both need secrets' agenix
 module. Manual, non-Nix setup still needed: App Store sign-in (**before** enabling
 `modules/apps`, whose `masApps` otherwise abort activation), per-app sign-ins/licences, and System Settings → Privacy & Security grants — Accessibility

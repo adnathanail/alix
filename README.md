@@ -43,6 +43,12 @@ CLI
 - node
 - op (1Password)
 
+macOS settings (`modules/core/macos.nix`)
+- Touch ID for sudo
+- Dock: no recents, pinned apps
+- Hot corners: top left → Show desktop, bottom left → Apps (Launchpad)
+- Menu-bar clock (24h, seconds), battery percentage, Bluetooth in the menu bar
+
 ### Software
 
 - PyCharm
