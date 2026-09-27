@@ -68,19 +68,20 @@ git -C ~/.config/nix-darwin remote set-url origin git@github.com:adnathanail/ali
 Uncomment `modules/interface`, then `ns`.
 
 Then:
-1. System Settings → Control Center → **Automatically hide and show the menu bar** → Always
-   (SketchyBar replaces it).
-2. System Settings → Privacy & Security:
-    - **Accessibility**: SketchyBar (add `~/.local/libexec/sketchybar/sketchybar` — the re-signed
-      copy, never a `/nix/store` path), AeroSpace, aerospace-swipe (it prompts for this itself),
-      Hammerspoon, Raycast
-    - **Input Monitoring**: Raycast
-3. Hammerspoon: open it once so it registers its login item, then grant Accessibility as above.
-4. Log out and back in, so turning off macOS's own swipe between Spaces takes effect
+1. Hammerspoon: open it once so it registers its login item, then grant Accessibility as above.
+2. Log out and back in, so turning off macOS's own swipe between Spaces takes effect
    (aerospace-swipe replaces it).
-5. Raycast: work through onboarding (let it take ⌥Space from Spotlight).
-6. ExtraDock: set up the docks in-app (76pt bottom bar — AeroSpace's bottom gap in
+3. Raycast: work through onboarding (let it take ⌥Space from Spotlight).
+4. ExtraDock: set up the docks in-app (76pt bottom bar — AeroSpace's bottom gap in
    `aerospace.nix` assumes it).
+5. System Settings → Privacy & Security:
+    - **Accessibility**:
+         - AeroSpace, aerospace-swipe: Should prompt on `ns`
+         - SketchyBar: Click the Apple icon and it should ask
+         - Hammerspoon: Should prompt after opening
+         - Raycast: Should ask during setup
+         - ExtraDock: Should ask during setup
+    - **Input Monitoring**: Raycast (should during setup)
 
 See [modules/interface/README.md](../modules/interface/README.md).
 
