@@ -20,6 +20,9 @@ Loose ends to deal with later: [TODO.md](./TODO.md)
 - Fn+2 types €, Fn+3 types # — the characters ⌥2 / ⌥3 would type, which AeroSpace's bindings take over (Hammerspoon, `hammerspoon/`)
     - Config is Nix-managed — edit `hammerspoon/init.lua` (add more keys to `fnChars`), not `~/.config/hammerspoon`. Hammerspoon reloads it itself after `ns`
     - *First use*: open Hammerspoon once and grant it Accessibility in System Settings → Privacy & Security (it's a signed app, so this survives updates)
+- ExtraDock's docks (Productivity, Comms, Running apps; Other is off) and settings (`extradock-config.nix`)
+    - Edit `extradock-config.nix`, `ns`, then import `~/.config/extradock/ExtraDock.extradock5backup` with ExtraDock's **Import Backup** — not Import Settings, which takes `~/.config/extradock/settings.json` and leaves the docks alone (⌘⇧G in the file picker to type the path). In-app changes aren't saved back to the repo
+    - The Running apps widget hides every app pinned in an enabled dock; that list is worked out from the docks, not written by hand
 - Raycast (`other.nix`)
 - SketchyBar ([More info](./sketchybar/README.md))
 

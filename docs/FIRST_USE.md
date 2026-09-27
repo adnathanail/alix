@@ -72,8 +72,9 @@ Then:
 2. Log out and back in, so turning off macOS's own swipe between Spaces takes effect
    (aerospace-swipe replaces it).
 3. Raycast: work through onboarding (let it take ⌥Space from Spotlight).
-4. ExtraDock: set up the docks in-app (76pt bottom bar — AeroSpace's bottom gap in
-   `aerospace.nix` assumes it).
+4. ExtraDock: import `~/.config/extradock/ExtraDock.extradock5backup` with ExtraDock's **Import Backup**
+   (not Import Settings) (⌘⇧G in the file picker to type the path). It's built from `extradock-config.nix`
+   (76pt bottom bar — AeroSpace's bottom gap in `aerospace.nix` assumes it).
 5. System Settings → Privacy & Security:
     - **Accessibility**:
          - AeroSpace, aerospace-swipe: Should prompt on `ns`

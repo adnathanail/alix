@@ -17,5 +17,6 @@
   # Home Manager modules
   home-manager.users.${username}.imports = [
     ./extradock.nix
+    ./extradock-config.nix # docks + settings, built into an importable backup
   ];
 }
