@@ -15,8 +15,8 @@ index 88df424..412a116 100644
 +  //
 +  // The layers stack *up* from the configured level, so the background
 +  // itself sits at it: with `topmost = on` (status level, one above the main
-+  // menu level) the whole bar then stays above a hover-revealed native menu
-+  // bar, rather than the background and brackets dropping below it.
++  // menu level) the whole bar then stays above the native menu bar, rather
++  // than the background and brackets dropping below it.
    window_set_level(&bar->window, g_bar_manager.window_level);
    window_order(&bar->window, NULL, W_ABOVE);
  

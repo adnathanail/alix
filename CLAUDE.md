@@ -298,9 +298,9 @@ Nix-managed unless noted.
   `on-mode-changed` callback triggers SketchyBar's `aerospace_mode_change` event; it gets no env
   var for the new mode, so it asks `aerospace list-modes --current`. The upstream release is
   ad-hoc signed, so the Accessibility grant must be given again after each version bump. The
-  outer gaps exist
-  because SketchyBar and ExtraDock don't reserve screen space: top = SketchyBar height (40) − the
-  32pt macOS reserves for the hidden notch menu bar, bottom = ExtraDock bar thickness + edge gap.
+  outer gaps exist because SketchyBar and ExtraDock don't reserve screen space: top = SketchyBar
+  height (40) − the 32pt macOS reserves for the native menu bar, bottom = ExtraDock bar thickness
+  + edge gap.
   Keep them in step if either bar changes size.
 - **aerospace-swipe** *(Nix, built from a pinned commit, `modules/interface/aerospace-swipe.nix`)* —
   compiled by hand (upstream's makefile hard-codes `-march=native`), so a new file under `src/`
@@ -328,7 +328,10 @@ Nix-managed unless noted.
   children, so their requests (e.g. the clock's osascript keystroke → Accessibility) count as
   SketchyBar's. So launchd runs a copy at `~/.local/libexec/sketchybar/sketchybar`, re-signed each
   activation with the agenix'd `sketchybar-signing-identity` cert (`modules/interface/sketchybar/signing.nix`).
-  **Grant permissions to that path, never a store path.** Only the server needs it; the CLI calls
+  **Grant permissions to that path, never a store path.** The native menu bar is **never
+  auto-hidden** (`_HIHideMenuBar = false`, in `sketchybar/default.nix`); SketchyBar
+  (`topmost = on`, opaque) draws over it. Auto-hidden, notification banners sat under SketchyBar.
+  The eye widget shows the native bar by hiding SketchyBar, not by changing the setting. Only the server needs it; the CLI calls
   in the plugins keep using the store binary. Homebrew wouldn't fix it (stable path, still ad-hoc
   signed). The same pattern would work for any other Nix-built binary that needs grants.
   Also carries a local patch, `modules/interface/sketchybar/layered-window-levels.patch` (applied by an
@@ -336,7 +339,7 @@ Nix-managed unless noted.
   macOS raises a clicked window above its same-level siblings, and upstream puts the bar
   background, brackets and items on one level, so clicking empty bar space lifted the
   background over every item and dimmed the whole bar until restart. The patch gives each layer
-  its own level, stacking up from the configured one (background +0, brackets +1, items +2) so that at `topmost = on` the whole bar stays above a hover-revealed native menu bar. Re-stacking after
+  its own level, stacking up from the configured one (background +0, brackets +1, items +2) so that at `topmost = on` the whole bar stays above the native menu bar. Re-stacking after
   the click instead was tried and fixed it, but flashed for the length of the click. May need
   rebasing when SketchyBar is bumped — the build fails loudly if it no longer applies.
 

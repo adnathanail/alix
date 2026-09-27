@@ -1,16 +1,11 @@
-// A native menu-bar icon that hides the native menu bar again, i.e. returns
-// to SketchyBar. The counterpart of config/items/menubar.lua's icon, which
-// shows it.
-//
-// It doesn't touch the menu-bar setting itself: that goes through System
-// Events, which needs an Automation grant, and this ad-hoc-signed Nix binary
-// would lose any grant on every rebuild (see ./signing.nix). Instead it
-// triggers a SketchyBar event, and SketchyBar — which has the grant, on its
-// stably-signed path — does the hiding.
+// A native menu-bar icon that returns to SketchyBar, which then draws over
+// the native menu bar again. The counterpart of config/items/menubar.lua's
+// icon, which hides SketchyBar to show the native bar. It triggers a
+// SketchyBar event, and SketchyBar un-hides itself.
 //
 // No app bundle: a plain binary with the Accessory activation policy gets a
-// status item without a Dock icon. While the menu bar is auto-hidden the
-// icon simply isn't seen, so it runs all the time (launchd agent in
+// status item without a Dock icon. While SketchyBar covers the native bar
+// the icon simply isn't seen, so it runs all the time (launchd agent in
 // ./default.nix). @sketchybar@ is substituted with the store path at build.
 #import <Cocoa/Cocoa.h>
 
@@ -41,7 +36,7 @@ int main(void) {
                   accessibilityDescription:@"Return to SketchyBar"];
     image.template = YES;
     item.button.image = image;
-    item.button.toolTip = @"Hide the menu bar and return to SketchyBar";
+    item.button.toolTip = @"Return to SketchyBar";
 
     // target is a weak reference; `target` lives until main returns, which
     // is never while [app run] is running.

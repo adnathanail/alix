@@ -13,7 +13,7 @@
 #     the native macOS menu bar, plus the `menubar_hide` event that
 #     ../menubar-return.m triggers
 #   - bar.lua: `topmost = "on"`; colors.lua: bar background fully opaque —
-#     together these keep a hover-revealed native menu bar out of sight
+#     together these draw the bar over the (never-hidden) native menu bar
 #   - items/lock_animation.lua (+ its require): new, animates the bar back in
 #     after unlocking the screen
 #   - items/spotify.lua (upstream's items/media.lua, renamed): Spotify-only,

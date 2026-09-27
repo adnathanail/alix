@@ -11,8 +11,8 @@ return {
   transparent = 0x00000000,
 
   bar = {
-    -- Local change: fully opaque (upstream 0xf0…), so a hover-revealed
-    -- native menu bar behind SketchyBar can't show through.
+    -- Local change: fully opaque (upstream 0xf0…), so the native menu bar
+    -- behind SketchyBar can't show through.
     bg = 0xff2c2e34,
     border = 0xff2c2e34,
   },

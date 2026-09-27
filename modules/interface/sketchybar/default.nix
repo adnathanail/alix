@@ -159,9 +159,15 @@ in {
     ];
   };
 
+  # Never auto-hide the native menu bar: SketchyBar (topmost) draws over it
+  # instead. With it always shown, macOS places notification banners below
+  # it, clear of SketchyBar; auto-hidden, they sat under the bar.
+  # config/items/menubar.lua shows the native bar by hiding SketchyBar.
+  system.defaults.NSGlobalDomain._HIHideMenuBar = false;
+
   # The way back from the native menu bar: a status item in it that tells
-  # SketchyBar to hide it again. Runs whether or not the native bar is
-  # showing — auto-hidden, the icon just isn't seen. Its plist names the
+  # SketchyBar to show itself again. Runs whether or not the native bar is
+  # showing — covered by SketchyBar, the icon just isn't seen. Its plist names the
   # store path, so nix-darwin restarts it whenever the binary changes.
   launchd.user.agents.sketchybar-menubar-return = {
     serviceConfig = {

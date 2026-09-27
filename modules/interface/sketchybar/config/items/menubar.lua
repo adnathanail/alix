@@ -1,23 +1,13 @@
 -- Local addition (not in FelixKratz's upstream config): toggles the native
 -- macOS menu bar, as a way out if SketchyBar ever misbehaves.
 --
--- Click flips System Settings' "Automatically hide and show the menu bar"
--- between Always and Never, via System Events (SketchyBar already has
--- Automation access to it for the calendar's Fantastical keystroke). The way
--- back is a matching icon in the native menu bar (../../menubar-return.m).
---
--- The bar is `topmost = "on"` (bar.lua): the status window level, one above
--- the native menu bar's, so hovering at the top of the screen reveals the
--- auto-hidden native bar *underneath* SketchyBar, where it can't be seen or
--- clicked. While the native bar is deliberately shown, SketchyBar hides
--- itself instead — lowering it below the native bar isn't enough, as the
--- native bar's background is transparent and SketchyBar shows through. It
--- keeps running while hidden, so the menubar_hide event still reaches it.
---
--- SketchyBar doesn't forward that change to the config, so whether the bar
--- is hidden is set at startup and after each click, not live — toggling in
--- System Settings instead leaves it out of step until the next click or
--- restart.
+-- The native bar is never auto-hidden (../../default.nix sets that), so
+-- macOS keeps notification banners and the tiling area clear of it. The bar
+-- is `topmost = "on"` (bar.lua): the status window level, one above the
+-- native menu bar's, so SketchyBar simply draws over it. Showing the native
+-- bar is then just hiding SketchyBar; the way back is a matching icon in the
+-- native menu bar (../../menubar-return.m). SketchyBar keeps running while
+-- hidden, so the menubar_hide event still reaches it.
 
 local colors = require("colors")
 
@@ -75,36 +65,20 @@ sbar.exec("f=\"" .. image .. "\"; mkdir -p \"$(dirname \"$f\")\";"
 -- Whether the native bar is deliberately shown (and SketchyBar hidden).
 local native_shown = false
 
-local function show_state(autohide)
-  native_shown = not autohide
-  sbar.bar({ hidden = autohide and "off" or "on" })
-end
-
--- `value` is AppleScript: "true", "false", or "not autohide menu bar" to
--- toggle. Reads the setting back afterwards so the state shown is the real
--- one.
-local function set_autohide(value)
-  sbar.exec(
-    "osascript"
-      .. " -e 'tell application \"System Events\" to tell dock preferences"
-      .. " to set autohide menu bar to " .. value .. "'"
-      .. " -e 'tell application \"System Events\" to get autohide menu bar"
-      .. " of dock preferences'",
-    function(result)
-      show_state(result:match("true") ~= nil)
-    end
-  )
+local function show_native(shown)
+  native_shown = shown
+  sbar.bar({ hidden = shown and "on" or "off" })
 end
 
 menubar:subscribe("mouse.clicked", function(env)
-  set_autohide("not autohide menu bar")
+  show_native(true)
 end)
 
 -- Fired by the native menu-bar icon (../../menubar-return.m) — the way back
--- when the native bar is showing. Always hides, never toggles.
+-- when the native bar is showing.
 sbar.add("event", "menubar_hide")
 menubar:subscribe("menubar_hide", function(env)
-  set_autohide("true")
+  show_native(false)
 end)
 
 -- Fired by AeroSpace's ⌥` (aerospace.nix): the way back while the native
@@ -114,14 +88,8 @@ end)
 sbar.add("event", "menus_key")
 menubar:subscribe("menus_key", function(env)
   if native_shown then
-    set_autohide("true")
+    show_native(false)
   else
     sbar.trigger("swap_menus_and_spaces")
   end
-end)
-
--- `defaults` avoids an Apple Event at startup. The key is absent until the
--- setting has been changed once, which means not hidden.
-sbar.exec("defaults read -g _HIHideMenuBar 2>/dev/null", function(result)
-  show_state(result:match("1") ~= nil)
 end)
