@@ -4,9 +4,8 @@ local settings = require("settings")
 -- AeroSpace key hints: one pill for service mode, one while Option is held.
 
 -- Shown only while AeroSpace is in service mode (⌥⇧;), as a reminder of
--- the one-key commands it offers. AeroSpace has no mode-change callback, so
--- its bindings trigger `aerospace_mode_change MODE=<mode>` themselves
--- (../../../aerospace.nix).
+-- the one-key commands it offers. AeroSpace's on-mode-changed callback
+-- triggers `aerospace_mode_change MODE=<mode>` (../../../aerospace.nix).
 local mode = sbar.add("item", "aerospace.mode", {
   drawing = false,
   -- Hidden items skip their event handlers by default, which would leave

@@ -294,10 +294,11 @@ Nix-managed unless noted.
   nix-darwin's `services.aerospace` (launchd agent, store-path TOML; `~/.aerospace.toml` is
   ignored). A custom config **replaces AeroSpace's defaults wholesale**, so every binding wanted
   is re-declared; anything not listed is unbound. A key name AeroSpace doesn't recognise gets its
-  binding **silently dropped** — e.g. the § key is `sectionSign`, not `section`. There's no
-  mode-change callback, so the bindings that switch mode trigger SketchyBar's
-  `aerospace_mode_change` event themselves (`toMode`). The upstream release is ad-hoc signed, so
-  the Accessibility grant must be given again after each version bump. The outer gaps exist
+  binding **silently dropped** — e.g. the § key is `sectionSign`, not `section`. The
+  `on-mode-changed` callback triggers SketchyBar's `aerospace_mode_change` event; it gets no env
+  var for the new mode, so it asks `aerospace list-modes --current`. The upstream release is
+  ad-hoc signed, so the Accessibility grant must be given again after each version bump. The
+  outer gaps exist
   because SketchyBar and ExtraDock don't reserve screen space: top = SketchyBar height (40) − the
   32pt macOS reserves for the hidden notch menu bar, bottom = ExtraDock bar thickness + edge gap.
   Keep them in step if either bar changes size.

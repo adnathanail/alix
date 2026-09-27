@@ -24,15 +24,8 @@ let
   workspaces = map toString [ 1 2 3 4 5 6 7 8 9 ];
   perWorkspace = f: builtins.listToAttrs (map f workspaces);
 
-  # AeroSpace has no mode-change callback, so the bindings that switch mode
-  # tell SketchyBar's service-mode indicator
-  # (sketchybar/config/items/aerospace_mode.lua) themselves.
-  toMode = m: [
-    "mode ${m}"
-    "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_change MODE=${m}"
-  ];
   # Run a service-mode command, then drop back to main mode.
-  service = cmd: [ cmd ] ++ toMode "main";
+  service = cmd: [ cmd "mode main" ];
 
   # Window rules sending a profile's windows (see ./profiles.nix) to its
   # workspace: its apps, Safari windows in its Safari profile (Safari starts
@@ -195,6 +188,13 @@ in
       # Prevent ⌘H hiding apps
       automatically-unhide-macos-hidden-apps = true;
 
+      # Tell SketchyBar's service-mode indicator
+      # (sketchybar/config/items/aerospace_mode.lua) the new mode. The
+      # callback gets no env var for it, so ask AeroSpace.
+      on-mode-changed = [
+        "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger aerospace_mode_change MODE=$(${aerospace}/bin/aerospace list-modes --current)"
+      ];
+
       # Workspaces that exist even when empty — what SketchyBar's spaces
       # widget builds its pills from.
       persistent-workspaces = [ "0" ] ++ workspaces;
@@ -221,7 +221,7 @@ in
         alt-tab = "workspace-back-and-forth";
         alt-shift-tab = "move-workspace-to-monitor --wrap-around next";
 
-        alt-shift-semicolon = toMode "service";
+        alt-shift-semicolon = "mode service";
 
         # Swap SketchyBar between app menus and workspaces, as its switch
         # icon does (sketchybar/config/items/menus.lua) — or, while the
