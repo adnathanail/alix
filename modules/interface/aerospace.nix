@@ -127,6 +127,10 @@ in
     package = aerospace;
 
     settings = {
+      # Version 2 unlocks persistent-workspaces (below) and stops AeroSpace
+      # inferring it from the key bindings.
+      config-version = 2;
+
       # Keep tiled windows clear of the custom bars, neither of which
       # reserves screen space the way the native menu bar and Dock do.
       # Top: SketchyBar (sketchybar/config/bar.lua) is 40pt, and macOS
@@ -192,8 +196,7 @@ in
       automatically-unhide-macos-hidden-apps = true;
 
       # Workspaces that exist even when empty — what SketchyBar's spaces
-      # widget builds its pills from. AeroSpace infers 1–9 from the bindings
-      # below, but not 0 (bound to § rather than a digit).
+      # widget builds its pills from.
       persistent-workspaces = [ "0" ] ++ workspaces;
       # Start on 1 rather than the first workspace in the list (0).
       after-startup-command = [ "workspace 1" ];
