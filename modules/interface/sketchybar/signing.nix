@@ -17,29 +17,31 @@
 # certificate kept in agenix (modules/secrets/agefiles/sketchybar-signing-identity.age: a
 # .p12 of a self-signed codeSigning cert + key, generated once with
 # openssl). The requirement becomes
-#     identifier "com.felixkratz.sketchybar" and certificate leaf = H"…"
-# which contains no hash of the binary, so the path, identifier and cert all
-# stay the same across updates and each grant only has to be given once.
-# codesign accepts the cert without it being trusted (`find-identity` shows
-# CSSMERR_TP_NOT_TRUSTED, which is fine), and TCC matches the leaf hash
-# without checking trust.
+#     identifier "com.felixkratz.sketchybar" and certificate root = H"…"
+# (root, not leaf, because rcodesign phrases it that way; for a self-signed
+# cert they're the same cert). It contains no hash of the binary, so the
+# path, identifier and cert all stay the same across updates and each grant
+# only has to be given once. TCC matches the cert hash without checking
+# trust, so the cert never needs trusting.
 #
-# The signing keychain is throwaway: created in a temp dir, never added to
-# the search list, deleted on exit. Nothing persists outside $dest.
+# Signing uses rcodesign (apple-codesign), which reads the .p12 directly.
+# Apple's codesign can only sign from a keychain, and it ignores
+# `--keychain` for one that isn't on the user's search list ("no identity
+# found"), so using it meant either importing the key into the login
+# keychain or temporarily rewriting the search list. rcodesign touches
+# neither; nothing persists outside $dest.
 #
 # Only the launchd-run server needs this. `sketchybar --set …` CLI calls in
 # the config's click scripts just message the server, so they keep using the
 # store binary.
 #
 # Returns a script taking: <store binary> <.p12> <destination>. Run it as
-# the user (see default.nix), so the keychain lives in their security
-# session and $dest is user-owned.
+# the user (see default.nix), so $dest is user-owned.
 { pkgs }:
 
 pkgs.writeShellScript "sign-sketchybar" ''
   set -euo pipefail
   src=$1 p12=$2 dest=$3
-  identity="nix-darwin sketchybar signing"
 
   # Skip if $dest is already a signed copy of this exact store binary.
   if [ "$(cat "$dest.source" 2>/dev/null)" = "$src" ] \
@@ -47,26 +49,19 @@ pkgs.writeShellScript "sign-sketchybar" ''
     exit 0
   fi
 
-  tmp=$(mktemp -d)
-  kc="$tmp/signing.keychain-db"
-  # The .p12 is only ever at rest inside agenix, so these two passwords
-  # protect nothing and don't need to be secret.
-  kcpass=nix-darwin
-  trap '/usr/bin/security delete-keychain "$kc" 2>/dev/null || true; rm -rf "$tmp"' EXIT
-
-  /usr/bin/security create-keychain -p "$kcpass" "$kc"
-  /usr/bin/security unlock-keychain -p "$kcpass" "$kc"
-  # -f is required: import guesses format from the extension, and
-  # /run/agenix/<name> has none ("Unknown format in import").
-  /usr/bin/security import "$p12" -f pkcs12 -k "$kc" -P nix-darwin -T /usr/bin/codesign >/dev/null
-  # Lets codesign use the key without a GUI "allow access" prompt.
-  /usr/bin/security set-key-partition-list -S apple-tool:,apple: -s -k "$kcpass" "$kc" >/dev/null
-
   mkdir -p "$(dirname "$dest")"
-  cp "$src" "$dest.new"
+  rm -f "$dest.new"
+  # The .p12 is only ever at rest inside agenix, so its password protects
+  # nothing and doesn't need to be secret. rcodesign logs every step, so
+  # its output is only shown if it fails.
+  if ! out=$(${pkgs.rcodesign}/bin/rcodesign sign \
+      --p12-file "$p12" --p12-password nix-darwin \
+      --binary-identifier com.felixkratz.sketchybar \
+      "$src" "$dest.new" 2>&1); then
+    echo "$out" >&2
+    exit 1
+  fi
   chmod 755 "$dest.new"
-  /usr/bin/codesign -f -s "$identity" --keychain "$kc" \
-    --identifier com.felixkratz.sketchybar "$dest.new"
   # rename(), not overwrite: never rewrite the binary of a running process
   # in place.
   mv -f "$dest.new" "$dest"

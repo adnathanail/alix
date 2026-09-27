@@ -199,10 +199,9 @@ in {
   # restart sketchybar with the previous rebuild's config, one step behind.
   #
   # Signing runs first, in the same block, so the kickstart always picks up
-  # the freshly signed binary. It runs as the user (in their security
-  # session, via the same asuser dance), so the throwaway keychain works and
-  # the output is user-owned. A signing failure is reported but doesn't fail
-  # activation; the previous signed copy keeps running.
+  # the freshly signed binary. It runs as the user (via the same asuser
+  # dance), so the output is user-owned. A signing failure is reported but
+  # doesn't fail activation; the previous signed copy keeps running.
   system.activationScripts.postActivation.text = lib.mkAfter ''
     launchctl asuser "$(id -u -- ${username})" \
       sudo --user=${username} -- \
