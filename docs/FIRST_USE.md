@@ -49,6 +49,7 @@ Then:
    **Use the SSH agent**.
 2. `nix-restore-age-key` — pulls the age key from 1Password to `~/.config/age/keys.txt`.
 3. Sign into Claude Code (`claude`), VS Code, GitButler.
+4. Set Safari homepage `https://newtab.adnathanail.dev`
 
 ## 2. Secrets — env-var tokens, git commit signing
 
