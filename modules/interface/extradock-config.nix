@@ -4,8 +4,7 @@
 # builds the same `.extradock5backup` file ExtraDock's own export writes, and
 # links it to ~/.config/extradock/ExtraDock.extradock5backup. Load it with
 # ExtraDock's "Import Backup" after `ns` — not "Import Settings", which
-# reads a bare settings JSON (also linked, as settings.json, for swapping
-# the app settings without touching the docks).
+# only reads a bare settings JSON.
 #
 # The format, reverse-engineered from an export (formatVersion 1): a zip of
 #   manifest.json  counts + format tag
@@ -52,7 +51,7 @@ let
     payload = widget "spacer" { customPoints = 16; sizePreset = "Quarter"; };
     span.subCellIconMultiplier = 0.25;
   };
-  # Every running app not already pinned in an enabled dock — the hidden
+  # Every running app not already pinned in a dock — the hidden
   # list is filled in below from the other docks' contents.
   runningApps = widget "runningapps" { gestureOverridesByBundleID = { }; };
 
@@ -65,7 +64,6 @@ let
   slack = app "com.tinyspeck.slackmacgap" "/Applications/Slack.app";
   mimestream = app "com.mimestream.Mimestream" "/Applications/Mimestream.app";
   whatsapp = app "net.whatsapp.WhatsApp" "/Applications/WhatsApp.app";
-  spotify = app "com.spotify.client" "/Applications/Spotify.app";
 
   # --- Docks ----------------------------------------------------------------
   # All sit on the bottom edge. `alignment` is leading / center / trailing.
@@ -92,12 +90,6 @@ let
       anchor.alignment = "trailing";
       appearance.background.glass.clear = true;
       elements = [ mailmate slack mimestream whatsapp ];
-    }
-    {
-      name = "Other";
-      behavior.isEnabled = false;
-      behavior.badges.isEnabled = false;
-      elements = [ spotify ];
     }
     {
       name = "Running apps";
@@ -243,13 +235,12 @@ let
       span = { crossAxis = 1; mainAxis = 1; } // (e'.span or { });
     };
 
-  # What the running-apps widget hides: whatever the enabled docks already
-  # show — their apps, and Finder if one has a Finder widget.
-  enabledElements = lib.concatMap (d: map (e: e.payload or e) d.elements)
-    (lib.filter (d: d.behavior.isEnabled or true) docks);
+  # What the running-apps widget hides: whatever the docks already show —
+  # their apps, and Finder if one has a Finder widget.
+  allElements = lib.concatMap (d: map (e: e.payload or e) d.elements) docks;
   pinnedPaths =
-    map (e: e.app.path) (lib.filter (e: e ? app) enabledElements)
-    ++ lib.optional (lib.any (e: e.widget.typeID or null == "finder") enabledElements)
+    map (e: e.app.path) (lib.filter (e: e ? app) allElements)
+    ++ lib.optional (lib.any (e: e.widget.typeID or null == "finder") allElements)
       "/System/Library/CoreServices/Finder.app";
   fillRunningApps = e:
     if e.payload.widget.typeID or null == "runningapps"
@@ -304,5 +295,4 @@ let
   '';
 in {
   home.file.".config/extradock/ExtraDock.extradock5backup".source = backup;
-  home.file.".config/extradock/settings.json".source = settingsJSON;
 }
