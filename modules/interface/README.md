@@ -2,12 +2,9 @@
 
 Loose ends to deal with later: [TODO.md](./TODO.md)
 
-- Window tiling (Rectangle)
-    - All settings are Nix-managed (`rectangle.nix`) — change them there, not in the app, or `ns` will revert them. Quit and reopen Rectangle after `ns` for changes to apply
-    - Screen-edge gaps: 8pt at the top so windows clear the 40pt SketchyBar, 76pt at the bottom for ExtraDock's docks
-    - *First use on a fresh machine*: tick **Launch on login** once in the app (the Nix setting only ticks the box)
 - AeroSpace tiling window manager (`aerospace.nix`)
     - Config is Nix-managed — edit `aerospace.nix`, not `~/.aerospace.toml` (it's ignored)
+    - Screen-edge gaps: 8pt at the top so windows clear the 40pt SketchyBar, 76pt at the bottom for ExtraDock's docks
     - Keyboard-driven — see [AeroSpace shortcuts](#aerospace-shortcuts) below
     - Pinned apps (`on-window-detected` in `aerospace.nix`): GitButler → 0 (the only thing allowed there, bar 1Password so its commit-signing prompts stay put: anything else opened on 0 goes to 1, and you with it), MailMate → 8, Spotify → 9, Safari and VS Code windows that match no profile but were opened on a profile's workspace → 1 (and any Safari or VS Code window is re-checked for 10s after opening, in case a profile's title appears late)
     - Profiles (`profiles.nix`): each has a name, workspace, colour and optional apps. Its apps, Safari windows in the Safari profile of the same name, and VS Code windows titled `<name> - …` go to its workspace, and SketchyBar colours that workspace's pill. Currently Fermioniq (4, + Slack) and ASAC (5)

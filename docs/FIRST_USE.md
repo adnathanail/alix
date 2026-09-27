@@ -72,11 +72,15 @@ Then:
    (SketchyBar replaces it).
 2. System Settings → Privacy & Security:
     - **Accessibility**: SketchyBar (add `~/.local/libexec/sketchybar/sketchybar` — the re-signed
-      copy, never a `/nix/store` path), Rectangle, Raycast
+      copy, never a `/nix/store` path), AeroSpace, aerospace-swipe (it prompts for this itself),
+      Hammerspoon, Raycast
     - **Input Monitoring**: Raycast
-3. Rectangle: tick **Launch on login** in its settings, then quit and reopen it.
-4. Raycast: work through onboarding (let it take ⌥Space from Spotlight).
-5. ExtraDock: set up the docks in-app (76pt bottom bar — `rectangle.nix` assumes it).
+3. Hammerspoon: open it once so it registers its login item, then grant Accessibility as above.
+4. Log out and back in, so turning off macOS's own swipe between Spaces takes effect
+   (aerospace-swipe replaces it).
+5. Raycast: work through onboarding (let it take ⌥Space from Spotlight).
+6. ExtraDock: set up the docks in-app (76pt bottom bar — AeroSpace's bottom gap in
+   `aerospace.nix` assumes it).
 
 See [modules/interface/README.md](../modules/interface/README.md).
 

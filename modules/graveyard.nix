@@ -6,6 +6,7 @@
 { username, pkgs, ... }: {
   home-manager.users.${username}.home.packages = [
     # pkgs.ghidra
+    # pkgs.rectangle # window snapping, replaced by AeroSpace; its prefs are in git history (modules/interface/rectangle.nix)
   ];
 
   homebrew.casks = [

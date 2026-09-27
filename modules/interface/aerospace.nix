@@ -128,8 +128,11 @@ in
 
     settings = {
       # Keep tiled windows clear of the custom bars, neither of which
-      # reserves screen space. Same values as Rectangle's screen-edge gaps
-      # (modules/interface/rectangle.nix) — keep them in step.
+      # reserves screen space the way the native menu bar and Dock do.
+      # Top: SketchyBar (sketchybar/config/bar.lua) is 40pt, and macOS
+      # already reserves 32pt for the hidden notch menu bar. Bottom:
+      # ExtraDock's docks, 76pt bar thickness + 0pt edge gap (in-app
+      # settings, not Nix-managed) — update these if either bar changes.
       gaps.outer = {
         top = 8;
         bottom = 76;

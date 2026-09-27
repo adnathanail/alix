@@ -27,12 +27,11 @@ living at `~/.config/nix-darwin/`.
 | `flake.nix` | inputs, unstable overlay, Homebrew settings (`onActivation`, `greedyCasks`), nix-homebrew + HM wiring |
 | `modules/apps/other.nix` | apps too small for their own module: the Homebrew casks and brews, the Safari extensions (1Password, Save to Raindrop.io), and small CLIs added to the HM packages (`prek`, `pnpm`, `gh`, `doctl`, `psql`, the MariaDB client) |
 | `modules/interface/other.nix` | interface tools too small for their own module — currently the Raycast cask |
-| `modules/interface/README.md` | user-facing list of the interface config (Rectangle, AeroSpace, Hammerspoon, Raycast, SketchyBar) |
+| `modules/interface/README.md` | user-facing list of the interface config (AeroSpace, Hammerspoon, Raycast, SketchyBar) |
 | `modules/interface/profiles.nix` | the profiles (Fermioniq, ASAC, …): name, workspace, colour, optional app bundle IDs. Plain data, imported by `aerospace.nix` (window rules) and `sketchybar/config.nix` (generates `profiles.lua` for the pill colours) |
-| `modules/interface/aerospace.nix` | AeroSpace: `services.aerospace` (nix-darwin's module — launchd agent + generated TOML), from unstable; default key bindings re-declared, outer gaps matching Rectangle's; also appends Ghostty's ⌘T → new-window keybind to the config file `dev.nix` owns |
+| `modules/interface/aerospace.nix` | AeroSpace: `services.aerospace` (nix-darwin's module — launchd agent + generated TOML), from unstable; default key bindings re-declared, outer gaps clearing SketchyBar and ExtraDock; also appends Ghostty's ⌘T → new-window keybind to the config file `dev.nix` owns |
 | `modules/interface/aerospace-swipe.nix` | aerospace-swipe: four-finger trackpad swipes switch AeroSpace workspaces. Built from a pinned GitHub commit, run as a launchd agent; also turns off macOS's own horizontal Spaces swipes |
 | `modules/interface/hammerspoon/` | Hammerspoon: the cask, its prefs (config path, updater off) and `init.lua` — Fn+2 → €, Fn+3 → #, standing in for the ⌥ characters AeroSpace's bindings take over |
-| `modules/interface/rectangle.nix` | Rectangle: a darwin module that sets its screen-edge gaps and adds the app to the HM packages |
 | `modules/core/home.nix` | base Home Manager config (git identity, zsh, python/uv/node, `nix-switch`) and `home.stateVersion` — imported by `modules/core/default.nix`, so core must always be enabled |
 | `modules/core/dev.nix` | Claude Code (`programs.claude-code`, updater opt-out, `claude-work` and `ncc` aliases), the Ghostty + GitButler casks, and Ghostty's config file — a darwin module with its HM part under `home-manager.users.${username}` |
 | `modules/core/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey; Touch ID for sudo |
@@ -192,7 +191,7 @@ clock, Control Center, the `pbs` services hotkey (`CustomUserPreferences`), and 
 (`security.pam.services.sudo_local.touchIdAuth` — writes `/etc/pam.d/sudo_local`, survives macOS
 updates, doesn't work in tmux without `pam_reattach`).
 App-specific `CustomUserPreferences` live with their app: `modules/apps/microsoft.nix`,
-`modules/interface/rectangle.nix`. Note some domains are TCC-protected and can't be set
+`modules/interface/hammerspoon/default.nix`. Note some domains are TCC-protected and can't be set
 from the activation script — those stay manual toggles.
 
 ## Per-tool notes
@@ -291,16 +290,29 @@ Nix-managed unless noted.
   can't sign in from the CLI, and activation fails with `Not signed in`. Xcode's first install
   downloads ~15 GB. Afterwards run `sudo xcodebuild -license accept` and
   `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`.
-- **Rectangle** *(Nix, `modules/interface/rectangle.nix`)* — fetched from the official `.dmg`.
-  All non-default prefs are Nix-managed (`CustomUserPreferences."com.knollsoft.Rectangle"`) —
-  Rectangle only writes changed settings to its plist, so that list is the whole config; its own
-  state keys (save panel, menu-bar icon position, versions) are deliberately left out. To adopt a
-  setting changed in the UI, `defaults read com.knollsoft.Rectangle` and copy the key across
-  (check the type with `defaults read-type` — booleans read back as `1`/`0`). `launchOnLogin`
-  only ticks the checkbox; the real login item lives in macOS's SMAppService registry.
-  The screen-edge gaps exist because SketchyBar and ExtraDock don't reserve screen space: top =
-  SketchyBar height (40) − the 32pt macOS reserves for the hidden notch menu bar, bottom =
-  ExtraDock bar thickness + edge gap. Keep them in step if either bar changes size.
+- **AeroSpace** *(Nix, `pkgs.unstable.aerospace`, `modules/interface/aerospace.nix`)* — run by
+  nix-darwin's `services.aerospace` (launchd agent, store-path TOML; `~/.aerospace.toml` is
+  ignored). A custom config **replaces AeroSpace's defaults wholesale**, so every binding wanted
+  is re-declared; anything not listed is unbound. A key name AeroSpace doesn't recognise gets its
+  binding **silently dropped** — e.g. the § key is `sectionSign`, not `section`. There's no
+  mode-change callback, so the bindings that switch mode trigger SketchyBar's
+  `aerospace_mode_change` event themselves (`toMode`). The upstream release is ad-hoc signed, so
+  the Accessibility grant must be given again after each version bump. The outer gaps exist
+  because SketchyBar and ExtraDock don't reserve screen space: top = SketchyBar height (40) − the
+  32pt macOS reserves for the hidden notch menu bar, bottom = ExtraDock bar thickness + edge gap.
+  Keep them in step if either bar changes size.
+- **aerospace-swipe** *(Nix, built from a pinned commit, `modules/interface/aerospace-swipe.nix`)* —
+  compiled by hand (upstream's makefile hard-codes `-march=native`), so a new file under `src/`
+  needs adding to `buildPhase`. Ad-hoc signed and pinned to its store path, so it loses its
+  Accessibility grant on **every** rebuild of it — a pin bump or a toolchain change from a
+  nixpkgs update — not just a version bump. It reads the trackpad through a listen-only event tap
+  and can't swallow the native gesture, so macOS's own Spaces swipes are turned off
+  (`system.defaults.trackpad`; may need a logout).
+- **Hammerspoon** *(Homebrew, Nix-managed config, `modules/interface/hammerspoon/`)* — Homebrew
+  rather than Nix because it's a signed app, so its Accessibility grant survives updates.
+  `MJConfigFile` points it at `~/.config/hammerspoon/init.lua` (Nix-owned); `init.lua` reloads
+  itself when that file changes and registers the login item (`hs.autoLaunch`), so it only
+  needs opening once by hand.
 - **ExtraDock** *(Nix, `modules/interface/extradock.nix`)* — v5 isn't in the Homebrew cask, which tracks a
   different, older upstream repo (`AppitStudio/extra-dock-updates`, v4.x). v5 ships from a
   separate repo (`extra-dock5-updates`) behind a mutable `prod` release tag — the dmg the URL
@@ -331,5 +343,5 @@ A fresh machine comes up in stages — core (including the macOS `system.default
 uncommenting its line in `flake.nix` — with the manual steps between them in `docs/FIRST_USE.md`. Only these orders evaluate: interface and apps both need secrets' agenix
 module. Manual, non-Nix setup still needed: App Store sign-in (**before** enabling
 `modules/apps`, whose `masApps` otherwise abort activation), per-app sign-ins/licences, and System Settings → Privacy & Security grants — Accessibility
-(Rectangle, Raycast, SketchyBar, AeroSpace, aerospace-swipe, Hammerspoon), Screen Recording (Slack, Pika), Input Monitoring (Raycast),
+(Raycast, SketchyBar, AeroSpace, aerospace-swipe, Hammerspoon), Screen Recording (Slack, Pika), Input Monitoring (Raycast),
 Notifications/Calendar/Contacts/Mic/Camera per app.

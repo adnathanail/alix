@@ -8,7 +8,6 @@
   # nix-darwin modules
   imports = [
     ./sketchybar    # SketchyBar: menu-bar replacement
-    # ./rectangle.nix # Rectangle: window snapping
     ./aerospace.nix # AeroSpace: tiling window manager + workspaces
     ./aerospace-swipe.nix # four-finger swipe between AeroSpace workspaces
     ./hammerspoon   # Hammerspoon: Fn+2 → €, Fn+3 → #

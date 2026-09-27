@@ -78,7 +78,7 @@
         # ── secrets: agenix machinery + env-var secrets ────────
         ./modules/secrets
 
-        # ── interface: SketchyBar, AeroSpace, Rectangle, … ─────
+        # ── interface: SketchyBar, AeroSpace, Raycast, … ───────
         ./modules/interface
 
         # ── apps ────────────────────────────────────────────────

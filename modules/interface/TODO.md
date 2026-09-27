@@ -3,28 +3,6 @@
 Loose ends from setting up AeroSpace (workspaces, profiles and the SketchyBar
 integration), left until it has been lived with for a while.
 
-## Docs that are out of date
-
-- [ ] **Rectangle: disabled but still documented as active.** Its line in
-  `default.nix` is commented out, but it's still described in:
-  - the interface README ("Window tiling")
-  - `CLAUDE.md` (file map, per-tool notes, the Accessibility list)
-  - `docs/FIRST_USE.md` step 3
-  - the comment on the gaps in `aerospace.nix` ("Same values as Rectangle's")
-
-  Once it's settled that AeroSpace replaces it, remove it properly (module,
-  docs, maybe `graveyard.nix`), or turn it back on.
-- [ ] **AeroSpace isn't in the setup docs.**
-  - `docs/FIRST_USE.md` needs its Accessibility grant step.
-  - `CLAUDE.md` needs a per-tool note covering what isn't obvious:
-    - a key name AeroSpace doesn't recognise gets its binding silently
-      dropped (`section` vs `sectionSign`)
-    - a custom config replaces AeroSpace's defaults entirely
-    - the upstream release is ad-hoc signed, so the Accessibility grant has to
-      be given again after each version bump
-    - there's no mode-change callback, so the mode-switching bindings trigger
-      SketchyBar's event themselves
-
 ## To confirm in real use
 
 - [ ] **VS Code late-title watcher** (`titleWatch` in `aerospace.nix`): only
@@ -36,8 +14,6 @@ integration), left until it has been lived with for a while.
   take focus along with the window, and AeroSpace's switch to 1 may run before
   them. If so, make those rules follow only when `during-aerospace-startup =
   false`.
-- [ ] **SketchyBar Safari button** (`sketchybar/config/items/safari.lua`): not
-  yet clicked through (focus an existing profile window, or open a new one).
 
 ## Known quirks
 
@@ -47,11 +23,12 @@ integration), left until it has been lived with for a while.
 - [ ] **The SERVICE pill can get stuck** if service mode is left some other
   way than its own keys (e.g. `aerospace reload-config` from a shell).
   Entering and leaving service mode clears it.
-- [ ] **ExtraDock and the bottom gap:** the 76pt bottom gap (AeroSpace, and
-  Rectangle's) exists only for ExtraDock. If the per-workspace setup lets
+- [ ] **ExtraDock and the bottom gap:** AeroSpace's 76pt bottom gap exists
+  only for ExtraDock. If the per-workspace setup lets
   ExtraDock go, drop the gap and `extradock.nix` too.
 
+## Ideas
 
-Idea
-- Have workspace 1 be non tiling with Rectangle?
-- Maybe have them all like that, just use aerospace for sorting?
+- Have workspace 1 be non-tiling, with Rectangle (now in `graveyard.nix`)
+  for snapping?
+- Maybe have them all like that, and just use AeroSpace for sorting?
