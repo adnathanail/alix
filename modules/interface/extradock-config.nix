@@ -14,8 +14,12 @@
 # (trash) or `widget`. A widget's own config is a JSON string, base64'd,
 # in `configJSON`. The build does that encoding, so here it's plain attrs.
 #
-# Element and dock UUIDs are derived from the dock name and position, so
-# they stay put between builds.
+# ExtraDock gives every dock it adds on import a fresh random ID, whatever
+# the backup says; it only replaces an existing dock when the backup carries
+# that dock's live ID. So each dock below pins the ID ExtraDock assigned it
+# (read with `sqlite3 <store> 'select id, name from dock'`). A dock with no
+# `id` gets one hashed from its name, is added as new, and should then be
+# pinned the same way. Element IDs are hashed from dock name + position.
 { pkgs, lib, ... }:
 let
   # --- Elements -------------------------------------------------------------
@@ -70,6 +74,7 @@ let
   docks = [
     {
       name = "Productivity";
+      id = "39A1425A-C5DD-4DA2-9720-203AF7DAA0C2";
       anchor.alignment = "center";
       appearance.background.glass.clear = true;
       behavior.frontmostClickAction = "minimize";
@@ -86,12 +91,14 @@ let
     }
     {
       name = "Comms";
+      id = "C42C0CDA-55B2-408A-A68C-0D390A1C80B4";
       anchor.alignment = "trailing";
       appearance.background.glass.clear = true;
       elements = [ mailmate slack whatsapp ];
     }
     {
       name = "Running apps";
+      id = "04D0C969-B644-48BB-9B51-ED3B538A5A7C";
       elements = [ runningApps ];
     }
   ];
@@ -220,10 +227,12 @@ let
     screenAssignments = [ ];
   };
 
-  # A stable, UUID-shaped ID from a string.
+  # A stable RFC 4122 (v5-style) UUID from a string.
   uuid = s:
-    let h = lib.toUpper (builtins.hashString "sha256" "extradock:${s}");
-    in "${lib.substring 0 8 h}-${lib.substring 8 4 h}-${lib.substring 12 4 h}-${lib.substring 16 4 h}-${lib.substring 20 12 h}";
+    let
+      h = lib.toUpper (builtins.hashString "sha256" "extradock:${s}");
+      variant = lib.elemAt [ "8" "9" "A" "B" ] (lib.mod (lib.fromHexString (lib.substring 16 1 h)) 4);
+    in "${lib.substring 0 8 h}-${lib.substring 8 4 h}-5${lib.substring 13 3 h}-${variant}${lib.substring 17 3 h}-${lib.substring 20 12 h}";
 
   # Elements are either a bare payload or { payload; span; }.
   mkElement = dockName: i: e:
@@ -248,7 +257,7 @@ let
 
   mkDock = d:
     lib.recursiveUpdate dockBase (removeAttrs d [ "elements" ]) // {
-      id = uuid d.name;
+      id = d.id or (uuid d.name);
       elements = map fillRunningApps (lib.imap0 (mkElement d.name) d.elements);
     };
 

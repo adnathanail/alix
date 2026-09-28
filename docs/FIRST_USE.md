@@ -76,6 +76,12 @@ Then:
 4. ExtraDock: import `~/.config/extradock/ExtraDock.extradock5backup` with ExtraDock's **Import Backup**
    (not Import Settings) (⌘⇧G in the file picker to type the path). It's built from `extradock-config.nix`
    (76pt bottom bar — AeroSpace's bottom gap in `aerospace.nix` assumes it).
+   The import gives each dock a new random ID, and later imports only update a dock whose
+   ID the backup carries, so pin them now or every re-import duplicates the docks:
+   ```sh
+   sqlite3 -readonly ~/Library/Application\ Support/ExtraDock5/dockstore.sqlite 'select id, name from dock'
+   ```
+   Copy each ID into its dock's `id` in `extradock-config.nix`, then `ns`.
 5. System Settings → Privacy & Security:
     - **Accessibility**:
          - AeroSpace, aerospace-swipe: Should prompt on `ns`
