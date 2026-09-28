@@ -30,6 +30,10 @@
 #     workspace's profile (menubar.lua's padding note updated to match)
 #   - items/aerospace_mode.lua (+ its require): new, AeroSpace key-hint
 #     pills — one in service mode, one while Option is held
+#   - items/notifications.lua (+ its require): new, a bell right of the
+#     clock that opens Notification Centre via helpers/menus
+#   - helpers/menus/menus.c: new `-i <process> <AXIdentifier>` mode, finding
+#     a menu extra by identifier (window-name aliases need Screen Recording)
 #
 # Upstream assumes a mutable ~/.config/sketchybar, which the store isn't, so
 # this derivation fixes up the three places that break:

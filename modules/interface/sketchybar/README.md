@@ -28,6 +28,7 @@ Modifications from FelixKratz's setup:
 - Custom app icons built into the font from `app-font/` (currently GitButler): add `svgs/:name:.svg` (24×24, solid shapes) and `mappings/:name:` (the app names, e.g. `"GitButler"`)
 - Safari button (between Spotify and the eye) for the current workspace's profile: coloured by the profile, it focuses that profile's open Safari window or opens a new one (Personal on workspaces without a profile) — `config/items/safari.lua`
 - Red "SERVICE" pill with the key hints while AeroSpace is in service mode, and a blue ⌥ pill with the main-mode hints while Option is held (`option-hint.c` watches the key)
+- Bell button right of the clock that opens Notification Centre, by clicking the native clock through the app-menus helper (`menus -i ControlCenter com.apple.menuextra.clock`, a local addition that finds a menu extra by accessibility identifier) — `config/items/notifications.lua`
 - Lock/unlock animation ([Source](https://github.com/nicolas-martin/awesome-sketchybar/blob/master/plugins/Simple-LockUnlock-Animation.md))
 - Replace media with Spotify-specific setup, because macOS removed their private media API
 

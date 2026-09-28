@@ -1,4 +1,5 @@
 #include <Carbon/Carbon.h>
+#include <libproc.h>
 
 void ax_init() {
   const void *keys[] = { kAXTrustedCheckOptionPrompt };
@@ -198,15 +199,78 @@ extern int SLSMainConnectionID();
 extern void SLSSetMenuBarVisibilityOverrideOnDisplay(int cid, int did, bool enabled);
 extern void SLSSetMenuBarVisibilityOverrideOnDisplay(int cid, int did, bool enabled);
 extern void SLSSetMenuBarInsetAndAlpha(int cid, double u1, double u2, float alpha);
-void ax_select_menu_extra(char* alias) {
-  AXUIElementRef item = ax_get_extra_menu_item(alias);
-  if (!item) return;
+// Local addition: finds a menu extra by process name (the executable's, so
+// not localised) and AXIdentifier, e.g. ControlCenter's
+// com.apple.menuextra.clock. Unlike the alias lookup above, this needs no
+// window names, which macOS redacts without Screen Recording.
+AXUIElementRef ax_get_extra_menu_item_by_id(char* process, char* identifier) {
+  pid_t pids[4096];
+  int bytes = proc_listallpids(pids, sizeof(pids));
+  if (bytes <= 0) return NULL;
+  pid_t pid = 0;
+  char name[256];
+  for (int i = 0; i < bytes / (int)sizeof(pid_t); i++) {
+    if (proc_name(pids[i], name, sizeof(name)) > 0
+        && strcmp(name, process) == 0) {
+      pid = pids[i];
+      break;
+    }
+  }
+  if (!pid) return NULL;
+
+  AXUIElementRef app = AXUIElementCreateApplication(pid);
+  if (!app) return NULL;
+  AXUIElementRef result = NULL;
+  CFTypeRef extras = NULL;
+  CFArrayRef children_ref = NULL;
+  CFStringRef wanted = CFStringCreateWithCString(NULL, identifier,
+                                                 kCFStringEncodingUTF8);
+  if (AXUIElementCopyAttributeValue(app, kAXExtrasMenuBarAttribute, &extras)
+        == kAXErrorSuccess) {
+    if (AXUIElementCopyAttributeValue(extras, kAXChildrenAttribute,
+                                      (CFTypeRef*)&children_ref)
+          == kAXErrorSuccess) {
+      CFIndex count = CFArrayGetCount(children_ref);
+      for (CFIndex i = 0; i < count && !result; i++) {
+        AXUIElementRef item = CFArrayGetValueAtIndex(children_ref, i);
+        CFTypeRef id_ref = NULL;
+        AXUIElementCopyAttributeValue(item, kAXIdentifierAttribute, &id_ref);
+        if (!id_ref) continue;
+        if (CFEqual(id_ref, wanted)) result = (AXUIElementRef)CFRetain(item);
+        CFRelease(id_ref);
+      }
+      CFRelease(children_ref);
+    }
+    CFRelease(extras);
+  }
+  CFRelease(wanted);
+  CFRelease(app);
+  return result;
+}
+
+void ax_click_menu_extra(AXUIElementRef item) {
   SLSSetMenuBarInsetAndAlpha(SLSMainConnectionID(), 0, 1, 0.0);
   SLSSetMenuBarVisibilityOverrideOnDisplay(SLSMainConnectionID(), 0, true);
   SLSSetMenuBarInsetAndAlpha(SLSMainConnectionID(), 0, 1, 0.0);
   ax_perform_click(item);
   SLSSetMenuBarVisibilityOverrideOnDisplay(SLSMainConnectionID(), 0, false);
   SLSSetMenuBarInsetAndAlpha(SLSMainConnectionID(), 0, 1, 1.0);
+}
+
+void ax_select_menu_extra(char* alias) {
+  AXUIElementRef item = ax_get_extra_menu_item(alias);
+  if (!item) return;
+  ax_click_menu_extra(item);
+  CFRelease(item);
+}
+
+void ax_select_menu_extra_by_id(char* process, char* identifier) {
+  AXUIElementRef item = ax_get_extra_menu_item_by_id(process, identifier);
+  if (!item) {
+    fprintf(stderr, "menus: no menu extra %s in %s\n", identifier, process);
+    exit(1);
+  }
+  ax_click_menu_extra(item);
   CFRelease(item);
 }
 
@@ -226,7 +290,7 @@ AXUIElementRef ax_get_front_app() {
 
 int main (int argc, char **argv) {
   if (argc == 1) {
-    printf("Usage: %s [-l | -s id/alias ]\n", argv[0]);
+    printf("Usage: %s [-l | -s id/alias | -i process identifier ]\n", argv[0]);
     exit(0);
   }
   ax_init();
@@ -243,6 +307,8 @@ int main (int argc, char **argv) {
       ax_select_menu_option(app, id);
       CFRelease(app);
     } else ax_select_menu_extra(argv[2]);
+  } else if (argc == 4 && strcmp(argv[1], "-i") == 0) {
+    ax_select_menu_extra_by_id(argv[2], argv[3]);
   }
   return 0;
 }

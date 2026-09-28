@@ -1,6 +1,6 @@
 // Renders an SF Symbol, by name, to a PNG in one colour. Used by
 // items/menubar.lua for its upright eye (SketchyBar can't rotate glyphs, so
-// that icon is an image). Run with:
+// that icon is an image) and items/notifications.lua for its bell. Run with:
 //   osascript -l JavaScript render_symbol.js <symbol> <out.png> <rrggbb> <points>
 ObjC.import("AppKit");
 function run(argv) {
