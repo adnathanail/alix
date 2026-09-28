@@ -56,8 +56,12 @@ let
     span.subCellIconMultiplier = 0.25;
   };
   # Every running app not already pinned in a dock — the hidden
-  # list is filled in below from the other docks' contents.
-  runningApps = widget "runningapps" { gestureOverridesByBundleID = { }; };
+  # list is filled in below from the other docks' contents, on top of
+  # the app paths given here.
+  runningApps = hidden: widget "runningapps" {
+    gestureOverridesByBundleID = { };
+    hiddenItems = hidden;
+  };
 
   # Apps
   ghostty = app "com.mitchellh.ghostty" "/Applications/Ghostty.app";
@@ -99,7 +103,7 @@ let
     {
       name = "Running apps";
       id = "04D0C969-B644-48BB-9B51-ED3B538A5A7C";
-      elements = [ runningApps ];
+      elements = [ (runningApps [ "/Applications/Spotify.app" ]) ];
     }
   ];
 
@@ -252,7 +256,7 @@ let
       "/System/Library/CoreServices/Finder.app";
   fillRunningApps = e:
     if e.payload.widget.typeID or null == "runningapps"
-    then lib.recursiveUpdate e { payload.widget.config.hiddenItems = pinnedPaths; }
+    then lib.recursiveUpdate e { payload.widget.config.hiddenItems = e.payload.widget.config.hiddenItems ++ pinnedPaths; }
     else e;
 
   mkDock = d:
