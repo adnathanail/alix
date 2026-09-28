@@ -70,7 +70,7 @@ done
 
 | What | Pinned in | Identity |
 |---|---|---|
-| ExtraDock | `modules/interface/extradock.nix` | `AppitStudio/extra-dock5-updates`, mutable `prod` release tag |
+| ExtraDock | `modules/interface/extradock.nix` | `AppitStudio/extra-dock5-updates`, versioned `v<version>` release tag |
 | aerospace-swipe | `modules/interface/aerospace-swipe.nix` | `acsandmann/aerospace-swipe`, a commit on `main` (no releases) |
 | VS Code: TikZiT | `modules/core/vscode.nix` | `alekskissinger.vstikzit` |
 | VS Code: GitButler for IDE | `modules/core/vscode.nix` | `BartInTheField.gitbutler-for-ide` |
@@ -85,13 +85,9 @@ done
 Check each, read-only:
 
 ```bash
-# ExtraDock — download once, read the bundled Info.plist version, don't install it
-curl -sL "https://github.com/AppitStudio/extra-dock5-updates/releases/download/prod/ExtraDock.dmg" -o /tmp/extradock-check.dmg
-mnt=$(mktemp -d)
-hdiutil attach -nobrowse -readonly -mountpoint "$mnt" /tmp/extradock-check.dmg >/dev/null
-/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$mnt/ExtraDock.app/Contents/Info.plist"
-hdiutil detach "$mnt" >/dev/null
-# compare the printed version to `version` in modules/interface/extradock.nix
+# ExtraDock — list release tags (skip -beta pre-releases); compare to `version` in
+# modules/interface/extradock.nix
+gh release list -R AppitStudio/extra-dock5-updates -L 10 --exclude-pre-releases
 
 # aerospace-swipe — latest commit on main
 gh api repos/acsandmann/aerospace-swipe/commits/main --jq '.sha + " " + .commit.committer.date'
@@ -157,11 +153,11 @@ background +0, brackets +1, items +2 above the configured level) and first check
 upstream changelog in case the bar-dimming-on-click bug was fixed there, in which case
 drop the patch and its overlay in `modules/interface/sketchybar/default.nix`.
 
-**ExtraDock:** re-download to get the fresh hash, then edit `version` and `hash` together
-in `modules/interface/extradock.nix`:
+**ExtraDock:** download the new version to get the fresh
+hash, then edit `version` and `hash` together in `modules/interface/extradock.nix`:
 
 ```bash
-curl -sL "https://github.com/AppitStudio/extra-dock5-updates/releases/download/prod/ExtraDock.dmg" -o /tmp/extradock-new.dmg
+curl -sL "https://github.com/AppitStudio/extra-dock5-updates/releases/download/v<version>/ExtraDock.dmg" -o /tmp/extradock-new.dmg
 nix hash file --sri --type sha256 /tmp/extradock-new.dmg
 ```
 

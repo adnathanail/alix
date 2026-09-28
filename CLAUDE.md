@@ -4,6 +4,8 @@ Context for working on this nix-darwin configuration. Read this before making ch
 
 ## Committing
 
+**Do not commit without asking**
+
 Sometimes this repository is managed with GitButler.
 Check whether you are on the `gitbutler/workspace` branch; if so, use the `but` CLI to interact with it.
 Make changes in new commits, as opposed to modifying existing commits, unless explicitly told to.
@@ -317,12 +319,11 @@ Nix-managed unless noted.
   needs opening once by hand.
 - **ExtraDock** *(Nix, `modules/interface/extradock.nix`)* — v5 isn't in the Homebrew cask, which tracks a
   different, older upstream repo (`AppitStudio/extra-dock-updates`, v4.x). v5 ships from a
-  separate repo (`extra-dock5-updates`) behind a mutable `prod` release tag — the dmg the URL
-  points to can change without the URL changing. `fetchurl` + `undmg` unpacks it and copies the
+  separate repo (`extra-dock5-updates`), one `v<version>` release tag per version (plus a
+  mutable `prod` tag for the latest); the URL uses the versioned tag. `fetchurl` + `undmg` unpacks it and copies the
   signed, notarized `.app` straight into the Nix store untouched (no `makeWrapper`, so the
-  signature survives), same pattern as nixpkgs' own `skimpdf`. Bump `version` and refetch the
-  hash (`nix-prefetch-url --type sha256 <url>`) whenever AppitStudio ships an update — a stale
-  hash fails the build loudly rather than silently serving old bits.
+  signature survives), same pattern as nixpkgs' own `skimpdf`. To bump, change `version` and
+  refetch the hash (`nix-prefetch-url --type sha256 <url>`) together.
 - **SketchyBar** *(Nix, `pkgs.unstable.sketchybar`, re-signed)* — TCC pins a privacy grant to path + designated requirement,
   and the nixpkgs binary is ad-hoc signed (requirement = cdhash), so every rebuild silently voids
   every grant (the toggle stays on but no longer applies). Plugin scripts are SketchyBar's
