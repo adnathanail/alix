@@ -23,7 +23,6 @@
 
   homebrew.casks = [
     "orbstack"
-    "mimestream"
     "slack"
     "todoist-app"
     "fantastical"

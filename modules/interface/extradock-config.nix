@@ -62,7 +62,6 @@ let
   gitbutler = app "com.gitbutler.app" "/Applications/GitButler.app";
   mailmate = app "com.freron.MailMate" "/Applications/MailMate.app";
   slack = app "com.tinyspeck.slackmacgap" "/Applications/Slack.app";
-  mimestream = app "com.mimestream.Mimestream" "/Applications/Mimestream.app";
   whatsapp = app "net.whatsapp.WhatsApp" "/Applications/WhatsApp.app";
 
   # --- Docks ----------------------------------------------------------------
@@ -89,7 +88,7 @@ let
       name = "Comms";
       anchor.alignment = "trailing";
       appearance.background.glass.clear = true;
-      elements = [ mailmate slack mimestream whatsapp ];
+      elements = [ mailmate slack whatsapp ];
     }
     {
       name = "Running apps";
