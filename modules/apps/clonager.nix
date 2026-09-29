@@ -36,6 +36,8 @@ in
         decrypt = agenixCmd "-d";
         encrypt = agenixCmd "-e";
       };
+      # Where a bare `clonager discover` looks.
+      discoverPaths = [ "~/Documents" "~/.config/nix-darwin" ];
     };
 
     programs.zsh.shellAliases.cs = "clonager status";
