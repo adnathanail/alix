@@ -17,4 +17,7 @@ in {
 
   # SketchyBar code-signing identity (cert + private key, .p12) - see modules/interface/sketchybar/signing.nix
   "agefiles/sketchybar-signing-identity.age".publicKeys = [ alex ];
+
+  # clonager's config - encrypted because it lists every repo URL. See modules/apps/clonager/clonager.nix
+  "agefiles/clonager-config.age".publicKeys = [ alex ];
 }
