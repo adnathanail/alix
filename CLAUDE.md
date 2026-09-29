@@ -46,7 +46,7 @@ living at `~/.config/nix-darwin/`.
 | `modules/apps/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
 | `modules/apps/microsoft.nix` | everything Microsoft Office: the Outlook cask, Word/Excel/PowerPoint `masApps`, and the Office/Outlook/AutoUpdate prefs |
 | `modules/apps/appdev.nix`, `modules/apps/macapps.nix` | darwin modules, each adding to `homebrew.masApps` (they merge, along with `microsoft.nix`'s and `other.nix`'s); deliberately independent of each other |
-| `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/nx/nx.nix`, `modules/apps/pycharm/pycharm.nix`, `modules/apps/uvtools.nix` | optional HM feature modules, imported by `modules/apps/default.nix` — comment out a line to drop the feature |
+| `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/go.nix`, `modules/apps/nx/nx.nix`, `modules/apps/pycharm/pycharm.nix`, `modules/apps/uvtools.nix` | optional HM feature modules, imported by `modules/apps/default.nix` — comment out a line to drop the feature |
 | `modules/apps/nx/package.json`, `package-lock.json` | the npm wrapper project `nx.nix` builds from |
 | `modules/apps/pycharm/` | PyCharm: `pycharm.nix` (an HM module imported by `modules/apps/default.nix`) installs it and symlinks in `custom-keymap.xml` |
 | `modules/interface/extradock.nix` | ExtraDock 5, an HM module imported by `modules/interface/default.nix` |
