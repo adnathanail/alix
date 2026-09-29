@@ -19,6 +19,7 @@
       };
       init.defaultBranch = "main";
       pull.rebase = true;
+      fetch.prune = true;
     };
   };
 
