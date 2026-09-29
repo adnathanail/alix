@@ -37,9 +37,13 @@
     agenix.url = "github:ryantm/agenix";
     agenix.inputs.nixpkgs.follows = "nixpkgs";
     agenix.inputs.home-manager.follows = "home-manager";
+
+    # clonager: my git-clone tracker.
+    clonager.url = "github:adnathanail/clonager";
+    clonager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, nixpkgs-unstable, nixpkgs-master, home-manager, nix-homebrew, homebrew-core, homebrew-cask, agenix }:
+  outputs = inputs@{ self, nix-darwin, nixpkgs, nixpkgs-unstable, nixpkgs-master, home-manager, nix-homebrew, homebrew-core, homebrew-cask, agenix, clonager }:
   let
     username = "adnathanail";        # `whoami`
     # The darwinConfigurations name. Also named explicitly in nix-switch
@@ -69,7 +73,7 @@
     darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
       # Passed to every nix-darwin module as a module argument, so modules
       # take `{ username, ... }:` and are imported by plain path.
-      specialArgs = { inherit username agenix; };
+      specialArgs = { inherit username agenix clonager; };
       modules = [
 
         # ── core: Claude Code, Ghostty, GitButler, VS Code, macOS settings

@@ -42,6 +42,26 @@
         "type": "github"
       }
     },
+    "clonager": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790690331,
+        "narHash": "sha256-ln9j4K1pAGKS+83TSDUAdiebtyWLnbc0/yj/UC0bXKQ=",
+        "owner": "adnathanail",
+        "repo": "clonager",
+        "rev": "27c6e82ad7fe06b679eb48a5b96a86cff3df5b19",
+        "type": "github"
+      },
+      "original": {
+        "owner": "adnathanail",
+        "repo": "clonager",
+        "type": "github"
+      }
+    },
     "darwin": {
       "inputs": {
         "nixpkgs": [
@@ -207,6 +227,7 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "clonager": "clonager",
         "home-manager": "home-manager",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
