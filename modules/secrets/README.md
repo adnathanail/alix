@@ -7,7 +7,7 @@ this directory (`modules/secrets/`) and name files as `agefiles/<name>.age`.
 - Env vars: `$NPM_FONT_AWESOME_TOKEN`, `$NPM_GITHUB_PACKAGES_TOKEN`.
 - MailMate account config: `mailmate-sources`, `mailmate-identities`, `mailmate-submission`
   - Activation copies them into `~/Library/Application Support/MailMate/` **only if the file is absent**
-- clonager's config: `clonager-config` (it lists every repo URL). `clonager discover` re-encrypts it itself; see `modules/apps/clonager/clonager.nix`
+- clonager's config: `clonager-config` (it lists every repo URL). `clonager discover` re-encrypts it itself; see `modules/apps/clonager.nix`
 - SketchyBar code-signing identity: `sketchybar-signing-identity` (a `.p12` of a self-signed codeSigning cert + key; the password is `nix-darwin`, and it's only meaningful inside agenix)
 
 To adopt settings you've changed in the GUI, re-encrypt from the live files:

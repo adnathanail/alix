@@ -12,7 +12,7 @@
     ./appdev.nix    # iOS/Android app dev tooling
     ./microsoft.nix # Outlook, Word, Excel, PowerPoint
     ./macapps.nix   # Mac App Store apps (iMovie, Reeder, …)
-    ./clonager/clonager.nix # clonager CLI + its config
+    ./clonager.nix  # clonager CLI + its encrypted config
   ];
 
   # Home Manager modules

@@ -20,7 +20,7 @@ let
 in
 {
   age.secrets.clonager-config = {
-    file = ../../secrets/agefiles/clonager-config.age;
+    file = ../secrets/agefiles/clonager-config.age;
     owner = username;
     mode = "0400";
   };
@@ -37,5 +37,7 @@ in
         encrypt = agenixCmd "-e";
       };
     };
+
+    programs.zsh.shellAliases.cs = "clonager status";
   };
 }
