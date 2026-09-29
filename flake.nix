@@ -39,7 +39,7 @@
     agenix.inputs.home-manager.follows = "home-manager";
 
     # clonager: my git-clone tracker.
-    clonager.url = "github:adnathanail/clonager";
+    clonager.url = "github:adnathanail/clonager/v0.2.0";
     clonager.inputs.nixpkgs.follows = "nixpkgs";
   };
 

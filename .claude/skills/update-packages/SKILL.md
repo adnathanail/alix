@@ -1,6 +1,6 @@
 ---
 name: update-packages
-description: "Check for and apply package/dependency updates across this nix-darwin config — the 9 flake inputs (nixpkgs-master tracks raw master for claude-code) plus everything pinned outside the flake-lock system (ExtraDock, aerospace-swipe, VS Code marketplace extensions, nx, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
+description: "Check for and apply package/dependency updates across this nix-darwin config — the 10 flake inputs (nixpkgs-master tracks raw master for claude-code; clonager is pinned to a release tag) plus everything pinned outside the flake-lock system (ExtraDock, aerospace-swipe, VS Code marketplace extensions, nx, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
 ---
 
 # Update packages
@@ -41,6 +41,7 @@ user anything — don't mutate `flake.lock` or any source file in this phase.
 | `homebrew-core` | default branch, `flake = false` |
 | `homebrew-cask` | default branch, `flake = false` |
 | `agenix` | default branch |
+| `clonager` | a release tag (`v<version>` in the URL), **not** a branch — checked separately below |
 
 These are *locked revisions* of fixed branches. Moving a pinned branch itself (e.g.
 `nix-darwin-26.05` → the next release) is a `flake.nix` edit, not a `nix flake update` —
@@ -64,6 +65,10 @@ for name in nixpkgs nixpkgs-unstable nixpkgs-master nix-darwin home-manager nix-
     echo "$name: update available ($current -> $latest)"
   fi
 done
+
+# clonager — pinned to a tag, so compare that tag to the latest one
+jq -r '.nodes.clonager.original.ref' flake.lock
+gh api repos/adnathanail/clonager/tags --jq '.[0].name'
 ```
 
 ### Manual pins (no lockfile — hand-edited `version` + hash)
@@ -152,6 +157,13 @@ SketchyBar version moved. It carries a local patch,
 background +0, brackets +1, items +2 above the configured level) and first check the
 upstream changelog in case the bar-dimming-on-click bug was fixed there, in which case
 drop the patch and its overlay in `modules/interface/sketchybar/default.nix`.
+
+**clonager:** change the tag in `clonager.url` in `flake.nix`, then re-lock:
+
+```bash
+nix flake update clonager
+git diff flake.lock
+```
 
 **ExtraDock:** download the new version to get the fresh
 hash, then edit `version` and `hash` together in `modules/interface/extradock.nix`:
