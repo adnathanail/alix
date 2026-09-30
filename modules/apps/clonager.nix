@@ -38,6 +38,8 @@ in
       };
       # Where a bare `clonager discover` looks.
       discoverPaths = [ "~/Documents" "~/.config/nix-darwin" ];
+      # Cmd-clicking a repo's name opens it in VS Code, not Finder.
+      openIn = "vscode";
     };
 
     programs.zsh.shellAliases.cs = "clonager status";
