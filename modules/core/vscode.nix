@@ -68,6 +68,15 @@
         };
         "workbench.browser.openLocalhostLinks" = false;  # Don't open links in VS Code browser
         "claudeCode.useTerminal" = true;  # Open Claude code in terminal
+        "terminal.integrated.allowedLinkSchemes" = [
+          "file"
+          "http"
+          "https"
+          "mailto"
+          "vscode"
+          "vscode-insiders"
+          "but"
+        ];
       };
       keybindings = [
         { key = "cmd+s"; command = "workbench.action.files.saveAll"; }
