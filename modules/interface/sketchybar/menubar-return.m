@@ -1,7 +1,7 @@
 // A native menu-bar icon that returns to SketchyBar, which then draws over
 // the native menu bar again. The counterpart of config/items/menubar.lua's
-// icon, which hides SketchyBar to show the native bar. It triggers a
-// SketchyBar event, and SketchyBar un-hides itself.
+// cycle, whose last step hides SketchyBar to show the native bar. It
+// triggers a SketchyBar event, and SketchyBar un-hides itself.
 //
 // No app bundle: a plain binary with the Accessory activation policy gets a
 // status item without a Dock icon. While SketchyBar covers the native bar

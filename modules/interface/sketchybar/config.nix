@@ -7,10 +7,10 @@
 #   - items/widgets/wifi.lua: SSID read from the preferred-networks list, as
 #     ipconfig's is redacted without Location Services; plus an "Open Wi-Fi
 #     Settings" row at the bottom of its popup
-#   - helpers/render_symbol.js: new, renders an SF Symbol to a PNG (for
-#     items/menubar.lua's upright eye; SketchyBar can't rotate glyphs)
-#   - items/menubar.lua (+ its require in items/init.lua): new, a toggle for
-#     the native macOS menu bar, plus the `menubar_hide` event that
+#   - items/menubar.lua (+ its require in items/init.lua): new, the
+#     `bar_cycle` event — workspaces → app menus → native macOS menu bar —
+#     that the switch and front_app clicks now trigger instead of
+#     swap_menus_and_spaces, plus the `menubar_hide` event that
 #     ../menubar-return.m triggers
 #   - bar.lua: `topmost = "on"`; colors.lua: bar background fully opaque —
 #     together these draw the bar over the (never-hidden) native menu bar
@@ -27,7 +27,7 @@
 #     table, instead of upstream's hand-copied snapshot
 #   - profiles.lua: new, generated below from ../profiles.nix
 #   - items/safari.lua (+ its require): new, a Safari button for the focused
-#     workspace's profile (menubar.lua's padding note updated to match)
+#     workspace's profile
 #   - items/aerospace_mode.lua (+ its require): new, AeroSpace key-hint
 #     pills — one in service mode, one while Option is held
 #

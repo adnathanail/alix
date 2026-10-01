@@ -182,7 +182,8 @@ local spaces_indicator = sbar.add("item", {
     width = 0,
     padding_left = 0,
     padding_right = 8,
-    string = "Spaces",
+    -- The next step of items/menubar.lua's cycle, shown on hover.
+    string = "Menus",
     color = colors.bg1,
   },
   background = {
@@ -194,7 +195,8 @@ local spaces_indicator = sbar.add("item", {
 spaces_indicator:subscribe("swap_menus_and_spaces", function(env)
   local currently_on = spaces_indicator:query().icon.value == icons.switch.on
   spaces_indicator:set({
-    icon = currently_on and icons.switch.off or icons.switch.on
+    icon = currently_on and icons.switch.off or icons.switch.on,
+    label = currently_on and "macOS bar" or "Menus",
   })
 end)
 
@@ -211,19 +213,24 @@ spaces_indicator:subscribe("mouse.entered", function(env)
   end)
 end)
 
+local function collapse()
+  spaces_indicator:set({
+    background = {
+      color = { alpha = 0.0 },
+      border_color = { alpha = 0.0 },
+    },
+    icon = { color = colors.grey },
+    label = { width = 0, }
+  })
+end
+
 spaces_indicator:subscribe("mouse.exited", function(env)
-  sbar.animate("tanh", 30, function()
-    spaces_indicator:set({
-      background = {
-        color = { alpha = 0.0 },
-        border_color = { alpha = 0.0 },
-      },
-      icon = { color = colors.grey },
-      label = { width = 0, }
-    })
-  end)
+  sbar.animate("tanh", 30, collapse)
 end)
 
 spaces_indicator:subscribe("mouse.clicked", function(env)
-  sbar.trigger("swap_menus_and_spaces")
+  -- From the menus, this click hides the whole bar (items/menubar.lua), so
+  -- mouse.exited never comes; collapse now, or the pill returns expanded.
+  if spaces_indicator:query().label.value == "macOS bar" then collapse() end
+  sbar.trigger("bar_cycle")
 end)

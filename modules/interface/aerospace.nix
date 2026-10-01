@@ -223,11 +223,9 @@ in
 
         alt-shift-semicolon = "mode service";
 
-        # Swap SketchyBar between app menus and workspaces, as its switch
-        # icon does (sketchybar/config/items/menus.lua) — or, while the
-        # native menu bar is showing, go back to SketchyBar
-        # (sketchybar/config/items/menubar.lua).
-        alt-backtick = "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger menus_key";
+        # Cycle SketchyBar through workspaces → app menus → the native menu
+        # bar, as its switch icon does (sketchybar/config/items/menubar.lua).
+        alt-backtick = "exec-and-forget ${pkgs.sketchybar}/bin/sketchybar --trigger bar_cycle";
       }
       // perWorkspace (w: { name = "alt-${w}"; value = "workspace ${w}"; })
       // perWorkspace (w: { name = "alt-shift-${w}"; value = "move-node-to-workspace ${w}"; })

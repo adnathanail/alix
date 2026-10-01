@@ -14,18 +14,10 @@
 -- how open windows are matched.
 
 local colors = require("colors")
-local settings = require("settings")
 local profiles = require("profiles")
 
 -- Safari's default profile, for workspaces without one of their own.
 local default_profile = "Personal"
-
--- Gap between this pill and the eye's to its right (added first, as right
--- items go right to left).
-sbar.add("item", "widgets.safari.padding", {
-  position = "right",
-  width = settings.group_paddings,
-})
 
 local safari = sbar.add("item", "widgets.safari", {
   position = "right",

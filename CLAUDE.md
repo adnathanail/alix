@@ -333,7 +333,7 @@ Nix-managed unless noted.
   **Grant permissions to that path, never a store path.** The native menu bar is **never
   auto-hidden** (`_HIHideMenuBar = false`, in `sketchybar/default.nix`); SketchyBar
   (`topmost = on`, opaque) draws over it. Auto-hidden, notification banners sat under SketchyBar.
-  The eye widget shows the native bar by hiding SketchyBar, not by changing the setting. Only the server needs it; the CLI calls
+  The last step of the bar's workspaces → menus → native-bar cycle shows the native bar by hiding SketchyBar, not by changing the setting. Only the server needs it; the CLI calls
   in the plugins keep using the store binary. Homebrew wouldn't fix it (stable path, still ad-hoc
   signed). The same pattern would work for any other Nix-built binary that needs grants.
   Also carries a local patch, `modules/interface/sketchybar/layered-window-levels.patch` (applied by an
