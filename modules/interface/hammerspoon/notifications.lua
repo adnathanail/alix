@@ -9,9 +9,10 @@
 --     `-long` dump is searched instead.)
 --   * MailMate draws its Dock icon itself, so it has no badge for anything
 --     to read. Its own menu-bar counters do carry their counts as titles,
---     read here through Accessibility. The first of them is taken as the
---     unread count, so the unread counter should be the only one with "Show
---     in menu bar" ticked in MailMate's counter settings.
+--     read here through Accessibility. Those items carry only the number,
+--     and an empty one disappears, so modules/apps/mailmate.nix keeps the
+--     unread counter the only one in the menu bar: any item is the unread
+--     count, and none means zero.
 --
 -- The two talk without IPC: Hammerspoon runs `sketchybar --set` when the
 -- counts change, and SketchyBar opens hammerspoon:// URLs (`open -g`, so

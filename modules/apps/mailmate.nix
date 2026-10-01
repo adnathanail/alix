@@ -64,10 +64,34 @@
     provision_mailmate mailmate-submission Submission.plist
   '';
 
-  # Settings are ordinary defaults (com.freron.MailMate is non-sandboxed) and
-  # would go here as `system.defaults.CustomUserPreferences."com.freron.MailMate"`.
-  # Nothing is declared yet — pick keys deliberately from MailMate's hidden
-  # preferences rather than harvesting the plist, which is mostly window
-  # frames and column widths. Quit MailMate before `ns` if you add any: it
-  # holds prefs in memory and flushes on quit, clobbering activation's writes.
+  # Settings are ordinary defaults (com.freron.MailMate is non-sandboxed).
+  # Pick keys deliberately from MailMate's hidden preferences rather than
+  # harvesting the plist, which is mostly window frames and column widths.
+  # Quit MailMate before `ns` when changing these: it holds prefs in memory
+  # and flushes on quit, clobbering activation's writes.
+  system.defaults.CustomUserPreferences."com.freron.MailMate" = {
+    # The Dock icon's corner counters (Settings → Counters). The values are
+    # MailMate's own: strings, "yes" included.
+    #
+    # Only the unread counter is shown in the menu bar, and that's load-
+    # bearing: Hammerspoon reads the unread count from it
+    # (modules/interface/hammerspoon/notifications.lua), and MailMate's
+    # menu-bar items carry nothing but their number. With a second one
+    # there, they can't be told apart — and an empty counter drops out, so
+    # neither can their order.
+    MmCounters2 = [
+      { color = "systemBlueColor"; count = "unreplied"; position = "topLeft"; set = "INBOX"; }
+      {
+        color = "#E62124FF";
+        count = "unread";
+        inDock = "yes";
+        inMenuBar = "yes";
+        position = "topRight";
+        set = "INBOX";
+        soundPath = "/System/Library/Sounds/Glass.aiff";
+      }
+      { color = "systemYellowColor"; count = "all"; position = "bottomLeft"; }
+      { color = "systemGreenColor"; count = "flagged"; inDock = "yes"; position = "bottomRight"; set = "INBOX"; }
+    ];
+  };
 }

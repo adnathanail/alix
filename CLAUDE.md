@@ -43,7 +43,7 @@ living at `~/.config/nix-darwin/`.
 | `modules/core/1password.nix` | 1Password: the app + `op` casks and `nix-restore-age-key`. In core because it bootstraps secrets |
 | `modules/secrets/git-signing.nix` | git SSH commit signing via 1Password's `op-ssh-sign`, plus `allowed_signers` |
 | `modules/secrets/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
-| `modules/apps/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step |
+| `modules/apps/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step, and its Dock/menu-bar counters (unread must stay the only menu-bar one — Hammerspoon reads it) |
 | `modules/apps/microsoft.nix` | everything Microsoft Office: the Outlook cask, Word/Excel/PowerPoint `masApps`, and the Office/Outlook/AutoUpdate prefs |
 | `modules/apps/appdev.nix`, `modules/apps/macapps.nix` | darwin modules, each adding to `homebrew.masApps` (they merge, along with `microsoft.nix`'s and `other.nix`'s); deliberately independent of each other |
 | `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/go.nix`, `modules/apps/nx/nx.nix`, `modules/apps/pycharm/pycharm.nix`, `modules/apps/uvtools.nix` | optional HM feature modules, imported by `modules/apps/default.nix` — comment out a line to drop the feature |
