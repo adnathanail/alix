@@ -38,6 +38,11 @@ fnCharsTap = hs.eventtap.new(
 )
 fnCharsTap:start()
 
+-- Slack and MailMate unread counts, for SketchyBar (./notifications.lua).
+-- Global, for the same reason as the tap.
+notifications = require("notifications")
+notifications.start()
+
 -- Reload when Nix replaces this file (each `ns` that changes it). Global,
 -- for the same reason as the tap.
 configWatcher = hs.pathwatcher.new(os.getenv("HOME") .. "/.config/hammerspoon/", hs.reload):start()

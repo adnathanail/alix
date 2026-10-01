@@ -1,7 +1,8 @@
 # Hammerspoon — Lua desktop automation. https://www.hammerspoon.org
 #
-# Currently only does Fn+2 → € and Fn+3 → # (./init.lua), in place of the
-# ⌥-typed characters AeroSpace's bindings take over.
+# Does Fn+2 → € and Fn+3 → # (./init.lua), in place of the ⌥-typed
+# characters AeroSpace's bindings take over, and reads Slack's and MailMate's
+# unread counts for SketchyBar's notifications item (./notifications.lua).
 #
 # Homebrew rather than Nix: it's a signed app, so its Accessibility grant
 # (needed for the event tap) survives updates, unlike an ad-hoc-signed Nix
@@ -22,5 +23,8 @@
     MJShowDockIconKey = false;
   };
 
-  home-manager.users.${username}.xdg.configFile."hammerspoon/init.lua".source = ./init.lua;
+  home-manager.users.${username}.xdg.configFile = {
+    "hammerspoon/init.lua".source = ./init.lua;
+    "hammerspoon/notifications.lua".source = ./notifications.lua;
+  };
 }

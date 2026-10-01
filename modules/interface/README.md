@@ -20,6 +20,8 @@ Loose ends to deal with later: [TODO.md](./TODO.md)
 - Fn+2 types €, Fn+3 types # — the characters ⌥2 / ⌥3 would type, which AeroSpace's bindings take over (Hammerspoon, `hammerspoon/`)
     - Config is Nix-managed — edit `hammerspoon/init.lua` (add more keys to `fnChars`), not `~/.config/hammerspoon`. Hammerspoon reloads it itself after `ns`
     - *First use*: open Hammerspoon once and grant it Accessibility in System Settings → Privacy & Security (it's a signed app, so this survives updates)
+- Unread notifications: a red bell in SketchyBar (left of the Safari button) with the total unread from Slack and MailMate, hidden when there's nothing. Click it for a native menu of each app's count; choosing one focuses that app (`hammerspoon/notifications.lua` reads the counts, `sketchybar/config/items/notifications.lua` draws the bell)
+    - Slack's count is its Dock badge. MailMate draws its own Dock icon, so its count comes from MailMate's menu-bar counter instead — the first one, so in MailMate's counter settings leave **Show in menu bar** on for the unread counter only
 - ExtraDock's docks (Productivity, Comms, Running apps) and settings (`extradock-config.nix`)
     - Edit `extradock-config.nix`, `ns`, then import `~/.config/extradock/ExtraDock.extradock5backup` with ExtraDock's **Import Backup** — not Import Settings, which only reads a bare settings JSON (⌘⇧G in the file picker to type the path). In-app changes aren't saved back to the repo
     - The Running apps widget hides every app pinned in another dock; that list is worked out from the docks, not written by hand
