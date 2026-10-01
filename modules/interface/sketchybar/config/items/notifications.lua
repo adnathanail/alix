@@ -1,23 +1,27 @@
--- Local addition: a bell with the unread total from Slack and MailMate,
--- hidden while there's nothing.
+-- Local addition: the icons of the apps with something unread (Slack,
+-- MailMate) and their combined count, hidden while there's nothing.
 --
--- Hammerspoon does the reading and sets this item's drawing and label
--- directly (modules/interface/hammerspoon/notifications.lua). A click asks it
+-- Hammerspoon does the reading and sets this item's drawing, icons and
+-- label directly (modules/interface/hammerspoon/notifications.lua). A click asks it
 -- for a native macOS menu listing each app's count; choosing a line focuses
 -- that app. Both requests go through Hammerspoon's URL scheme, with `open -g`
 -- so Hammerspoon isn't brought forward.
 
-local icons = require("icons")
 local colors = require("colors")
 
 local notifications = sbar.add("item", "widgets.notifications", {
   position = "right",
   drawing = false,
   icon = {
-    string = icons.bell,
+    font = "sketchybar-app-font:Regular:16.0",
     color = colors.red,
+    y_offset = -1,
+    -- The pill's inner edges, left of the icons and right of the count.
+    -- With no count showing, the icon's own right padding is the edge, so
+    -- Hammerspoon swaps it along with label.drawing.
+    padding_left = 8,
   },
-  label = { drawing = false },
+  label = { drawing = false, padding_right = 8 },
   background = { color = colors.bg1 },
 })
 

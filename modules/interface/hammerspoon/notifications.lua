@@ -46,8 +46,10 @@ local function mailmateUnread(bundleID)
 end
 
 local sources = {
-  { name = "Slack", bundleID = "com.tinyspeck.slackmacgap", read = dockBadge },
-  { name = "MailMate", bundleID = "com.freron.MailMate", read = mailmateUnread },
+  -- glyph: the app's sketchybar-app-font icon, shown in the bar while it has
+  -- something (the font's own icon map gives each app's).
+  { name = "Slack", bundleID = "com.tinyspeck.slackmacgap", glyph = ":slack:", read = dockBadge },
+  { name = "MailMate", bundleID = "com.freron.MailMate", glyph = ":mail:", read = mailmateUnread },
 }
 
 -- { {source, badge}, … } for the apps with something, as of the last check.
@@ -65,10 +67,18 @@ local function push()
     table.insert(args, "drawing=off")
   else
     -- A badge like Slack's "•" (unread, no mentions) has no number; with
-    -- one of those, any total would understate, so show just the bell.
+    -- one of those, any total would understate, so show just the icons.
+    local glyphs = {}
+    for _, entry in ipairs(current) do table.insert(glyphs, entry.source.glyph) end
     table.insert(args, "drawing=on")
-    table.insert(args, "label=" .. ((numeric and total > 0) and tostring(total) or ""))
-    table.insert(args, "label.drawing=" .. ((numeric and total > 0) and "on" or "off"))
+    -- No separator: the glyphs' own side bearings already space them.
+    table.insert(args, "icon=" .. table.concat(glyphs))
+    local counted = numeric and total > 0
+    table.insert(args, "label=" .. (counted and tostring(total) or ""))
+    table.insert(args, "label.drawing=" .. (counted and "on" or "off"))
+    -- Without the count, the icons' right padding is the pill's edge (8, as
+    -- on its left — see the item); with it, just the gap before the number.
+    table.insert(args, "icon.padding_right=" .. (counted and "3" or "8"))
   end
   local key = table.concat(args, " ")
   if key == pushed then return end

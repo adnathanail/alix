@@ -30,8 +30,8 @@
 #     workspace's profile
 #   - items/aerospace_mode.lua (+ its require): new, AeroSpace key-hint
 #     pills — one in service mode, one while Option is held
-#   - items/notifications.lua (+ its require, + icons.lua's bell): new,
-#     Slack/MailMate unread counts pushed in by Hammerspoon
+#   - items/notifications.lua (+ its require): new, Slack/MailMate icons
+#     and unread count, pushed in by Hammerspoon
 #
 # Upstream assumes a mutable ~/.config/sketchybar, which the store isn't, so
 # this derivation fixes up the three places that break:
