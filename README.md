@@ -83,6 +83,7 @@ macOS settings (`modules/core/macos.nix`)
 - DeepL (translator)
 - DockFlow (Dock preset switcher)
 - Pika (colour picker with contrast checking)
+- Zotero (reference manager; Safari connector is bundled in the app — enable it in Safari → Settings → Extensions)
 - ExtraDock 5 (customizable extra docks; direct-download package, see `modules/interface/extradock.nix`; docks and settings in `modules/interface/extradock-config.nix`)
 - Xcode
 - Android Studio

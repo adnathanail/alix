@@ -47,6 +47,9 @@
     # Open-source colour picker. A cask rather than pkgs.pika: its eyedropper
     # needs a Screen Recording grant, which wants a stable /Applications path.
     "pika"
+    # Reference manager. Its Safari connector ships inside Zotero.app (no
+    # separate App Store listing) — enable it in Safari → Settings → Extensions.
+    "zotero"
   ];
 
   homebrew.brews = [
