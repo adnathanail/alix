@@ -1,8 +1,8 @@
 # Setting up a new Mac
 
-A first attempt — untested end to end, so expect to adjust it. The config comes up in four
-stages, **core → secrets → interface → apps**, each depending only on the ones before. For each
-stage, uncomment its line in the `modules` list in `flake.nix` and rebuild.
+Four stage config: **core → secrets → interface → apps**; each depends only on the ones before.
+
+For each stage, uncomment its line in the `modules` list in `flake.nix` and rebuild.
 
 Don't run a partial config on a Mac that already has everything installed:
 `cleanup = "zap"` uninstalls (and deletes the data of) every cask the config doesn't list.
@@ -13,10 +13,12 @@ Record every repo's local branches in clonager's config, so step 4 can recreate 
 ```bash
 cg config airlift
 ```
-It refuses until the laptop is tidy (everything committed and pushed, nothing for `cg prune
---forge` to do) — fix what it shows and re-run. Then commit and push the config change in
-`~/.config/nix-private`. Don't run `cg config tidy` on the old Mac afterwards: its branches
-still exist, so it would drop them from the config.
+
+- It refuses until the laptop is tidy (everything committed and pushed, nothing for `cg prune --forge` to do)
+
+Commit and push the config change in `~/.config/nix-private`.
+
+- Don't run `cg config tidy` on the old Mac afterwards: its branches still exist, so it would drop them from the config.
 
 ## 0. Prerequisites
 
@@ -44,16 +46,17 @@ lines, leaving `modules/core`.
 
 ## 1. Core — terminal, editor, Claude Code, 1Password, macOS settings
 
-Bootstrap `nix-darwin` (the branch must match the `nix-darwin` input in `flake.nix`, and the
-`#Alexs-MacBook-Pro` must match `hostname` there — a new Mac's own hostname may differ)
+Bootstrap `nix-darwin`
+
+- (The branch must match the `nix-darwin` input in `flake.nix`, and the `#Alexs-MacBook-Pro` must match `hostname` there — a new Mac's own hostname may differ)
+
 ```bash
 sudo nix run nix-darwin/nix-darwin-26.05#darwin-rebuild -- switch --flake ~/.config/nix-darwin#Alexs-MacBook-Pro
 ```
-This asks for `sudo` to take ownership of `/opt/homebrew`. Open a new terminal (Ghostty) and
-`ns` works from here on.
 
-Installs Ghostty, GitButler, VS Code, Claude Code, 1Password + `op`, git, zsh, python/uv/node,
-and sets the Dock, hot corners, menu-bar clock and Touch ID for sudo (`modules/core/macos.nix`).
+- This asks for `sudo` to take ownership of `/opt/homebrew`. Open a new terminal (Ghostty) and `ns` works from here on.
+
+- Installs Ghostty, GitButler, VS Code, Claude Code, 1Password + `op`, git, zsh, python/uv/node, and sets the Dock, hot corners, menu-bar clock and Touch ID for sudo (`modules/core/macos.nix`).
 
 Then:
 1. Sign into 1Password. In Settings → Developer, turn on **Integrate with 1Password CLI** and
@@ -66,16 +69,19 @@ Then:
 
 Uncomment `modules/secrets`, then `ns`.
 
-Check it worked: `ls /run/agenix/` lists the secrets, and in a new shell
-`echo $NPM_FONT_AWESOME_TOKEN` is non-empty. Commits are now signed through 1Password (a
-biometric prompt per commit); the public key is already on GitHub as a signing key.
+Check it worked:
+```bash
+ls /run/agenix/  # lists the secrets
+echo $NPM_FONT_AWESOME_TOKEN  # check env var (in new shell)
+```
+- Commits are now signed through 1Password (a biometric prompt per commit); the public key is already on GitHub as a signing key.
 
 Switch the repo's remote to SSH now that 1Password's agent holds the key:
 ```bash
 git -C ~/.config/nix-darwin remote set-url origin git@github.com:adnathanail/alix.git
 ```
 
-Clone the private config repo (MailMate accounts, clonager's config). Stage 4 reads it:
+Clone the private config repo (MailMate accounts, clonager's config). (Stage 4 reads it):
 ```bash
 git clone git@github.com:adnathanail/nix-private.git ~/.config/nix-private
 ```
@@ -86,20 +92,16 @@ Uncomment `modules/interface`, then `ns`.
 
 Then:
 1. Hammerspoon: open it once so it registers its login item, then grant Accessibility.
-2. Log out and back in, so turning off macOS's own swipe between Spaces takes effect
-   (aerospace-swipe replaces it).
+2. Log out and back in, so turning off macOS's own swipe between Spaces takes effect (aerospace-swipe replaces it).
 3. Raycast: work through onboarding (let it take ⌥Space from Spotlight).
 4. ExtraDock: import `~/.config/extradock/ExtraDock.extradock5backup` with ExtraDock's **Import Backup**
-   (not Import Settings) (⌘⇧G in the file picker to type the path). It's built from `extradock-config.nix`
-   (76pt bottom bar — AeroSpace's bottom gap in `aerospace.nix` assumes it).
-   The import gives each dock a new random ID, and later imports only update a dock whose
-   ID the backup carries, so pin them now or every re-import duplicates the docks:
+   The import gives each dock a new random ID, and later imports only update a dock whose ID the backup carries, so pin them now or every re-import duplicates the docks:
    ```sh
    sqlite3 -readonly ~/Library/Application\ Support/ExtraDock5/dockstore.sqlite 'select id, name from dock'
    ```
    Copy each ID into its dock's `id` in `extradock-config.nix`, then `ns`.
 5. System Settings → Privacy & Security:
-    - **Accessibility**:
+    - **Device Control and Data Access**:
          - AeroSpace, aerospace-swipe: Should prompt on `ns`
          - SketchyBar: Click the Apple icon and it should ask
          - Hammerspoon: Should prompt after opening
@@ -119,16 +121,13 @@ Uncomment `modules/apps`, then `ns`. Xcode alone is ~15 GB, so the first run is 
 Then:
 1. `sudo xcodebuild -license accept` and
    `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
-2. Safari → Settings → Extensions: enable 1Password and Save to Raindrop.io. Then hand
-   password autofill to 1Password: Safari → Settings → AutoFill, untick **User names and
-   passwords**; and System Settings → General → AutoFill & Passwords, untick **Passwords**
-   under AutoFill From (leave 1Password ticked). Safari's prefs sit in its sandbox container,
-   which TCC hides from `defaults`, so Nix can't set these.
-3. MailMate: sign into each account once (OAuth in the browser) — the account config itself is
-   provisioned from `~/.config/nix-private/mailmate/`.
+2. Safari:
+   - Safari → Settings → Extensions: enable 1Password and Save to Raindrop.io.
+   - Hand password autofill to 1Password: Safari → Settings → AutoFill, untick **User names and passwords**
+   - System Settings → General → AutoFill & Passwords, untick **Passwords** under AutoFill From (leave 1Password ticked).
+3. MailMate: sign into each account once (OAuth in the browser)
 4. PyCharm: select the `ALix keymap`.
-5. Sign into the rest (Slack, Todoist, Fantastical, …) and grant per-app permissions as they
-   ask (Screen Recording for Slack and Pika, Calendar/Contacts/Mic/Camera per app).
+5. Sign into the rest (Slack, Todoist, Fantastical, …) and grant per-app permissions as they ask (Screen Recording for Slack and Pika, Calendar/Contacts/Mic/Camera per app).
 6. Clone the repos from clonager's config (as airlifted in step -1). `cg clone` only prints
    the git commands, so review them, then run them:
    ```bash
