@@ -7,6 +7,17 @@ stage, uncomment its line in the `modules` list in `flake.nix` and rebuild.
 Don't run a partial config on a Mac that already has everything installed:
 `cleanup = "zap"` uninstalls (and deletes the data of) every cask the config doesn't list.
 
+## -1. On the previous Mac
+
+Record every repo's local branches in clonager's config, so step 4 can recreate them here:
+```bash
+cg config airlift
+```
+It refuses until the laptop is tidy (everything committed and pushed, nothing for `cg prune
+--forge` to do) — fix what it shows and re-run. Then commit and push the config change in
+`~/.config/nix-private`. Don't run `cg config tidy` on the old Mac afterwards: its branches
+still exist, so it would drop them from the config.
+
 ## 0. Prerequisites
 
 When setting up the laptop, make sure the username is `adnathanail`
@@ -118,5 +129,12 @@ Then:
 4. PyCharm: select the `ALix keymap`.
 5. Sign into the rest (Slack, Todoist, Fantastical, …) and grant per-app permissions as they
    ask (Screen Recording for Slack and Pika, Calendar/Contacts/Mic/Camera per app).
+6. Clone the repos from clonager's config (as airlifted in step -1). `cg clone` only prints
+   the git commands, so review them, then run them:
+   ```bash
+   cg clone        # review
+   cg clone | sh
+   ```
+   Once the branches exist, `cg config tidy` removes them from the config.
 
 Every module is now enabled; `flake.nix` should match the repo again (`git diff` is empty).
