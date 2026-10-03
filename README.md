@@ -102,7 +102,7 @@ macOS settings (`modules/core/macos.nix`)
 - pnpm (Node package manager)
 - nx (Nx monorepo CLI)
 - [clonager](https://github.com/adnathanail/clonager) (tracks the git clones on this laptop; config in `~/.config/nix-private/clonager/config.yaml`, which `clonager discover` edits in place; `cs` = `clonager status`; cmd-clicking a repo name opens it in VS Code)
-- gh (GitHub)
+- gh (GitHub) — `git_protocol: ssh`
 - doctl (DigitalOcean)
 - Rocq (with std++ library)
 - Go

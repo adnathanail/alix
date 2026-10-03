@@ -8,18 +8,29 @@
 # Consumed from modules/apps/default.nix as:
 #     ./other.nix
 { username, pkgs, ... }: {
-  home-manager.users.${username}.home.packages = [
-    # Rust reimplementation of pre-commit; from unstable because stable
-    # lags this fast-moving 0.x tool.
-    pkgs.unstable.prek
-    pkgs.pnpm
-    pkgs.gh
-    pkgs.doctl
-    pkgs.postgresql     # psql client
-    # MySQL CLI: MariaDB's client-only output, since stable has no
-    # client-only MySQL build (see CLAUDE.md → mysql CLI).
-    pkgs.mariadb.client
-  ];
+  # GitHub CLI. Clones, forks and `gh repo set-default` use SSH remotes
+  # rather than HTTPS. HM owns ~/.config/gh/config.yml; auth (hosts.yml)
+  # stays app-managed.
+  home-manager.users.${username} = {
+    programs.gh = {
+      enable = true;
+      settings.git_protocol = "ssh";
+      # Pushes go over SSH, so gh needn't be git's HTTPS credential helper.
+      gitCredentialHelper.enable = false;
+    };
+
+    home.packages = [
+      # Rust reimplementation of pre-commit; from unstable because stable
+      # lags this fast-moving 0.x tool.
+      pkgs.unstable.prek
+      pkgs.pnpm
+      pkgs.doctl
+      pkgs.postgresql     # psql client
+      # MySQL CLI: MariaDB's client-only output, since stable has no
+      # client-only MySQL build (see CLAUDE.md → mysql CLI).
+      pkgs.mariadb.client
+    ];
+  };
 
   homebrew.casks = [
     "orbstack"
