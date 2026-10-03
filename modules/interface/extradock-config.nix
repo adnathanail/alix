@@ -78,7 +78,7 @@ let
   docks = [
     {
       name = "Productivity";
-      id = "4F110AC2-E8E4-4CF3-8309-1CF14E516072";
+      id = "136296DB-6483-4624-B8AE-52C9E0752829";
       anchor.alignment = "center";
       appearance.background.glass.clear = true;
       elements = [
@@ -94,14 +94,14 @@ let
     }
     {
       name = "Comms";
-      id = "23341FCD-B417-4ECF-A3C0-FB7786A06A43";
+      id = "7470C66E-11E1-4B52-B4B5-F348D49B7C38";
       anchor.alignment = "trailing";
       appearance.background.glass.clear = true;
       elements = [ mailmate slack whatsapp ];
     }
     {
       name = "Running apps";
-      id = "7346D5DF-A90B-4E1C-BD97-E9F0A501B60B";
+      id = "65950674-D397-4D35-B10D-443F62591F12";
       elements = [ (runningApps [ "/Applications/Spotify.app" ]) ];
     }
   ];
