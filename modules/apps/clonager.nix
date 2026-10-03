@@ -1,43 +1,30 @@
 # clonager: keeps track of the git clones on this laptop. Installed from its
 # own flake (the `clonager` input).
 #
-# Its config lists every repo URL, so it's an agenix secret
-# (modules/secrets/agefiles/clonager-config.age) rather than a plain file in
-# the repo. agenix decrypts it to /run/agenix/clonager-config, which the
-# installed config links to. `clonager discover` edits the .age file through
-# the decrypt/encrypt commands below; review, commit, then `ns` to apply.
-# To edit by hand:
-#   cd modules/secrets && agenix -e agefiles/clonager-config.age -i ~/.config/age/keys.txt
+# Its config lists every repo URL, so it lives in the private nix-private
+# checkout (clonager/config.yaml) rather than in this public repo. It's
+# linked to where it is, not copied into the store, so `clonager discover`
+# edits it in place and changes apply immediately; commit them in
+# nix-private.
 #
 # A darwin module rather than an HM one because HM modules don't get the
 # flake inputs through specialArgs.
-{ username, clonager, agenix, pkgs, ... }:
+{ username, privateDir, clonager, ... }:
 let
-  agenixBin = "${agenix.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/agenix";
-  # agenix reads secrets.nix from the working directory.
-  agenixCmd = flag:
-    "cd ~/.config/nix-darwin/modules/secrets && ${agenixBin} ${flag} agefiles/clonager-config.age -i ~/.config/age/keys.txt";
+  configPath = "${privateDir}/clonager/config.yaml";
 in
 {
-  age.secrets.clonager-config = {
-    file = ../secrets/agefiles/clonager-config.age;
-    owner = username;
-    mode = "0400";
-  };
-
   home-manager.users.${username} = {
     imports = [ clonager.homeModules.default ];
 
     programs.clonager = {
       enable = true;
-      # A string, so it's linked to rather than copied into the store.
-      configFile = "/run/agenix/clonager-config";
-      configSource = {
-        decrypt = agenixCmd "-d";
-        encrypt = agenixCmd "-e";
-      };
+      # Strings, so the installed config is a symlink to the checkout and
+      # `clonager discover` writes straight to it.
+      configFile = configPath;
+      configSource = configPath;
       # Where a bare `clonager discover` looks.
-      discoverPaths = [ "~/Documents" "~/.config/nix-darwin" ];
+      discoverPaths = [ "~/Documents" "~/.config/nix-darwin" "~/.config/nix-private" ];
       # Cmd-clicking a repo's name opens it in VS Code, not Finder.
       openIn = "vscode";
     };

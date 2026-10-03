@@ -50,6 +50,10 @@
     # (modules/core/home.nix) and the README's bootstrap command, so it
     # needn't match a new Mac's `scutil --get LocalHostName`.
     hostname = "Alexs-MacBook-Pro";
+    # Checkout of the private nix-private repo: plain-text config that isn't
+    # secret but shouldn't be public (email addresses, repo URLs). Read at
+    # runtime by absolute path, never copied into the store — see its README.
+    privateDir = "/Users/${username}/.config/nix-private";
 
     # Everything stays on stable by default. This exposes the fresher package
     # sets as `pkgs.unstable` and `pkgs.master`, so each module picks its own
@@ -73,7 +77,7 @@
     darwinConfigurations.${hostname} = nix-darwin.lib.darwinSystem {
       # Passed to every nix-darwin module as a module argument, so modules
       # take `{ username, ... }:` and are imported by plain path.
-      specialArgs = { inherit username agenix clonager; };
+      specialArgs = { inherit username privateDir agenix clonager; };
       modules = [
 
         # ── core: Claude Code, Ghostty, GitButler, VS Code, macOS settings

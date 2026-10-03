@@ -58,6 +58,7 @@ macOS settings (`modules/core/macos.nix`)
   - Includes `emate` CLI at `/Applications/MailMate.app/Contents/Resources/emate`
   - Account config lives in three small files: `~/Library/Application Support/MailMate/` — `Sources.plist` (IMAP), `Submission.plist` (SMTP), `Identities.plist` (from-addresses).
     - Just email address/config no passwords, will ask for auth on first use
+    - Provisioned on a fresh machine from `~/.config/nix-private/mailmate/` (private repo); copy changed files back there and commit to keep them
   - Outlook.com/Hotmail needs OAuth on **both** IMAP and SMTP, and both hosts must be
     `*.office365.com` — the setup wizard gets the SMTP host wrong. See CLAUDE.md →
     *Per-tool notes* → MailMate before touching account settings
@@ -100,7 +101,7 @@ macOS settings (`modules/core/macos.nix`)
 - [uv tools](./modules/apps/uvtools.nix)
 - pnpm (Node package manager)
 - nx (Nx monorepo CLI)
-- [clonager](https://github.com/adnathanail/clonager) (tracks the git clones on this laptop; config encrypted as the `clonager-config` secret; `clonager discover` re-encrypts it; `cs` = `clonager status`; cmd-clicking a repo name opens it in VS Code)
+- [clonager](https://github.com/adnathanail/clonager) (tracks the git clones on this laptop; config in `~/.config/nix-private/clonager/config.yaml`, which `clonager discover` edits in place; `cs` = `clonager status`; cmd-clicking a repo name opens it in VS Code)
 - gh (GitHub)
 - doctl (DigitalOcean)
 - Rocq (with std++ library)

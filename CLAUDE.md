@@ -38,12 +38,12 @@ living at `~/.config/nix-darwin/`.
 | `modules/core/dev.nix` | Claude Code (`programs.claude-code`, updater opt-out, `claude-work` and `ncc` aliases), the Ghostty + GitButler casks, and Ghostty's config file — a darwin module with its HM part under `home-manager.users.${username}` |
 | `modules/core/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey; Touch ID for sudo |
 | `modules/core/vscode.nix` | VS Code: editor from unstable, settings, extensions (HM module) |
-| `modules/{core,apps,interface,secrets}/default.nix` | each directory's entry point, imported once from `flake.nix`: lists its nix-darwin modules in `imports` and its HM modules in `home-manager.users.${username}.imports`. Add a new module to its directory's `default.nix` (by plain path), not the root files. `username` and `agenix` reach every nix-darwin module through `specialArgs` in `flake.nix`, so a module that needs them just takes `{ username, ... }:` — HM modules don't get them (use `config.home.username` there if ever needed) |
+| `modules/{core,apps,interface,secrets}/default.nix` | each directory's entry point, imported once from `flake.nix`: lists its nix-darwin modules in `imports` and its HM modules in `home-manager.users.${username}.imports`. Add a new module to its directory's `default.nix` (by plain path), not the root files. `username`, `privateDir` and `agenix` reach every nix-darwin module through `specialArgs` in `flake.nix`, so a module that needs them just takes `{ username, ... }:` — HM modules don't get them (use `config.home.username` there if ever needed) |
 | `modules/secrets/agenix.nix` | shared agenix machinery only — module, CLI, `age.identityPaths`. Declares **no** secrets |
 | `modules/core/1password.nix` | 1Password: the app + `op` casks and `nix-restore-age-key`. In core because it bootstraps secrets |
 | `modules/secrets/git-signing.nix` | git SSH commit signing via 1Password's `op-ssh-sign`, plus `allowed_signers` |
 | `modules/secrets/envvars.nix` | secrets exposed as shell env vars: their `age.secrets` blocks, the `nix-secrets.env` writer, the zsh `source` line |
-| `modules/apps/mailmate.nix` | everything MailMate: the cask, the account-config secrets, the provision-once activation step, and its Dock/menu-bar counters (unread must stay the only menu-bar one — Hammerspoon reads it) |
+| `modules/apps/mailmate.nix` | everything MailMate: the cask, the provision-once activation step for the account config (from nix-private), and its Dock/menu-bar counters (unread must stay the only menu-bar one — Hammerspoon reads it) |
 | `modules/apps/microsoft.nix` | everything Microsoft Office: the Outlook cask, Word/Excel/PowerPoint `masApps`, and the Office/Outlook/AutoUpdate prefs |
 | `modules/apps/appdev.nix`, `modules/apps/macapps.nix` | darwin modules, each adding to `homebrew.masApps` (they merge, along with `microsoft.nix`'s and `other.nix`'s); deliberately independent of each other |
 | `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/go.nix`, `modules/apps/nx/nx.nix`, `modules/apps/pycharm/pycharm.nix`, `modules/apps/uvtools.nix` | optional HM feature modules, imported by `modules/apps/default.nix` — comment out a line to drop the feature |
@@ -54,7 +54,8 @@ living at `~/.config/nix-darwin/`.
 | `modules/interface/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, signing and restart; `config/` is FelixKratz's vendored Lua config (plus local tweaks), built by `config.nix` along with its C helpers; `signing.nix` re-signs the server binary; `layered-window-levels.patch` is a local SketchyBar fix; `menubar-return.m` is a tiny native status-item helper that returns from the macOS menu bar to SketchyBar; `option-hint.c` polls for a held Option key to show the AeroSpace hint pill; `app-font/` holds custom glyphs (SVG + app-name mapping) that an overlay in `default.nix` builds into `sketchybar-app-font` |
 | `modules/graveyard.nix` | Things we might want to (or already have) killed |
 | `modules/secrets/README.md` | operator steps for secrets: key generation, fresh-machine restore, adding/re-encrypting a secret |
-| `modules/secrets/agefiles/*.age`, `modules/secrets/secrets.nix` | encrypted secrets + their recipients (run `agenix` from `modules/secrets/`; keys are `agefiles/<name>.age`); the modules that consume them live alongside (env vars) or with their feature (MailMate, SketchyBar) |
+| `modules/secrets/agefiles/*.age`, `modules/secrets/secrets.nix` | encrypted secrets + their recipients (run `agenix` from `modules/secrets/`; keys are `agefiles/<name>.age`); the modules that consume them live alongside (env vars) or with their feature (SketchyBar) |
+| `~/.config/nix-private/` (separate private repo, not in this one) | plain-text config that's private but not secret — clonager's config, MailMate's account plists. See *Private config* below |
 | `docs/FIRST_USE.md`, `docs/UPDATING_HOMEBREW.md` | the staged new-Mac runbook; how Homebrew app versions move (tap pins) |
 | `.claude/skills/update-packages/SKILL.md` | the package-update runbook — flake inputs + manual pins |
 
@@ -154,8 +155,8 @@ designated-requirement signature (Nix's wrap step invalidates it, and HM install
 **Secrets live with their users, not in one secrets file.** `modules/secrets/agenix.nix` holds only the
 shared machinery — the agenix module, the `agenix` CLI and `age.identityPaths` — and declares
 no `age.secrets.<name>` blocks itself. Each consuming module
-owns its own: `modules/secrets/envvars.nix` for the shell tokens, `modules/apps/mailmate.nix` for the MailMate
-account config. A new secret-using feature gets its own `modules/apps/<feature>.nix` rather than an
+owns its own: `modules/secrets/envvars.nix` for the shell tokens, `modules/interface/sketchybar/default.nix`
+for the signing identity. A new secret-using feature gets its own `modules/apps/<feature>.nix` rather than an
 entry in a shared file.
 
 This works because `age.secrets`, `homebrew.casks` and `system.activationScripts.<name>.text`
@@ -172,8 +173,8 @@ Adding an env-var secret = two edits in `modules/secrets/envvars.nix` (`age.secr
 `modules/secrets/secrets.nix` is read by the `agenix` **CLI**, not the module system, so it stays a
 single flat map of filename → publicKeys and can't be split up per-feature.
 
-Not every secret is a shell env var — `mailmate-*` are files copied into place by the activation
-script instead (see *MailMate* below).
+Not every secret is a shell env var — `sketchybar-signing-identity` is a `.p12` the activation
+script reads to re-sign SketchyBar.
 
 **Encrypting non-interactively:** `agenix -e` **ignores `$EDITOR` when stdin isn't a TTY** and
 substitutes `cp -- /dev/stdin`, so pipe the content in — `agenix -e agefiles/<name>.age -i
@@ -187,6 +188,27 @@ private key is **not** Nix-managed; it's backed up to 1Password as document `nix
 (Private vault) and restored on a fresh machine with `nix-restore-age-key` (from
 `modules/core/1password.nix`, so it exists before secrets are enabled). After rotating,
 re-run `op document edit "nix-darwin age key" ~/.config/age/keys.txt`.
+
+### Private config in nix-private
+**agenix is for credentials; nix-private is for config that's merely private.** Things that
+aren't secret but shouldn't sit in this public repo — email addresses, repo URLs — live as
+plain text in a separate private git repo checked out at `~/.config/nix-private`
+(`privateDir`, set in `flake.nix` and passed through `specialArgs`). Currently:
+`clonager/config.yaml` and `mailmate/{Sources,Identities,Submission}.plist`.
+
+Modules reference these files by **absolute path as strings**, never as Nix paths, so they're
+read at runtime: nothing is copied into the (world-readable) store, nothing is pinned in
+`flake.lock`, and edits apply without a rebuild. Use it via `mkOutOfStoreSymlink` (a string
+`configFile` does this for clonager) or an activation script that copies from it (MailMate). This
+suits configs an app rewrites itself — `clonager discover` edits its file in place. Never
+`import` or `readFile` from it: eval would then depend on an unpinned path outside the flake,
+which pure evaluation rejects anyway.
+
+Changes there get committed in nix-private, not here. A missing checkout doesn't break eval;
+clonager's symlink just dangles and MailMate provisioning skips. A git submodule and a
+`flake = false` input were both considered and rejected: submodules aren't fetched into a
+flake's source by default, and a flake input means a store copy, a lock bump per edit, and a
+root-run SSH fetch under `sudo darwin-rebuild`.
 
 ### System defaults
 `modules/core/macos.nix` covers the Dock (no recents, hot corners, pinned apps), menu-bar
@@ -266,7 +288,7 @@ Nix-managed unless noted.
   keys here, not in-app — see Microsoft Learn, *Set preferences for Outlook for Mac*. Microsoft
   AutoUpdate is disabled via `"com.microsoft.autoupdate2".HowToCheck = "Manual"` so updates flow
   through the cask refresh.
-- **MailMate** *(Homebrew `mailmate@beta`; account config via agenix)* — mechanics are
+- **MailMate** *(Homebrew `mailmate@beta`; account config from nix-private)* — mechanics are
   commented in `modules/apps/mailmate.nix`; what follows is only what isn't.
   **Accounts are *not* in the defaults domain** — they're three NeXTSTEP-format ASCII plists
   under `~/Library/Application Support/MailMate/` (`Sources.plist` IMAP, `Submission.plist`
@@ -346,8 +368,8 @@ Nix-managed unless noted.
   rebasing when SketchyBar is bumped — the build fails loudly if it no longer applies.
 
 A fresh machine comes up in stages — core (including the macOS `system.defaults`) → secrets → interface → apps, each enabled by
-uncommenting its line in `flake.nix` — with the manual steps between them in `docs/FIRST_USE.md`. Only these orders evaluate: interface and apps both need secrets' agenix
-module. Manual, non-Nix setup still needed: App Store sign-in (**before** enabling
+uncommenting its line in `flake.nix` — with the manual steps between them in `docs/FIRST_USE.md`. Only these orders evaluate: interface needs secrets' agenix
+module; apps needs the nix-private checkout (cloned once SSH works) for MailMate and clonager config. Manual, non-Nix setup still needed: App Store sign-in (**before** enabling
 `modules/apps`, whose `masApps` otherwise abort activation), per-app sign-ins/licences, and System Settings → Privacy & Security grants — Accessibility
 (Raycast, SketchyBar, AeroSpace, aerospace-swipe, Hammerspoon), Screen Recording (Slack, Pika), Input Monitoring (Raycast),
 Notifications/Calendar/Contacts/Mic/Camera per app.

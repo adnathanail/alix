@@ -64,6 +64,11 @@ Switch the repo's remote to SSH now that 1Password's agent holds the key:
 git -C ~/.config/nix-darwin remote set-url origin git@github.com:adnathanail/alix.git
 ```
 
+Clone the private config repo (MailMate accounts, clonager's config). Stage 4 reads it:
+```bash
+git clone git@github.com:adnathanail/nix-private.git ~/.config/nix-private
+```
+
 ## 3. Interface — SketchyBar, AeroSpace, ExtraDock, Raycast
 
 Uncomment `modules/interface`, then `ns`.
@@ -105,7 +110,7 @@ Then:
    `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
 2. Safari → Settings → Extensions: enable 1Password and Save to Raindrop.io.
 3. MailMate: sign into each account once (OAuth in the browser) — the account config itself is
-   provisioned from secrets.
+   provisioned from `~/.config/nix-private/mailmate/`.
 4. PyCharm: disable the in-app updater and select the `ALix keymap`.
 5. Sign into the rest (Slack, Todoist, Fantastical, …) and grant per-app permissions as they
    ask (Screen Recording for Slack and Pika, Calendar/Contacts/Mic/Camera per app).
