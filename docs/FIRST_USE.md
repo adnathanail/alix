@@ -108,10 +108,14 @@ Uncomment `modules/apps`, then `ns`. Xcode alone is ~15 GB, so the first run is 
 Then:
 1. `sudo xcodebuild -license accept` and
    `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
-2. Safari → Settings → Extensions: enable 1Password and Save to Raindrop.io.
+2. Safari → Settings → Extensions: enable 1Password and Save to Raindrop.io. Then hand
+   password autofill to 1Password: Safari → Settings → AutoFill, untick **User names and
+   passwords**; and System Settings → General → AutoFill & Passwords, untick **Passwords**
+   under AutoFill From (leave 1Password ticked). Safari's prefs sit in its sandbox container,
+   which TCC hides from `defaults`, so Nix can't set these.
 3. MailMate: sign into each account once (OAuth in the browser) — the account config itself is
    provisioned from `~/.config/nix-private/mailmate/`.
-4. PyCharm: disable the in-app updater and select the `ALix keymap`.
+4. PyCharm: select the `ALix keymap`.
 5. Sign into the rest (Slack, Todoist, Fantastical, …) and grant per-app permissions as they
    ask (Screen Recording for Slack and Pika, Calendar/Contacts/Mic/Camera per app).
 
