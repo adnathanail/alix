@@ -142,7 +142,7 @@ let
         shiftClick = "quit";
       };
       magneticSnappingDisabled = false;
-      nativeDockSuppressed = false;
+      nativeDockSuppressed = true; # "Deep Hide" the macOS Dock
       respectDockSpace = false;
       respectDockSpaceActiveOnDrag = false;
       runningApps = {
