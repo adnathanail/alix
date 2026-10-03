@@ -81,7 +81,6 @@ let
       id = "39A1425A-C5DD-4DA2-9720-203AF7DAA0C2";
       anchor.alignment = "center";
       appearance.background.glass.clear = true;
-      behavior.frontmostClickAction = "minimize";
       elements = [
         (finder "Documents")
         ghostty
@@ -214,7 +213,7 @@ let
       };
       desktopWidgetMode = false;
       dragHandleSide = "automatic";
-      frontmostClickAction = "none";
+      frontmostClickAction = "cycleWindows"; # none / minimize / hide / cycleWindows
       hideOnFullscreen = true;
       hotkey = { autoHideDelay = 0; isEnabled = false; };
       isEnabled = true;
