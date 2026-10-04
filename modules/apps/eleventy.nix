@@ -6,8 +6,8 @@
     (pkgs.vscode-utils.extensionFromVscodeMarketplace {
       publisher = "ronnidc";
       name = "nunjucks";
-      version = "1.0.0";
-      sha256 = "sha256-nlmgoZNcHUq6xxK4v4AYgkll06VsMJg4iI6CchvtpxU=";
+      version = "1.0.1";
+      sha256 = "sha256-I/Je6ACGyY0YDKwwV2Tif2muLPU1urhTqPfb7yvbcXc=";
     })
   ];
 }
