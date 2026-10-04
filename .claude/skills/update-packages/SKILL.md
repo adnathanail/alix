@@ -17,6 +17,17 @@ All commands below assume cwd is the repo root. A session may start anywhere, so
 cd ~/.config/nix-darwin
 ```
 
+Then check the GitHub CLI is logged in — Phase 1 uses `gh` for the clonager, ExtraDock
+and aerospace-swipe checks:
+
+```bash
+gh auth status
+```
+
+If it reports not being logged in, stop and ask the user to log in (suggest typing
+`! gh auth login` so it runs in this session), then re-run `gh auth status` and only
+continue once it passes.
+
 Also run `git status` before starting — stash or flag anything already dirty that isn't
 yours, per standard repo hygiene. Never rebuild the system yourself (`ns` /
 `darwin-rebuild switch`) — that needs `sudo`; always ask the user to run it.
