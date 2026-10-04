@@ -26,6 +26,18 @@ let
 
   customization = {
     confirmEmpty = true;
+    # How a folder opens when clicked (5.1+).
+    folderBrowser = {
+      columns = 4;
+      descending = false;
+      foldersFirst = true;
+      iconSize = 48;
+      layout = "grid";
+      openMode = "browse";
+      showHiddenFiles = false;
+      showNames = true;
+      sort = "name";
+    };
     hideFileExtension = false;
     showCountBadge = true;
     showLabel = false;
@@ -42,14 +54,6 @@ let
   widget = typeID: config: { widget = { inherit typeID config; }; };
 
   # Widgets
-  finder = location: widget "finder" {
-    clickAction = "open";
-    customIconFilePath = "";
-    customIconId = "";
-    customPath = "";
-    locationPreset = location;
-    showRunningIndicator = true;
-  };
   # A quarter-icon gap. `span` shrinks the cell to match.
   spacer = {
     payload = widget "spacer" { customPoints = 16; sizePreset = "Quarter"; };
@@ -64,6 +68,7 @@ let
   };
 
   # Apps
+  finder = app "com.apple.finder" "/System/Library/CoreServices/Finder.app";
   ghostty = app "com.mitchellh.ghostty" "/Applications/Ghostty.app";
   safari = app "com.apple.Safari" "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app";
   vscode = app "com.microsoft.VSCode" "/Users/adnathanail/Applications/Home Manager Apps/Visual Studio Code.app";
@@ -82,7 +87,7 @@ let
       anchor.alignment = "center";
       appearance.background.glass.clear = true;
       elements = [
-        (finder "Documents")
+        finder
         ghostty
         safari
         spacer
@@ -142,6 +147,10 @@ let
         shiftClick = "quit";
       };
       magneticSnappingDisabled = false;
+      mcpEnabled = false;
+      # `nativeDockSnapshot` (the native Dock's own autohide settings, saved
+      # for restoring when Deep Hide is turned off) is runtime state, so it's
+      # deliberately not declared.
       nativeDockSuppressed = true; # "Deep Hide" the macOS Dock
       respectDockSpace = false;
       respectDockSpaceActiveOnDrag = false;
@@ -215,6 +224,7 @@ let
       dragHandleSide = "automatic";
       frontmostClickAction = "cycleWindows"; # none / minimize / hide / cycleWindows
       hideOnFullscreen = true;
+      hideOnWindowHover = false;
       hotkey = { autoHideDelay = 0; isEnabled = false; };
       isEnabled = true;
       layout = "dock";
@@ -246,13 +256,9 @@ let
       span = { crossAxis = 1; mainAxis = 1; } // (e'.span or { });
     };
 
-  # What the running-apps widget hides: whatever the docks already show —
-  # their apps, and Finder if one has a Finder widget.
+  # What the running-apps widget hides: the apps the docks already show.
   allElements = lib.concatMap (d: map (e: e.payload or e) d.elements) docks;
-  pinnedPaths =
-    map (e: e.app.path) (lib.filter (e: e ? app) allElements)
-    ++ lib.optional (lib.any (e: e.widget.typeID or null == "finder") allElements)
-      "/System/Library/CoreServices/Finder.app";
+  pinnedPaths = map (e: e.app.path) (lib.filter (e: e ? app) allElements);
   fillRunningApps = e:
     if e.payload.widget.typeID or null == "runningapps"
     then lib.recursiveUpdate e { payload.widget.config.hiddenItems = e.payload.widget.config.hiddenItems ++ pinnedPaths; }
