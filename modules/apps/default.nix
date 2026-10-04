@@ -19,6 +19,7 @@
   home-manager.users.${username}.imports = [
     ./rocq.nix
     ./eleventy.nix
+    ./typst.nix
     ./go.nix
     ./nx/nx.nix
     ./pycharm/pycharm.nix

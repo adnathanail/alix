@@ -105,6 +105,7 @@ macOS settings (`modules/core/macos.nix`)
 - gh (GitHub) — `git_protocol: ssh`
 - doctl (DigitalOcean)
 - Rocq (with std++ library)
+- Typst (with the Tinymist VS Code extension)
 - Go
 - psql (PostgreSQL client)
 - mysql (client only, from `mariadb.client` — `mysql`, `mysqldump`, `mysqladmin`; no server)
