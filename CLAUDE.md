@@ -352,7 +352,7 @@ Nix-managed unless noted.
   Change tools are refused until the licence is admitted (`get_status` → `admitted`) and the
   in-app **Allow AI assistants** switch is on; MCP can read but not set that switch, so
   `mcpEnabled` lives only in the backup. MCP-added docks/items get fresh IDs (no ID argument),
-  hence matching by name/content rather than ID. Removals return `confirmation_required` and
+  hence matching by name/content rather than ID. Removals return `pending_user_confirmation` and
   need approval in the app's own dialog. After a version bump, re-check the tool schemas
   (`extradock_discover_tools`) still fit `extradock-apply.py`.
 - **SketchyBar** *(Nix, `pkgs.unstable.sketchybar`, re-signed)* — TCC pins a privacy grant to path + designated requirement,

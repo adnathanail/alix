@@ -76,21 +76,25 @@ class Client:
         try:
             return self.tool("extradock_change_tool", call)
         except ToolError as e:
+            # Destructive: ExtraDock shows its own dialog and answers
+            # `pending_user_confirmation` with an ID to poll.
             confirmation = find_key(e.payload, "confirmationId")
-            if e.payload.get("code") != "confirmation_required" or not confirmation:
+            if not confirmation:
                 raise
-        # Destructive: ExtraDock shows its own dialog. Wait for the answer on
-        # this connection, then retry the identical call once.
+        # Wait for the answer on this connection, then retry the identical
+        # call once.
         print("  waiting for you to approve this in ExtraDock…", flush=True)
         deadline = time.monotonic() + CONFIRM_TIMEOUT
         while time.monotonic() < deadline:
-            status = json.dumps(self.tool(
-                "extradock_get_confirmation_status", {"confirmationId": confirmation}))
-            if "pending" not in status.lower():
+            status = self.tool(
+                "extradock_get_confirmation_status", {"confirmationId": confirmation})
+            if status.get("status") != "pending_user_confirmation":
                 break
             time.sleep(1)
         else:
-            raise RuntimeError("timed out waiting for confirmation")
+            raise RuntimeError("timed out waiting for approval in ExtraDock")
+        if status.get("status") != "approved":
+            raise RuntimeError(f"not approved in ExtraDock ({status.get('status')})")
         return self.tool("extradock_change_tool", call)
 
     def close(self):
@@ -164,12 +168,20 @@ def main():
         return 2
 
     changes = 0
+    failed = []
 
+    # One change failing (or a removal you decline) skips just that change.
     def change(desc, tool, **kw):
         nonlocal changes
         changes += 1
-        print(f"  {desc}{tag}")
-        return client.change(tool, {**kw, "dryRun": True} if dry else kw)
+        print(f"  {desc}{tag}", flush=True)
+        try:
+            client.change(tool, {**kw, "dryRun": True} if dry else kw)
+            return True
+        except (ToolError, RuntimeError) as e:
+            print(f"    failed: {e}", flush=True)
+            failed.append(desc)
+            return False
 
     def docks():
         return client.read("extradock_list_docks")["result"]
@@ -186,8 +198,10 @@ def main():
         dock = next((d for d in live if d["name"] == name), None)
         if dock is None:
             before = {d["id"] for d in live}
-            change(f"{name}: create dock", "extradock_create_dock", name=name,
-                   patch={k: want[k] for k in DOCK_SECTIONS})
+            created = change(f"{name}: create dock", "extradock_create_dock", name=name,
+                             patch={k: want[k] for k in DOCK_SECTIONS})
+            if not created:
+                continue
             if dry:
                 print(f"  {name}: (items would be added after creation)")
                 continue
@@ -243,6 +257,10 @@ def main():
                dockIDs=declared + [d["id"] for d in others])
 
     client.close()
+    if failed:
+        print(f"extradock-apply: {len(failed)} of {changes} change(s) failed{tag}: "
+              + "; ".join(failed))
+        return 1
     print(f"extradock-apply: {changes} change(s){tag}" if changes
           else "extradock-apply: ExtraDock already matches")
     return 0
