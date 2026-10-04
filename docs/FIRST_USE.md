@@ -94,12 +94,8 @@ Then:
 1. Hammerspoon: open it once so it registers its login item, then grant Accessibility.
 2. Log out and back in, so turning off macOS's own swipe between Spaces takes effect (aerospace-swipe replaces it).
 3. Raycast: work through onboarding (let it take ⌥Space from Spotlight).
-4. ExtraDock: import `~/.config/extradock/ExtraDock.extradock5backup` with ExtraDock's **Import Backup**
-   The import gives each dock a new random ID, and later imports only update a dock whose ID the backup carries, so pin them now or every re-import duplicates the docks:
-   ```sh
-   sqlite3 -readonly ~/Library/Application\ Support/ExtraDock5/dockstore.sqlite 'select id, name from dock'
-   ```
-   Copy each ID into its dock's `id` in `extradock-config.nix`, then `ns`.
+4. ExtraDock: set the licence (Settings → License), then import `~/.config/extradock/ExtraDock.extradock5backup` with **Import Backup** (not Import Settings; ⌘⇧G in the file picker to type the path).
+   That's the only manual import: it also turns on **Allow AI assistants**, after which every `ns` keeps ExtraDock in step through `extradock-apply`. Check with `extradock-apply --dry-run` (should say it already matches).
 5. System Settings → Privacy & Security:
     - **Device Control and Data Access**:
          - AeroSpace, aerospace-swipe: Should prompt on `ns`

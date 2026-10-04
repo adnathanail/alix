@@ -42,4 +42,6 @@ let
   };
 in {
   home.packages = [ extradock ];
+  # extradock-config.nix runs the bundled MCP helper from it.
+  _module.args.extradock = extradock;
 }

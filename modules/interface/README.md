@@ -23,7 +23,9 @@ Loose ends to deal with later: [TODO.md](./TODO.md)
 - Unread notifications: red Slack and/or MailMate icons in SketchyBar (left of the Safari button), whichever have something unread, with one combined count; hidden when there's nothing. Click for a native menu of each app's count; choosing one focuses that app (`hammerspoon/notifications.lua` reads the counts, `sketchybar/config/items/notifications.lua` draws the item)
     - Slack's count is its Dock badge. MailMate draws its own Dock icon, so its count comes from MailMate's menu-bar counter instead. That only works with unread as the sole menu-bar counter, so MailMate's counters are declared in `../apps/mailmate.nix` — change them there, not in MailMate's settings
 - ExtraDock's docks (Productivity, Comms, Running apps) and settings (`extradock-config.nix`)
-    - Edit `extradock-config.nix`, `ns`, then import `~/.config/extradock/ExtraDock.extradock5backup` with ExtraDock's **Import Backup** — not Import Settings, which only reads a bare settings JSON (⌘⇧G in the file picker to type the path). In-app changes aren't saved back to the repo
+    - Edit `extradock-config.nix` and `ns`: `extradock-apply` changes the running ExtraDock to match, through its MCP connection (needs ExtraDock open, licensed, and Settings → Integrations → **Allow AI assistants** on; otherwise it skips). Removing an item asks for approval in ExtraDock. Run `extradock-apply [--dry-run]` by hand any time. In-app changes aren't saved back to the repo, and the next `ns` undoes them
+    - Docks are matched by name: renaming one makes a new dock and leaves the old one (delete it in-app). Docks not in the config are left alone
+    - Claude Code has the `extradock-v5` MCP server and ExtraDock's own `extradock-assistant` skill
     - The Running apps widget hides every app pinned in another dock; that list is worked out from the docks, not written by hand
 - Raycast (`other.nix`)
 - SketchyBar ([More info](./sketchybar/README.md))

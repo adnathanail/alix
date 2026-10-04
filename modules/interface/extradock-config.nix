@@ -1,11 +1,18 @@
 # ExtraDock's docks and settings, as Nix. ExtraDock keeps its live state in
-# a SQLite store (~/Library/Application Support/ExtraDock5/dockstore.sqlite)
-# that isn't safe to write from outside, so this doesn't touch it. It
-# builds the same `.extradock5backup` file ExtraDock's own export writes, and
-# links it to ~/.config/extradock/ExtraDock.extradock5backup. Load it with
-# ExtraDock's "Import Backup" after `ns` — not "Import Settings", which
-# only reads a bare settings JSON.
+# a SQLite store that isn't safe to write from outside, so this goes through
+# the app instead: `extradock-apply` (extradock-apply.py) talks to ExtraDock's
+# bundled MCP helper and changes whatever differs from what's declared here.
+# Home Manager runs it on every `ns`; it skips quietly when ExtraDock isn't
+# running, its "Allow AI assistants" switch is off, or the licence isn't set.
+# Removing an item or dock pops ExtraDock's own confirmation dialog.
 #
+# Docks are matched by name, items by what they are, so renaming a dock here
+# makes a new one and leaves the old (with a note). Docks not declared here
+# are left alone.
+#
+# The same data is also built into a `.extradock5backup`, linked to
+# ~/.config/extradock/ExtraDock.extradock5backup, for a fresh machine: its
+# "Import Backup" also turns the MCP switch on, which nothing else can.
 # The format, reverse-engineered from an export (formatVersion 1): a zip of
 #   manifest.json  counts + format tag
 #   docks.json     { format, formatVersion, docks = [ … ] }
@@ -13,14 +20,9 @@
 # Each dock element has a UUID and a payload: `app`, `folder`, `system`
 # (trash) or `widget`. A widget's own config is a JSON string, base64'd,
 # in `configJSON`. The build does that encoding, so here it's plain attrs.
-#
-# ExtraDock gives every dock it adds on import a fresh random ID, whatever
-# the backup says; it only replaces an existing dock when the backup carries
-# that dock's live ID. So each dock below pins the ID ExtraDock assigned it
-# (read with `sqlite3 <store> 'select id, name from dock'`). A dock with no
-# `id` gets one hashed from its name, is added as new, and should then be
-# pinned the same way. Element IDs are hashed from dock name + position.
-{ pkgs, lib, ... }:
+# Dock and element IDs are hashed from names and positions; ExtraDock gives
+# imported docks fresh ones anyway.
+{ pkgs, lib, extradock, ... }:
 let
   # --- Elements -------------------------------------------------------------
 
@@ -83,7 +85,6 @@ let
   docks = [
     {
       name = "Productivity";
-      id = "136296DB-6483-4624-B8AE-52C9E0752829";
       anchor.alignment = "center";
       appearance.background.glass.clear = true;
       elements = [
@@ -99,14 +100,12 @@ let
     }
     {
       name = "Comms";
-      id = "7470C66E-11E1-4B52-B4B5-F348D49B7C38";
       anchor.alignment = "trailing";
       appearance.background.glass.clear = true;
       elements = [ mailmate slack whatsapp ];
     }
     {
       name = "Running apps";
-      id = "65950674-D397-4D35-B10D-443F62591F12";
       elements = [ (runningApps [ "/Applications/Spotify.app" ]) ];
     }
   ];
@@ -147,7 +146,9 @@ let
         shiftClick = "quit";
       };
       magneticSnappingDisabled = false;
-      mcpEnabled = false;
+      # "Allow AI assistants": extradock-apply needs it. MCP can't change it,
+      # so only the backup carries it.
+      mcpEnabled = true;
       # `nativeDockSnapshot` (the native Dock's own autohide settings, saved
       # for restoring when Deep Hide is turned off) is runtime state, so it's
       # deliberately not declared.
@@ -266,7 +267,7 @@ let
 
   mkDock = d:
     lib.recursiveUpdate dockBase (removeAttrs d [ "elements" ]) // {
-      id = d.id or (uuid d.name);
+      id = uuid d.name;
       elements = map fillRunningApps (lib.imap0 (mkElement d.name) d.elements);
     };
 
@@ -310,6 +311,50 @@ let
     touch -t 198001010000 *.json
     zip -X -D $out settings.json manifest.json docks.json
   '';
+  # --- MCP sync -------------------------------------------------------------
+
+  # The docks in the MCP's own shape: flat items tagged with `kind`.
+  mcpItem = e:
+    let p = e.payload; in
+    { inherit (e) span; } // (
+      if p ? app then { kind = "app"; inherit (p.app) bundleID path customization; }
+      else if p ? folder then { kind = "folder"; inherit (p.folder) path customization; }
+      else if p ? system then { kind = "system"; systemKind = p.system.item.kind; inherit (p.system.item) customization; }
+      else { kind = "widget"; inherit (p.widget) typeID config; });
+
+  state = json "extradock-state.json" {
+    docks = map (d: {
+      inherit (d) name anchor appearance behavior orientation;
+      elements = map mcpItem d.elements;
+    }) builtDocks;
+    settings = {
+      general = removeAttrs settings.general [ "mcpEnabled" ];
+      inherit (settings) dockDefaults;
+    };
+  };
+
+  helper = "${extradock}/Applications/ExtraDock.app/Contents/Helpers/extradock-mcp";
+
+  # `extradock-apply [--dry-run]` to run it by hand.
+  apply = pkgs.writeShellScriptBin "extradock-apply" ''
+    exec ${pkgs.python3}/bin/python3 ${./extradock-apply.py} "$@" ${state} ${helper}
+  '';
 in {
   home.file.".config/extradock/ExtraDock.extradock5backup".source = backup;
+  home.packages = [ apply ];
+
+  # Skipping (exit 2) or failing shouldn't stop the rest of `ns`.
+  home.activation.extradockApply = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if [[ -v DRY_RUN ]]; then
+      ${apply}/bin/extradock-apply --dry-run || true
+    else
+      ${apply}/bin/extradock-apply || true
+    fi
+  '';
+
+  # Let Claude Code drive ExtraDock too, with the skill the app ships for it.
+  programs.claude-code = {
+    mcpServers.extradock-v5 = { type = "stdio"; command = helper; args = [ "--app" "v5" ]; };
+    skills.extradock-assistant = "${extradock}/Applications/ExtraDock.app/Contents/Resources/MCPSkills/extradock-assistant";
+  };
 }

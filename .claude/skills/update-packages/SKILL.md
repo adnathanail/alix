@@ -184,6 +184,10 @@ curl -sL "https://github.com/AppitStudio/extra-dock5-updates/releases/download/v
 nix hash file --sri --type sha256 /tmp/extradock-new.dmg
 ```
 
+After the user has rebuilt and relaunched ExtraDock, run `extradock-apply --dry-run`: it
+should say ExtraDock already matches. Errors or unexpected changes mean the MCP tool
+schemas moved, so `modules/interface/extradock-apply.py` needs updating.
+
 **aerospace-swipe:** edit `rev`, the `version` date and `hash` together in
 `modules/interface/aerospace-swipe.nix`:
 

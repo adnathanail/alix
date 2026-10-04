@@ -51,7 +51,7 @@ living at `~/.config/nix-darwin/`.
 | `modules/apps/nx/package.json`, `package-lock.json` | the npm wrapper project `nx.nix` builds from |
 | `modules/apps/pycharm/` | PyCharm: `pycharm.nix` (an HM module imported by `modules/apps/default.nix`) installs it and symlinks in `custom-keymap.xml` |
 | `modules/interface/extradock.nix` | ExtraDock 5, an HM module imported by `modules/interface/default.nix` |
-| `modules/interface/extradock-config.nix` | ExtraDock's docks and settings as Nix, built into an `.extradock5backup` (a zip of `manifest`/`docks`/`settings` JSON) at `~/.config/extradock/`, imported by hand in-app with **Import Backup** (Import Settings takes only a bare settings JSON). Its live store is SQLite, so nothing writes it directly |
+| `modules/interface/extradock-config.nix` | ExtraDock's docks and settings as Nix. Applied on every `ns` by `extradock-apply` (`extradock-apply.py`, over ExtraDock's MCP); also built into an `.extradock5backup` at `~/.config/extradock/` for a fresh machine's one-off **Import Backup**. Registers the `extradock-v5` MCP server + bundled skill with Claude Code |
 | `modules/interface/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, signing and restart; `config/` is FelixKratz's vendored Lua config (plus local tweaks), built by `config.nix` along with its C helpers; `layered-window-levels.patch` is a local SketchyBar fix; `menubar-return.m` is a tiny native status-item helper that returns from the macOS menu bar to SketchyBar; `option-hint.c` polls for a held Option key to show the AeroSpace hint pill; `app-font/` holds custom glyphs (SVG + app-name mapping) that an overlay in `default.nix` builds into `sketchybar-app-font` |
 | `modules/graveyard.nix` | Things we might want to (or already have) killed |
 | `modules/secrets/README.md` | operator steps for secrets: key generation, fresh-machine restore, adding/re-encrypting a secret |
@@ -347,6 +347,14 @@ Nix-managed unless noted.
   signed, notarized `.app` straight into the Nix store untouched (no `makeWrapper`, so the
   signature survives), same pattern as nixpkgs' own `skimpdf`. To bump, change `version` and
   refetch the hash (`nix-prefetch-url --type sha256 <url>`) together.
+  Config is synced through the MCP helper the app bundles (`Contents/Helpers/extradock-mcp
+  --app v5`, a stdio relay to a socket under `~/Library/Application Support/ExtraDockMCP/v5/`).
+  Change tools are refused until the licence is admitted (`get_status` → `admitted`) and the
+  in-app **Allow AI assistants** switch is on; MCP can read but not set that switch, so
+  `mcpEnabled` lives only in the backup. MCP-added docks/items get fresh IDs (no ID argument),
+  hence matching by name/content rather than ID. Removals return `confirmation_required` and
+  need approval in the app's own dialog. After a version bump, re-check the tool schemas
+  (`extradock_discover_tools`) still fit `extradock-apply.py`.
 - **SketchyBar** *(Nix, `pkgs.unstable.sketchybar`, re-signed)* — TCC pins a privacy grant to path + designated requirement,
   and the nixpkgs binary is ad-hoc signed (requirement = cdhash), so every rebuild silently voids
   every grant (the toggle stays on but no longer applies). Plugin scripts are SketchyBar's
