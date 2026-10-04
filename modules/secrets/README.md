@@ -5,7 +5,7 @@ Encrypted secrets are in `agefiles/` and are safe to commit. Their recipients ar
 this directory (`modules/secrets/`) and name files as `agefiles/<name>.age`.
 
 - Env vars: `$NPM_FONT_AWESOME_TOKEN`, `$NPM_GITHUB_PACKAGES_TOKEN`.
-- SketchyBar code-signing identity: `sketchybar-signing-identity` (a `.p12` of a self-signed codeSigning cert + key; the password is `nix-darwin`, and it's only meaningful inside agenix)
+- SketchyBar / aerospace-swipe code-signing identity: `alix-local-signing-identity` (a `.p12` of a self-signed codeSigning cert + key; the password is `nix-darwin`, and it's only meaningful inside agenix)
 
 Config that's private but not secret (MailMate's account plists, clonager's config) isn't
 here. It's plain text in the private `nix-private` repo, checked out at `~/.config/nix-private`;

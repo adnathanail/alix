@@ -32,7 +32,8 @@ living at `~/.config/nix-darwin/`.
 | `modules/interface/README.md` | user-facing list of the interface config (AeroSpace, Hammerspoon, Raycast, SketchyBar) |
 | `modules/interface/profiles.nix` | the profiles (Fermioniq, ASAC, …): name, workspace, colour, optional app bundle IDs. Plain data, imported by `aerospace.nix` (window rules) and `sketchybar/config.nix` (generates `profiles.lua` for the pill colours) |
 | `modules/interface/aerospace.nix` | AeroSpace: `services.aerospace` (nix-darwin's module — launchd agent + generated TOML), from unstable; default key bindings re-declared, outer gaps clearing SketchyBar and ExtraDock; also appends Ghostty's ⌘T → new-window keybind to the config file `dev.nix` owns |
-| `modules/interface/aerospace-swipe.nix` | aerospace-swipe: four-finger trackpad swipes switch AeroSpace workspaces. Built from a pinned GitHub commit, run as a launchd agent; also turns off macOS's own horizontal Spaces swipes |
+| `modules/interface/aerospace-swipe.nix` | aerospace-swipe: four-finger trackpad swipes switch AeroSpace workspaces. Built from a pinned GitHub commit, run as a launchd agent from a re-signed copy (like SketchyBar); also turns off macOS's own horizontal Spaces swipes |
+| `modules/interface/signing.nix` | the re-signing script SketchyBar and aerospace-swipe share: copies a store binary to a fixed path and signs it with the agenix'd identity, so TCC grants survive rebuilds |
 | `modules/interface/hammerspoon/` | Hammerspoon: the cask, its prefs (config path, updater off), `init.lua` — Fn+2 → €, Fn+3 → #, standing in for the ⌥ characters AeroSpace's bindings take over — and `notifications.lua`, which reads Slack's and MailMate's unread counts into SketchyBar's notifications item and pops its native menu |
 | `modules/core/home.nix` | base Home Manager config (git identity, zsh, python/uv/node, `nix-switch`) and `home.stateVersion` — imported by `modules/core/default.nix`, so core must always be enabled |
 | `modules/core/dev.nix` | Claude Code (`programs.claude-code`, updater opt-out, `claude-work` and `ncc` aliases), the Ghostty + GitButler casks, and Ghostty's config file — a darwin module with its HM part under `home-manager.users.${username}` |
@@ -51,7 +52,7 @@ living at `~/.config/nix-darwin/`.
 | `modules/apps/pycharm/` | PyCharm: `pycharm.nix` (an HM module imported by `modules/apps/default.nix`) installs it and symlinks in `custom-keymap.xml` |
 | `modules/interface/extradock.nix` | ExtraDock 5, an HM module imported by `modules/interface/default.nix` |
 | `modules/interface/extradock-config.nix` | ExtraDock's docks and settings as Nix, built into an `.extradock5backup` (a zip of `manifest`/`docks`/`settings` JSON) at `~/.config/extradock/`, imported by hand in-app with **Import Backup** (Import Settings takes only a bare settings JSON). Its live store is SQLite, so nothing writes it directly |
-| `modules/interface/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, signing and restart; `config/` is FelixKratz's vendored Lua config (plus local tweaks), built by `config.nix` along with its C helpers; `signing.nix` re-signs the server binary; `layered-window-levels.patch` is a local SketchyBar fix; `menubar-return.m` is a tiny native status-item helper that returns from the macOS menu bar to SketchyBar; `option-hint.c` polls for a held Option key to show the AeroSpace hint pill; `app-font/` holds custom glyphs (SVG + app-name mapping) that an overlay in `default.nix` builds into `sketchybar-app-font` |
+| `modules/interface/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, signing and restart; `config/` is FelixKratz's vendored Lua config (plus local tweaks), built by `config.nix` along with its C helpers; `layered-window-levels.patch` is a local SketchyBar fix; `menubar-return.m` is a tiny native status-item helper that returns from the macOS menu bar to SketchyBar; `option-hint.c` polls for a held Option key to show the AeroSpace hint pill; `app-font/` holds custom glyphs (SVG + app-name mapping) that an overlay in `default.nix` builds into `sketchybar-app-font` |
 | `modules/graveyard.nix` | Things we might want to (or already have) killed |
 | `modules/secrets/README.md` | operator steps for secrets: key generation, fresh-machine restore, adding/re-encrypting a secret |
 | `modules/secrets/agefiles/*.age`, `modules/secrets/secrets.nix` | encrypted secrets + their recipients (run `agenix` from `modules/secrets/`; keys are `agefiles/<name>.age`); the modules that consume them live alongside (env vars) or with their feature (SketchyBar) |
@@ -173,8 +174,8 @@ Adding an env-var secret = two edits in `modules/secrets/envvars.nix` (`age.secr
 `modules/secrets/secrets.nix` is read by the `agenix` **CLI**, not the module system, so it stays a
 single flat map of filename → publicKeys and can't be split up per-feature.
 
-Not every secret is a shell env var — `sketchybar-signing-identity` is a `.p12` the activation
-script reads to re-sign SketchyBar.
+Not every secret is a shell env var — `alix-local-signing-identity` is a `.p12` the activation
+script reads to re-sign SketchyBar and aerospace-swipe.
 
 **Encrypting non-interactively:** `agenix -e` **ignores `$EDITOR` when stdin isn't a TTY** and
 substitutes `cp -- /dev/stdin`, so pipe the content in — `agenix -e agefiles/<name>.age -i
@@ -329,9 +330,9 @@ Nix-managed unless noted.
   Keep them in step if either bar changes size.
 - **aerospace-swipe** *(Nix, built from a pinned commit, `modules/interface/aerospace-swipe.nix`)* —
   compiled by hand (upstream's makefile hard-codes `-march=native`), so a new file under `src/`
-  needs adding to `buildPhase`. Ad-hoc signed and pinned to its store path, so it loses its
-  Accessibility grant on **every** rebuild of it — a pin bump or a toolchain change from a
-  nixpkgs update — not just a version bump. It reads the trackpad through a listen-only event tap
+  needs adding to `buildPhase`. The store build is ad-hoc signed, so launchd runs a re-signed copy
+  at `~/.local/libexec/aerospace-swipe/aerospace-swipe` instead, same mechanism as SketchyBar
+  (below) — grant Accessibility to that path, once. It reads the trackpad through a listen-only event tap
   and can't swallow the native gesture, so macOS's own Spaces swipes are turned off
   (`system.defaults.trackpad`; may need a logout).
 - **Hammerspoon** *(Homebrew, Nix-managed config, `modules/interface/hammerspoon/`)* — Homebrew
@@ -351,7 +352,7 @@ Nix-managed unless noted.
   every grant (the toggle stays on but no longer applies). Plugin scripts are SketchyBar's
   children, so their requests (e.g. the clock's osascript keystroke → Accessibility) count as
   SketchyBar's. So launchd runs a copy at `~/.local/libexec/sketchybar/sketchybar`, re-signed each
-  activation with the agenix'd `sketchybar-signing-identity` cert (`modules/interface/sketchybar/signing.nix`).
+  activation with the agenix'd `alix-local-signing-identity` cert (`modules/interface/signing.nix`, shared with aerospace-swipe).
   **Grant permissions to that path, never a store path.** The native menu bar is **never
   auto-hidden** (`_HIHideMenuBar = false`, in `sketchybar/default.nix`); SketchyBar
   (`topmost = on`, opaque) draws over it. Auto-hidden, notification banners sat under SketchyBar.

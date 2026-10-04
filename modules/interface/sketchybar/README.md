@@ -37,7 +37,7 @@ We apply a local patch (`modules/interface/sketchybar/layered-window-levels.patc
 
 ## Re-signing
 
-We resign the installed app, with a stable identity from agenix (`modules/interface/sketchybar/signing.nix`), so that accessibility grants stay between updates.
+We resign the installed app, with a stable identity from agenix (`modules/interface/signing.nix`, shared with aerospace-swipe), so that accessibility grants stay between updates.
 
 Re-signed copy lives at `~/.local/libexec/sketchybar/sketchybar`
 

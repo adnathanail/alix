@@ -12,9 +12,11 @@
 # done by hand). Only its haptics use the private MultitouchSupport
 # framework; the trackpad itself is read through public AppKit APIs.
 #
-# Needs Accessibility (for the event tap). The binary is ad-hoc signed, so
-# the grant is pinned to its store path: re-grant after any rebuild of it —
-# a pin bump, or a nixpkgs update that changes the toolchain. It prompts for
+# Needs Accessibility (for the event tap). The store binary is only ad-hoc
+# signed, which would void the grant on every rebuild of it, so launchd runs
+# a copy at a fixed path re-signed with a stable identity, the same way as
+# SketchyBar — see ./signing.nix. Grant Accessibility to that copy
+# (~/.local/libexec/aerospace-swipe/aerospace-swipe), once. It prompts for
 # the grant itself, and waits until it's given.
 #
 # Consumed from modules/interface/default.nix as:
@@ -22,6 +24,16 @@
 { config, username, lib, pkgs, ... }:
 let
   aerospace = config.services.aerospace;
+
+  # The binary launchd runs: a stable-path, stably-signed copy of
+  # aerospaceSwipe (./signing.nix). This path is what the Accessibility grant
+  # is given to, so don't move it.
+  signedBin = "/Users/${username}/.local/libexec/aerospace-swipe/aerospace-swipe";
+  signAerospaceSwipe = import ./signing.nix {
+    inherit pkgs;
+    name = "aerospace-swipe";
+    identifier = "com.acsandmann.aerospace-swipe";
+  };
 
   aerospaceSwipe = pkgs.stdenv.mkDerivation {
     pname = "aerospace-swipe";
@@ -50,6 +62,14 @@ let
   };
 in
 lib.mkIf aerospace.enable {
+  # Shared with SketchyBar, which declares it identically (the definitions
+  # merge); declared here too so this works without SketchyBar.
+  age.secrets.alix-local-signing-identity = {
+    file = ../secrets/agefiles/alix-local-signing-identity.age;
+    owner = username;
+    mode = "0400";
+  };
+
   # Turn off macOS's swipe between Spaces / full-screen apps, for both three
   # and four fingers, so only aerospace-swipe answers a horizontal swipe.
   # (Mission Control's vertical swipes are left alone.) May need a logout to
@@ -61,7 +81,7 @@ lib.mkIf aerospace.enable {
 
   launchd.user.agents.aerospace-swipe = {
     serviceConfig = {
-      ProgramArguments = [ "${aerospaceSwipe}/bin/aerospace-swipe" ];
+      ProgramArguments = [ signedBin ];
       EnvironmentVariables = {
         # Names its lock file (/tmp/aerospace-swipe-$USER.lock).
         USER = username;
@@ -90,4 +110,21 @@ lib.mkIf aerospace.enable {
       skip_empty = true;
       haptic = false;
     };
+
+  # Re-sign after each rebuild, then restart it so it runs the new copy
+  # (its plist names the fixed path, so it doesn't change and nix-darwin
+  # won't restart it). Runs as the user so the copy is user-owned; mkAfter,
+  # as for SketchyBar's. A signing failure is reported but doesn't fail
+  # activation; the previous signed copy keeps running.
+  system.activationScripts.postActivation.text = lib.mkAfter ''
+    launchctl asuser "$(id -u -- ${username})" \
+      sudo --user=${username} -- \
+      ${signAerospaceSwipe} ${aerospaceSwipe}/bin/aerospace-swipe \
+        /run/agenix/alix-local-signing-identity ${signedBin} \
+      || echo "aerospace-swipe: signing failed; its Accessibility grant may not apply" >&2
+    launchctl asuser "$(id -u -- ${username})" \
+      sudo --user=${username} -- \
+      launchctl kickstart -k "gui/$(id -u -- ${username})/org.nixos.aerospace-swipe" \
+      2>/dev/null || true
+  '';
 }

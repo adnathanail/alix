@@ -12,7 +12,7 @@
 #
 # The launchd-run server is a re-signed copy at a fixed path, not the store
 # binary, so privacy grants given to SketchyBar survive updates. See
-# ./signing.nix.
+# ../signing.nix.
 #
 # Consumed from modules/interface/default.nix as:
 #     ./sketchybar
@@ -20,10 +20,14 @@
 let
   aerospace = config.services.aerospace;
   # The server binary launchd runs: a stable-path, stably-signed copy of
-  # pkgs.sketchybar (./signing.nix). This path is what privacy grants are
+  # pkgs.sketchybar (../signing.nix). This path is what privacy grants are
   # given to, so don't move it.
   signedBin = "/Users/${username}/.local/libexec/sketchybar/sketchybar";
-  signSketchybar = import ./signing.nix { inherit pkgs; };
+  signSketchybar = import ../signing.nix {
+    inherit pkgs;
+    name = "sketchybar";
+    identifier = "com.felixkratz.sketchybar";
+  };
 
   # Native menu-bar icon that returns to SketchyBar (./menubar-return.m).
   menubarReturn = pkgs.stdenv.mkDerivation {
@@ -88,8 +92,8 @@ in {
     })
   ];
 
-  age.secrets.sketchybar-signing-identity = {
-    file = ../../secrets/agefiles/sketchybar-signing-identity.age;
+  age.secrets.alix-local-signing-identity = {
+    file = ../../secrets/agefiles/alix-local-signing-identity.age;
     owner = username;
     mode = "0400";
   };
@@ -212,7 +216,7 @@ in {
     launchctl asuser "$(id -u -- ${username})" \
       sudo --user=${username} -- \
       ${signSketchybar} ${pkgs.sketchybar}/bin/sketchybar \
-        /run/agenix/sketchybar-signing-identity ${signedBin} \
+        /run/agenix/alix-local-signing-identity ${signedBin} \
       || echo "sketchybar: signing failed; privacy grants may not apply" >&2
     launchctl asuser "$(id -u -- ${username})" \
       sudo --user=${username} -- \
