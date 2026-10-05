@@ -50,24 +50,29 @@
         })
       ];
       userSettings = {
-        "nix.enableLanguageServer" = true;
-        "nix.serverPath" = "${pkgs.nixd}/bin/nixd";
-        "git.enableSmartCommit" = true;
-        "git.autofetch" = true;
-        "git.confirmSync" = false;
+        # Open Claude code in terminal
+        "claudeCode.useTerminal" = true;
         # Extensions come from Nix; the store is read-only so VS Code's
         # in-app updater can't write to them.
-        "extensions.autoUpdate" = "off";
         "extensions.autoCheckUpdates" = false;
-        "lean4.alwaysAskBeforeInstallingLeanVersions" = false;
+        "extensions.autoUpdate" = "off";
+        # Git config
+        "git.autofetch" = true;
+        "git.confirmSync" = false;
+        "git.enableSmartCommit" = true;
+        # Disable copilot
         "github.copilot.enable" = {
           "*" = false;
           "plaintext" = false;
           "markdown" = false;
           "scminput" = false;
         };
-        "workbench.browser.openLocalhostLinks" = false;  # Don't open links in VS Code browser
-        "claudeCode.useTerminal" = true;  # Open Claude code in terminal
+        # Lean
+        "lean4.alwaysAskBeforeInstallingLeanVersions" = true;
+        # Nix
+        "nix.enableLanguageServer" = true;
+        "nix.serverPath" = "${pkgs.nixd}/bin/nixd";
+        # Allow opening `but` (GitButler) links
         "terminal.integrated.allowedLinkSchemes" = [
           "file"
           "http"
@@ -77,6 +82,8 @@
           "vscode-insiders"
           "but"
         ];
+        # Don't open links in VS Code browser
+        "workbench.browser.openLocalhostLinks" = false;
       };
       keybindings = [
         { key = "cmd+s"; command = "workbench.action.files.saveAll"; }
