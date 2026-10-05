@@ -57,23 +57,22 @@ local current = {}
 local pushed = nil -- the last `sketchybar --set` arguments, to skip repeats
 
 local function push()
-  local total, numeric = 0, true
+  -- Only numbered badges count: Slack's "•" (unread, no mentions) adds
+  -- nothing to the total, its icon in the bar is signal enough.
+  local total = 0
   for _, entry in ipairs(current) do
-    local n = tonumber(entry.badge:match("^%d+"))
-    if n then total = total + n else numeric = false end
+    total = total + (tonumber(entry.badge:match("^%d+")) or 0)
   end
   local args = { "--set", item }
   if #current == 0 then
     table.insert(args, "drawing=off")
   else
-    -- A badge like Slack's "•" (unread, no mentions) has no number; with
-    -- one of those, any total would understate, so show just the icons.
     local glyphs = {}
     for _, entry in ipairs(current) do table.insert(glyphs, entry.source.glyph) end
     table.insert(args, "drawing=on")
     -- No separator: the glyphs' own side bearings already space them.
     table.insert(args, "icon=" .. table.concat(glyphs))
-    local counted = numeric and total > 0
+    local counted = total > 0
     table.insert(args, "label=" .. (counted and tostring(total) or ""))
     table.insert(args, "label.drawing=" .. (counted and "on" or "off"))
     -- Without the count, the icons' right padding is the pill's edge (8, as
