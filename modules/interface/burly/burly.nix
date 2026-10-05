@@ -11,7 +11,7 @@
 # in-app change to a declared key is reverted on the next rebuild.
 #
 # Unpacked via `hdiutil attach` + `cp`, not `undmg`, for the same reason as
-# ExtraDock (see ../../interface/extradock.nix): it bundles Sparkle, whose
+# ExtraDock (see ../extradock.nix): it bundles Sparkle, whose
 # nested signatures an archive-extraction tool would invalidate.
 { pkgs, lib, ... }:
 let
@@ -43,8 +43,17 @@ let
   # Burly stores a petal colour as the RGB value in one integer.
   colour = hex: lib.fromHexString (lib.removePrefix "#" hex);
 
-  safari = id: profile: {
-    inherit id;
+  # A destination's `id` is a UUID of Burly's choosing; this makes a stable
+  # one from the profile name instead, so a new profile needs no `uuidgen`.
+  # (`lastUsedDestinationID` points at one; Burly copes if it's stale.)
+  uuid = name:
+    let h = lib.toUpper (builtins.hashString "sha256" "burly:${name}");
+    in lib.concatStringsSep "-" (map (r: builtins.substring r.s r.n h) [
+      { s = 0; n = 8; } { s = 8; n = 4; } { s = 12; n = 4; } { s = 16; n = 4; } { s = 20; n = 12; }
+    ]);
+
+  safari = profile: {
+    id = uuid profile;
     browserID = "safari";
     browserBundleIdentifier = "com.apple.Safari";
     browserDisplayName = "Safari";
@@ -57,9 +66,7 @@ let
   };
 
   # Top-level keys of Burly's settings JSON, as Burly itself writes them.
-  # Destination `id`s are Burly's own UUIDs (they're what
-  # `lastUsedDestinationID` points at); a new one just needs a fresh
-  # `uuidgen`. `bypassDestinationKey` is `<bundle ID>#<profile>`.
+  # `bypassDestinationKey` is `<bundle ID>#<profile>`.
   settings = {
     mode = "alwaysAsk";
     bypassModifier = "option";
@@ -72,21 +79,19 @@ let
     showMenuBarIcon = true;
     launchAtLogin = true;
     demoMode = false;
-    # In picker order; `sortOrder` is filled in from the position.
-    # `hotkey` is the digit that picks it from the picker (and, with
-    # `globalHotkeyPrefix`, from anywhere); `nodeColorHex` its petal colour.
-    destinations = lib.imap0 (i: d: d // { sortOrder = i; }) [
-      (safari "DD1369EE-A1B5-45EC-BF55-F0B9F2F948DA" "Personal")
-      (safari "5261B500-BC89-4708-9454-6A6EC10A00A1" "ASAC" // {
-        hotkey = "5";
-        nodeColorHex = colour "#dfdaee";
-      })
-      (safari "A733FFD8-4528-48DA-959D-57D303DD9465" "Fermioniq" // {
-        hotkey = "4";
-        nodeColorHex = colour "#efe3cc";
-      })
-      {
-        id = "7D6E8E4B-B637-4FCC-9EB5-126C9FA55C1A";
+    # In picker order; `sortOrder` is filled in from the position. Personal
+    # (Safari's default profile, no workspace), then one per profile in
+    # ../profiles.nix: its workspace number is its `hotkey` (picks it from
+    # the picker, and with `globalHotkeyPrefix` from anywhere) and its
+    # colour the petal's (`nodeColorHex`).
+    destinations = lib.imap0 (i: d: d // { sortOrder = i; }) (
+      [ (safari "Personal") ]
+      ++ map (p: safari p.name // {
+        hotkey = toString p.workspace;
+        nodeColorHex = colour p.colour;
+      }) (import ../profiles.nix)
+      ++ [{
+        id = uuid "Brave";
         browserID = "brave";
         browserBundleIdentifier = "com.brave.Browser";
         browserDisplayName = "Brave";
@@ -96,8 +101,8 @@ let
         isAvailable = true;
         isVisible = false;
         preferEmojiOverPhoto = false;
-      }
-    ];
+      }]
+    );
   };
 
   apply = pkgs.writeShellScriptBin "burly-apply" ''

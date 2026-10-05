@@ -7,7 +7,7 @@ Loose ends to deal with later: [TODO.md](./TODO.md)
     - Screen-edge gaps: 8pt at the top so windows clear the 40pt SketchyBar, 76pt at the bottom for ExtraDock's docks
     - Keyboard-driven — see [AeroSpace shortcuts](#aerospace-shortcuts) below
     - Pinned apps (`on-window-detected` in `aerospace.nix`): GitButler → 0 (the only thing allowed there, bar 1Password so its commit-signing prompts stay put: anything else opened on 0 goes to 1, and you with it), MailMate, Slack and WhatsApp → 8, Spotify → 9, Safari and VS Code windows that match no profile but were opened on a profile's workspace → 1 (and any Safari or VS Code window is re-checked for 10s after opening, in case a profile's title appears late)
-    - Profiles (`profiles.nix`): each has a name, workspace, colour and optional apps. Its apps, Safari windows in the Safari profile of the same name, and VS Code windows titled `<name> - …` go to its workspace, and SketchyBar colours that workspace's pill. Currently Fermioniq (4) and ASAC (5)
+    - Profiles (`profiles.nix`): each has a name, workspace, colour and optional apps. Its apps, Safari windows in the Safari profile of the same name, and VS Code windows titled `<name> - …` go to its workspace, and SketchyBar colours that workspace's pill, and Burly gets a destination for it (hotkey = workspace number, petal = colour). Currently Fermioniq (4) and ASAC (5)
         - SketchyBar's Safari button (just right of the front app name) takes the current workspace's profile colour; clicking it focuses that profile's Safari window, or opens one (Personal on workspaces without a profile)
         - To label a VS Code project with a profile, set its window title in the project's `.vscode/settings.json` (the rest after the prefix is VS Code's default title):
           ```json
@@ -27,6 +27,10 @@ Loose ends to deal with later: [TODO.md](./TODO.md)
     - Docks are matched by name: renaming one makes a new dock and leaves the old one (delete it in-app). Docks not in the config are left alone
     - Claude Code has the `extradock-v5` MCP server and ExtraDock's own `extradock-assistant` skill
     - The Running apps widget hides every app pinned in another dock; that list is worked out from the docks, not written by hand
+- Burly: pick which Safari profile a link opens in (`burly/burly.nix`; direct-download package)
+    - Destinations are Personal plus one per profile in `profiles.nix`, which sets its hotkey (the workspace number) and petal colour. Other settings are in `burly/burly.nix`
+    - `burly-apply` merges them into Burly's settings on `ns`, restarting Burly if anything changed. Run `burly-apply [--dry-run]` by hand any time. In-app changes to declared settings are undone by the next `ns`
+    - *First use*: open Burly, finish onboarding and set it as the default browser; the next `ns` applies the settings
 - Raycast (`other.nix`)
 - SketchyBar ([More info](./sketchybar/README.md))
 

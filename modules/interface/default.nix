@@ -18,5 +18,6 @@
   home-manager.users.${username}.imports = [
     ./extradock.nix
     ./extradock-config.nix # docks + settings, synced over ExtraDock's MCP on `ns`
+    ./burly/burly.nix      # Burly: link → Safari profile picker, settings applied on `ns`
   ];
 }

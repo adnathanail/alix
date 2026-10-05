@@ -20,7 +20,6 @@
     ./rocq.nix
     ./eleventy.nix
     ./typst.nix
-    ./burly/burly.nix
     ./go.nix
     ./nx/nx.nix
     ./pycharm/pycharm.nix
