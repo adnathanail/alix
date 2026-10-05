@@ -85,6 +85,7 @@ macOS settings (`modules/core/macos.nix`)
 - DockFlow (Dock preset switcher)
 - Pika (colour picker with contrast checking)
 - Zotero (reference manager; Safari connector is bundled in the app — enable it in Safari → Settings → Extensions)
+- Burly (browser profile picker / link router; direct-download package, see `modules/apps/burly.nix`. Set it as the default browser in its onboarding)
 - ExtraDock 5 (customizable extra docks; direct-download package, see `modules/interface/extradock.nix`; docks and settings in `modules/interface/extradock-config.nix`, applied on `ns` over its MCP by `extradock-apply`)
 - Xcode
 - Android Studio
