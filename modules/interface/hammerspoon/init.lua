@@ -43,6 +43,11 @@ fnCharsTap:start()
 notifications = require("notifications")
 notifications.start()
 
+-- Hyper + digit: a new Safari window in that workspace's profile
+-- (./safari.lua). Global, for the same reason as the tap.
+safari = require("safari")
+safari.start()
+
 -- Reload when Nix replaces this file (each `ns` that changes it). Global,
 -- for the same reason as the tap.
 configWatcher = hs.pathwatcher.new(os.getenv("HOME") .. "/.config/hammerspoon/", hs.reload):start()

@@ -4,14 +4,15 @@
 -- (generated from modules/interface/profiles.nix); elsewhere it's Safari's
 -- default profile. The icon takes the profile's colour (white elsewhere).
 -- Clicking focuses an open Safari window in that profile — one on this
--- workspace if there is one — or else opens a new one.
+-- workspace if there is one — or else opens a new one on the homepage.
 --
--- Safari can only open a profile's window from File → New Window, so that
--- is clicked via System Events, which needs Accessibility — SketchyBar has
--- it (on its stably-signed path) and osascript runs as its child. The new
--- window opens on the focused workspace; aerospace.nix's rules keep it
--- there. Safari starts each window's title with "<profile> — ", which is
--- how open windows are matched.
+-- New windows come from safari-new-window (../../safari-new-window.nix,
+-- path substituted in by ../config.nix), which clicks Safari's menu via
+-- System Events — on SketchyBar's Accessibility grant (its stably-signed
+-- path), as osascript runs as its child. The new window opens on the
+-- focused workspace; aerospace.nix's rules keep it there. Safari starts
+-- each window's title with "<profile> — ", which is how open windows are
+-- matched.
 
 local colors = require("colors")
 local profiles = require("profiles")
@@ -46,16 +47,7 @@ local function focused_profile(callback)
 end
 
 local function new_window(profile)
-  local item = "New " .. profile .. " Window"
-  sbar.exec("osascript"
-    .. " -e 'tell application \"Safari\" to activate'"
-    .. " -e 'tell application \"System Events\" to tell process \"Safari\"'"
-    .. " -e 'repeat until exists menu bar item \"File\" of menu bar 1'"
-    .. " -e 'delay 0.1'"
-    .. " -e 'end repeat'"
-    .. " -e 'click menu item \"" .. item .. "\" of menu 1 of menu item"
-    .. " \"New Window\" of menu 1 of menu bar item \"File\" of menu bar 1'"
-    .. " -e 'end tell'")
+  sbar.exec("@safariNewWindow@/bin/safari-new-window '" .. profile .. "'")
 end
 
 safari:subscribe("mouse.clicked", function(_)

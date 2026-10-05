@@ -3,6 +3,8 @@
 # Does Fn+2 → € and Fn+3 → # (./init.lua), in place of the ⌥-typed
 # characters AeroSpace's bindings take over, and reads Slack's and MailMate's
 # unread counts for SketchyBar's notifications item (./notifications.lua).
+# Hyper + a workspace's digit opens a Safari window in that workspace's
+# profile (./safari.lua, generated from ../profiles.nix).
 #
 # Homebrew rather than Nix: it's a signed app, so its Accessibility grant
 # (needed for the event tap) survives updates, unlike an ad-hoc-signed Nix
@@ -10,7 +12,18 @@
 #
 # Consumed from modules/interface/default.nix as:
 #     ./hammerspoon
-{ username, ... }:
+{ config, pkgs, lib, username, ... }:
+let
+  # Personal on 1, then each profile on its workspace — see ./safari.lua.
+  safariProfiles = [ { workspace = 1; name = "Personal"; } ] ++ import ../profiles.nix;
+  safariLua = pkgs.replaceVars ./safari.lua {
+    aerospace = config.services.aerospace.package;
+    safariNewWindow = import ../safari-new-window.nix { inherit pkgs; };
+    profiles = "{\n"
+      + lib.concatMapStrings (p: "  [\"${toString p.workspace}\"] = \"${p.name}\",\n") safariProfiles
+      + "}";
+  };
+in
 {
   homebrew.casks = [ "hammerspoon" ];
 
@@ -26,5 +39,6 @@
   home-manager.users.${username}.xdg.configFile = {
     "hammerspoon/init.lua".source = ./init.lua;
     "hammerspoon/notifications.lua".source = ./notifications.lua;
+    "hammerspoon/safari.lua".source = safariLua;
   };
 }

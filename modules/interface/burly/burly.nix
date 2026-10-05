@@ -72,7 +72,9 @@ let
     bypassModifier = "option";
     invertBypass = false;
     bypassDestinationKey = "com.apple.Safari#Personal";
-    globalHotkeysEnabled = true;
+    # Off: hyper + digit is Hammerspoon's instead (../hammerspoon/safari.lua),
+    # which can open the window on a homepage.
+    globalHotkeysEnabled = false;
     globalHotkeyPrefix = "hyper";
     emojiPosition = "center";
     reduceAnimations = false;
@@ -82,7 +84,7 @@ let
     # In picker order; `sortOrder` is filled in from the position. Personal
     # (Safari's default profile, no workspace), then one per profile in
     # ../profiles.nix: its workspace number is its `hotkey` (picks it from
-    # the picker, and with `globalHotkeyPrefix` from anywhere) and its
+    # the picker) and its
     # colour the petal's (`nodeColorHex`).
     destinations = lib.imap0 (i: d: d // { sortOrder = i; }) (
       [ (safari "Personal") ]
