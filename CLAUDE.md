@@ -224,7 +224,7 @@ from the activation script — those stay manual toggles.
 
 ## Per-tool notes
 
-Only the surprising bits. The full software list and first-use steps live in `README.md`.
+Only the surprising bits. The full software list lives in `README.md`; first-use steps live in `docs/FIRST_USE.md`.
 Per-app state (sign-ins, caches, prefs, licences) lives under `~/Library/…` and is **not**
 Nix-managed unless noted.
 

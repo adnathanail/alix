@@ -13,15 +13,14 @@ Loose ends to deal with later: [TODO.md](./TODO.md)
           ```json
           "window.title": "Fermioniq - ${activeEditorShort}${separator}${rootName}${separator}${profileName}"
           ```
-    - *First use / after a version bump*: grant Accessibility to AeroSpace in System Settings → Privacy & Security
+    - After a version bump, grant Accessibility to AeroSpace again in System Settings → Privacy & Security (the release is ad-hoc signed, so the old grant stops applying)
     - Four-finger swipe left / right moves to the next / previous workspace with windows on it, like swiping between Spaces (`aerospace-swipe.nix`, using [aerospace-swipe](https://github.com/acsandmann/aerospace-swipe)). macOS's own three- and four-finger swipe between Spaces is turned off so they don't both fire; you may need to log out and back in for that
         - Settings are `config.json` in `aerospace-swipe.nix`; after changing them, restart it with `launchctl kickstart -k gui/$(id -u)/org.nixos.aerospace-swipe`
-        - *First use*: it asks for Accessibility; grant it in System Settings → Privacy & Security. launchd runs a re-signed copy at `~/.local/libexec/aerospace-swipe/aerospace-swipe` (like SketchyBar's), so the grant survives rebuilds. Logs are in `~/Library/Logs/aerospace-swipe*.log`
+        - launchd runs a re-signed copy at `~/.local/libexec/aerospace-swipe/aerospace-swipe` (like SketchyBar's), so its Accessibility grant survives rebuilds. Logs are in `~/Library/Logs/aerospace-swipe*.log`
 - Hyper (⇧⌃⌥⌘) + 1 / 4 / 5 goes to that workspace and focuses a Safari window in its profile (Personal on 1, otherwise the profile from `profiles.nix`) — one there if there is one — like SketchyBar's Safari button, or else opens one on https://newtab.adnathanail.dev (Hammerspoon, `hammerspoon/safari.lua`). The homepage is set in `safari-window.nix`, shared with SketchyBar's Safari button
-    - *First use*: the first press asks to let Hammerspoon control Safari and System Events; allow both
 - Fn+2 types €, Fn+3 types # — the characters ⌥2 / ⌥3 would type, which AeroSpace's bindings take over (Hammerspoon, `hammerspoon/`)
     - Config is Nix-managed — edit `hammerspoon/init.lua` (add more keys to `fnChars`), not `~/.config/hammerspoon`. Hammerspoon reloads it itself after `ns`
-    - *First use*: open Hammerspoon once and grant it Accessibility in System Settings → Privacy & Security (it's a signed app, so this survives updates)
+    - Hammerspoon is a signed app, so its Accessibility grant survives updates
 - Unread notifications: red Slack and/or MailMate icons in SketchyBar (left of the widgets), whichever have something unread, with one combined count; hidden when there's nothing. Click for a native menu of each app's count; choosing one focuses that app (`hammerspoon/notifications.lua` reads the counts, `sketchybar/config/items/notifications.lua` draws the item)
     - Slack's count is its Dock badge. MailMate draws its own Dock icon, so its count comes from MailMate's menu-bar counter instead. That only works with unread as the sole menu-bar counter, so MailMate's counters are declared in `../apps/mailmate.nix` — change them there, not in MailMate's settings
 - ExtraDock's docks (Productivity, Comms, Running apps) and settings (`extradock-config.nix`)
@@ -32,7 +31,6 @@ Loose ends to deal with later: [TODO.md](./TODO.md)
 - Burly: pick which Safari profile a link opens in (`burly/burly.nix`; direct-download package)
     - Destinations are Personal plus one per profile in `profiles.nix`, which sets its picker hotkey (the workspace number) and petal colour. Burly's own global hotkeys are off; hyper + digit is Hammerspoon's (above). Other settings are in `burly/burly.nix`
     - `burly-apply` merges them into Burly's settings on `ns`, restarting Burly if anything changed. Run `burly-apply [--dry-run]` by hand any time. In-app changes to declared settings are undone by the next `ns`
-    - *First use*: open Burly, finish onboarding and set it as the default browser; the next `ns` applies the settings
 - Raycast (`other.nix`)
 - SketchyBar ([More info](./sketchybar/README.md))
 

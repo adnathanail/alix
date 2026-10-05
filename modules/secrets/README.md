@@ -24,11 +24,8 @@ see *Private config in nix-private* in `CLAUDE.md`. Use agenix only for actual c
         `.age` file so the flake sees it.
     5. `ns` — secrets decrypt to `/run/agenix/<name>`, and the env-var ones are exported
         in the shell via `~/.config/nix-secrets.env` (see `envvars.nix`).
-- *First use on a fresh machine* (key already in 1Password): enable `modules/core` first —
-    it installs 1Password, `op` and `nix-restore-age-key` — then sign into 1Password, turn on
-    Settings → Developer → **Integrate with 1Password CLI**, run `nix-restore-age-key` (pulls
-    the key to `~/.config/age/keys.txt`, mode 0600), and only then enable `modules/secrets`.
-    Full steps in [docs/FIRST_USE.md](../../docs/FIRST_USE.md).
+- On a new Mac (key already in 1Password): see stages 1–2 of
+    [docs/FIRST_USE.md](../../docs/FIRST_USE.md).
 - Shared machinery is in `modules/secrets/agenix.nix`; **secrets live with whatever uses them** —
   `modules/secrets/envvars.nix` for shell tokens, `modules/interface/sketchybar/default.nix` for the
   signing identity. Add another secret:

@@ -86,7 +86,7 @@ Clone the private config repo (MailMate accounts, clonager's config). (Stage 4 r
 git clone git@github.com:adnathanail/nix-private.git ~/.config/nix-private
 ```
 
-## 3. Interface — SketchyBar, AeroSpace, ExtraDock, Raycast
+## 3. Interface — SketchyBar, AeroSpace, ExtraDock, Raycast, Burly
 
 Uncomment `modules/interface`, then `ns`.
 
@@ -94,11 +94,13 @@ Then:
 1. Hammerspoon: open it once so it registers its login item, then grant Accessibility.
 2. Log out and back in, so turning off macOS's own swipe between Spaces takes effect (aerospace-swipe replaces it).
 3. Raycast: work through onboarding (let it take ⌥Space from Spotlight).
-4. ExtraDock: set the licence (Settings → License), then import `~/.config/extradock/ExtraDock.extradock5backup` with **Import Backup** (not Import Settings; ⌘⇧G in the file picker to type the path).
+4. Burly: open it, finish onboarding and set it as the default browser, then run `burly-apply` (or `ns`) to apply its settings — it skips until onboarding is done.
+5. ExtraDock: set the licence (Settings → License), then import `~/.config/extradock/ExtraDock.extradock5backup` with **Import Backup** (not Import Settings; ⌘⇧G in the file picker to type the path).
    That's the only manual import: it also turns on **Allow AI assistants**, after which every `ns` keeps ExtraDock in step through `extradock-apply`. Check with `extradock-apply --dry-run` (should say it already matches).
-5. System Settings → Privacy & Security:
+6. Press hyper (⇧⌃⌥⌘) + 1: it asks to let Hammerspoon control Safari and System Events; allow both.
+7. System Settings → Privacy & Security:
     - **Device Control and Data Access**:
-         - AeroSpace, aerospace-swipe: Should prompt on `ns`
+         - AeroSpace, aerospace-swipe: Should prompt on `ns` (aerospace-swipe's entry is its re-signed copy at `~/.local/libexec/aerospace-swipe/aerospace-swipe`)
          - SketchyBar: Click the Apple icon and it should ask
          - Hammerspoon: Should prompt after opening
          - Raycast: Should ask during setup
@@ -118,7 +120,7 @@ Then:
 1. `sudo xcodebuild -license accept` and
    `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
 2. Safari:
-   - Safari → Settings → Extensions: enable 1Password and Save to Raindrop.io.
+   - Safari → Settings → Extensions: enable 1Password, Save to Raindrop.io and Zotero Connector.
    - Hand password autofill to 1Password: Safari → Settings → AutoFill, untick **User names and passwords**
    - System Settings → General → AutoFill & Passwords, untick **Passwords** under AutoFill From (leave 1Password ticked).
 3. MailMate: sign into each account once (OAuth in the browser)
