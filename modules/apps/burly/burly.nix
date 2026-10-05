@@ -40,8 +40,11 @@ let
     };
   };
 
-  safari = sortOrder: id: profile: {
-    inherit id sortOrder;
+  # Burly stores a petal colour as the RGB value in one integer.
+  colour = hex: lib.fromHexString (lib.removePrefix "#" hex);
+
+  safari = id: profile: {
+    inherit id;
     browserID = "safari";
     browserBundleIdentifier = "com.apple.Safari";
     browserDisplayName = "Safari";
@@ -69,10 +72,31 @@ let
     showMenuBarIcon = true;
     launchAtLogin = true;
     demoMode = false;
-    destinations = [
-      (safari 0 "DD1369EE-A1B5-45EC-BF55-F0B9F2F948DA" "Personal")
-      (safari 1 "5261B500-BC89-4708-9454-6A6EC10A00A1" "ASAC")
-      (safari 4 "A733FFD8-4528-48DA-959D-57D303DD9465" "Fermioniq")
+    # In picker order; `sortOrder` is filled in from the position.
+    # `hotkey` is the digit that picks it from the picker (and, with
+    # `globalHotkeyPrefix`, from anywhere); `nodeColorHex` its petal colour.
+    destinations = lib.imap0 (i: d: d // { sortOrder = i; }) [
+      (safari "DD1369EE-A1B5-45EC-BF55-F0B9F2F948DA" "Personal")
+      (safari "5261B500-BC89-4708-9454-6A6EC10A00A1" "ASAC" // {
+        hotkey = "5";
+        nodeColorHex = colour "#dfdaee";
+      })
+      (safari "A733FFD8-4528-48DA-959D-57D303DD9465" "Fermioniq" // {
+        hotkey = "4";
+        nodeColorHex = colour "#efe3cc";
+      })
+      {
+        id = "7D6E8E4B-B637-4FCC-9EB5-126C9FA55C1A";
+        browserID = "brave";
+        browserBundleIdentifier = "com.brave.Browser";
+        browserDisplayName = "Brave";
+        browserExecutablePath = "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser";
+        profileDisplayName = "Current Profile";
+        launchStrategy.browserCurrentProfile = { };
+        isAvailable = true;
+        isVisible = false;
+        preferEmojiOverPhoto = false;
+      }
     ];
   };
 
