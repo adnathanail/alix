@@ -27,7 +27,7 @@
 #     table, instead of upstream's hand-copied snapshot
 #   - profiles.lua: new, generated below from ../profiles.nix
 #   - items/safari.lua (+ its require): new, a Safari button for the focused
-#     workspace's profile; opens windows with ../safari-new-window.nix
+#     workspace's profile; focuses/opens windows with ../safari-window.nix
 #   - items/aerospace_mode.lua (+ its require): new, AeroSpace key-hint
 #     pills — one in service mode, one while Option is held
 #   - items/notifications.lua (+ its require): new, Slack/MailMate icons
@@ -79,7 +79,7 @@ pkgs.stdenv.mkDerivation {
 
   postPatch = ''
     substituteInPlace items/safari.lua \
-      --replace-fail '@safariNewWindow@' '${import ../safari-new-window.nix { inherit pkgs; }}'
+      --replace-fail '@safariWindow@' '${import ../safari-window.nix { inherit pkgs; }}'
     substituteInPlace helpers/app_icons.lua \
       --replace-fail '@iconMap@' '${pkgs.sketchybar-app-font}/lib/sketchybar-app-font/icon_map.lua'
     substituteInPlace sketchybarrc \

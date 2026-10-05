@@ -1,20 +1,40 @@
-# `safari-new-window <profile>`: opens a new Safari window in that Safari
-# profile, on the homepage. Plain function, not a module — called with
-# `{ pkgs }` by its users: SketchyBar's Safari button
+# `safari-window <profile>`: focuses an open Safari window in that Safari
+# profile — one on the focused AeroSpace workspace if there is one — or else
+# opens a new one, on the homepage. Plain function, not a module — called
+# with `{ pkgs }` by its users: SketchyBar's Safari button
 # (sketchybar/config.nix) and Hammerspoon's hyper+digit hotkeys
 # (hammerspoon/default.nix).
+#
+# Safari starts each window's title with "<profile> — ", which is how open
+# windows are matched.
 #
 # Safari can only open a profile's window from File → New Window, so that
 # is clicked via System Events, which needs Accessibility — the caller's
 # (osascript runs as its child), so SketchyBar's or Hammerspoon's. The
 # window opens on the profile's own start page; the homepage is then loaded
-# into it, once it has appeared.
+# into it, once it has appeared. It opens on the focused workspace;
+# aerospace.nix's rules keep it there.
 { pkgs }:
 let
   homepage = "https://newtab.adnathanail.dev";
+  aerospace = "${pkgs.unstable.aerospace}/bin/aerospace";
 in
-pkgs.writeShellScriptBin "safari-new-window" ''
-  exec /usr/bin/osascript - "$1" <<'EOF'
+pkgs.writeShellScriptBin "safari-window" ''
+  profile=$1
+  ws=$(${aerospace} list-workspaces --focused)
+  id=$(${aerospace} list-windows --all \
+      --format '%{window-id}|%{workspace}|%{app-bundle-id}|%{window-title}' \
+    | /usr/bin/awk -F'|' -v ws="$ws" -v prefix="$profile — " '
+        $3 == "com.apple.Safari" && index($4, prefix) == 1 {
+          if ($2 == ws) { here = $1; exit }
+          if (!found) found = $1
+        }
+        END { print (here ? here : found) }')
+  if [ -n "$id" ]; then
+    exec ${aerospace} focus --window-id "$id"
+  fi
+
+  exec /usr/bin/osascript - "$profile" <<'EOF'
   on run argv
     set profileName to item 1 of argv
     tell application "Safari"

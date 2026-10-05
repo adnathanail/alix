@@ -1,15 +1,16 @@
--- Hyper (⇧⌃⌥⌘) + a workspace's digit: go to that workspace and open a new
--- Safari window there in its profile, on the homepage. 1 is Safari's
--- default profile (Personal); the rest are the profiles in
--- modules/interface/profiles.nix, on their workspaces.
+-- Hyper (⇧⌃⌥⌘) + a workspace's digit: go to that workspace, then focus a
+-- Safari window in its profile — one there if there is one — or else open a
+-- new one there, on the homepage. 1 is Safari's default profile (Personal);
+-- the rest are the profiles in modules/interface/profiles.nix, on their
+-- workspaces.
 --
--- Generated: ./default.nix fills in the @…@ placeholders. Opening the window
--- is safari-new-window's job (../safari-new-window.nix), shared with
--- SketchyBar's Safari button; it clicks Safari's menu via System Events, on
--- Hammerspoon's Accessibility grant.
+-- Generated: ./default.nix fills in the @…@ placeholders. The focusing and
+-- opening is safari-window's job (../safari-window.nix), shared with
+-- SketchyBar's Safari button; opening clicks Safari's menu via System
+-- Events, on Hammerspoon's Accessibility grant.
 
 local aerospace = "@aerospace@/bin/aerospace"
-local newWindow = "@safariNewWindow@/bin/safari-new-window"
+local safariWindow = "@safariWindow@/bin/safari-window"
 
 -- workspace digit → Safari profile name
 local profiles = @profiles@
@@ -34,7 +35,7 @@ function M.start()
   for ws, profile in pairs(profiles) do
     hs.hotkey.bind(hyper, ws, function()
       run(aerospace, { "workspace", ws }, function()
-        run(newWindow, { profile })
+        run(safariWindow, { profile })
       end)
     end)
   end

@@ -3,8 +3,8 @@
 # Does Fn+2 → € and Fn+3 → # (./init.lua), in place of the ⌥-typed
 # characters AeroSpace's bindings take over, and reads Slack's and MailMate's
 # unread counts for SketchyBar's notifications item (./notifications.lua).
-# Hyper + a workspace's digit opens a Safari window in that workspace's
-# profile (./safari.lua, generated from ../profiles.nix).
+# Hyper + a workspace's digit focuses or opens a Safari window in that
+# workspace's profile (./safari.lua, generated from ../profiles.nix).
 #
 # Homebrew rather than Nix: it's a signed app, so its Accessibility grant
 # (needed for the event tap) survives updates, unlike an ad-hoc-signed Nix
@@ -18,7 +18,7 @@ let
   safariProfiles = [ { workspace = 1; name = "Personal"; } ] ++ import ../profiles.nix;
   safariLua = pkgs.replaceVars ./safari.lua {
     aerospace = config.services.aerospace.package;
-    safariNewWindow = import ../safari-new-window.nix { inherit pkgs; };
+    safariWindow = import ../safari-window.nix { inherit pkgs; };
     profiles = "{\n"
       + lib.concatMapStrings (p: "  [\"${toString p.workspace}\"] = \"${p.name}\",\n") safariProfiles
       + "}";

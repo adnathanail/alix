@@ -3,16 +3,12 @@
 -- The profile is the focused AeroSpace workspace's, from ../profiles.lua
 -- (generated from modules/interface/profiles.nix); elsewhere it's Safari's
 -- default profile. The icon takes the profile's colour (white elsewhere).
--- Clicking focuses an open Safari window in that profile — one on this
--- workspace if there is one — or else opens a new one on the homepage.
---
--- New windows come from safari-new-window (../../safari-new-window.nix,
--- path substituted in by ../config.nix), which clicks Safari's menu via
--- System Events — on SketchyBar's Accessibility grant (its stably-signed
--- path), as osascript runs as its child. The new window opens on the
--- focused workspace; aerospace.nix's rules keep it there. Safari starts
--- each window's title with "<profile> — ", which is how open windows are
--- matched.
+-- Clicking runs safari-window (../../safari-window.nix, path substituted in
+-- by ../config.nix): it focuses an open Safari window in that profile — one
+-- on this workspace if there is one — or else opens a new one on the
+-- homepage. Opening clicks Safari's menu via System Events, on SketchyBar's
+-- Accessibility grant (its stably-signed path), as osascript runs as its
+-- child. Hammerspoon's hyper+digit hotkeys do the same.
 
 local colors = require("colors")
 local profiles = require("profiles")
@@ -46,33 +42,10 @@ local function focused_profile(callback)
   end)
 end
 
-local function new_window(profile)
-  sbar.exec("@safariNewWindow@/bin/safari-new-window '" .. profile .. "'")
-end
-
 safari:subscribe("mouse.clicked", function(_)
-  focused_profile(function(ws, profile)
+  focused_profile(function(_, profile)
     local name = profile and profile.name or default_profile
-    local prefix = name .. " — "
-    sbar.exec(
-      "aerospace list-windows --all"
-        .. " --format '%{window-id}|%{workspace}|%{app-bundle-id}|%{window-title}'",
-      function(out)
-        local found, here = nil, nil
-        for id, win_ws, app, title in out:gmatch("(%d+)|([^|\n]*)|([^|\n]*)|([^\n]*)") do
-          if app == "com.apple.Safari" and title:sub(1, #prefix) == prefix then
-            found = found or id
-            if win_ws == ws then here = here or id end
-          end
-        end
-        local id = here or found
-        if id then
-          sbar.exec("aerospace focus --window-id " .. id)
-        else
-          new_window(name)
-        end
-      end
-    )
+    sbar.exec("@safariWindow@/bin/safari-window '" .. name .. "'")
   end)
 end)
 

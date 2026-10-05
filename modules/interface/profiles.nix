@@ -10,6 +10,8 @@
 #       "window.title": "Fermioniq - ${activeEditorShort}${separator}${rootName}${separator}${profileName}"
 #   - sketchybar/config.nix: colours the workspace's pill in the bar — a
 #     faint tint of `colour` when inactive, the full colour when active
+#   - hammerspoon/default.nix: hyper + `workspace` opens a new Safari
+#     window in the profile of the same name
 #   - burly/burly.nix: a Burly destination opening links in the Safari
 #     profile of the same name, `workspace` as its hotkey, `colour` its petal
 [

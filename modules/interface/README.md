@@ -8,7 +8,7 @@ Loose ends to deal with later: [TODO.md](./TODO.md)
     - Keyboard-driven — see [AeroSpace shortcuts](#aerospace-shortcuts) below
     - Pinned apps (`on-window-detected` in `aerospace.nix`): GitButler → 0 (the only thing allowed there, bar 1Password so its commit-signing prompts stay put: anything else opened on 0 goes to 1, and you with it), MailMate, Slack and WhatsApp → 8, Spotify → 9, Safari and VS Code windows that match no profile but were opened on a profile's workspace → 1 (and any Safari or VS Code window is re-checked for 10s after opening, in case a profile's title appears late)
     - Profiles (`profiles.nix`): each has a name, workspace, colour and optional apps. Its apps, Safari windows in the Safari profile of the same name, and VS Code windows titled `<name> - …` go to its workspace, and SketchyBar colours that workspace's pill, and Burly gets a destination for it (hotkey = workspace number, petal = colour). Currently Fermioniq (4) and ASAC (5)
-        - SketchyBar's Safari button (just right of the front app name) takes the current workspace's profile colour; clicking it focuses that profile's Safari window, or opens one (Personal on workspaces without a profile)
+        - SketchyBar's Safari button (just right of the front app name) takes the current workspace's profile colour; clicking it focuses that profile's Safari window, or opens one on https://newtab.adnathanail.dev (Personal on workspaces without a profile)
         - To label a VS Code project with a profile, set its window title in the project's `.vscode/settings.json` (the rest after the prefix is VS Code's default title):
           ```json
           "window.title": "Fermioniq - ${activeEditorShort}${separator}${rootName}${separator}${profileName}"
@@ -17,6 +17,8 @@ Loose ends to deal with later: [TODO.md](./TODO.md)
     - Four-finger swipe left / right moves to the next / previous workspace with windows on it, like swiping between Spaces (`aerospace-swipe.nix`, using [aerospace-swipe](https://github.com/acsandmann/aerospace-swipe)). macOS's own three- and four-finger swipe between Spaces is turned off so they don't both fire; you may need to log out and back in for that
         - Settings are `config.json` in `aerospace-swipe.nix`; after changing them, restart it with `launchctl kickstart -k gui/$(id -u)/org.nixos.aerospace-swipe`
         - *First use*: it asks for Accessibility; grant it in System Settings → Privacy & Security. launchd runs a re-signed copy at `~/.local/libexec/aerospace-swipe/aerospace-swipe` (like SketchyBar's), so the grant survives rebuilds. Logs are in `~/Library/Logs/aerospace-swipe*.log`
+- Hyper (⇧⌃⌥⌘) + 1 / 4 / 5 goes to that workspace and focuses a Safari window in its profile (Personal on 1, otherwise the profile from `profiles.nix`) — one there if there is one — like SketchyBar's Safari button, or else opens one on https://newtab.adnathanail.dev (Hammerspoon, `hammerspoon/safari.lua`). The homepage is set in `safari-window.nix`, shared with SketchyBar's Safari button
+    - *First use*: the first press asks to let Hammerspoon control Safari and System Events; allow both
 - Fn+2 types €, Fn+3 types # — the characters ⌥2 / ⌥3 would type, which AeroSpace's bindings take over (Hammerspoon, `hammerspoon/`)
     - Config is Nix-managed — edit `hammerspoon/init.lua` (add more keys to `fnChars`), not `~/.config/hammerspoon`. Hammerspoon reloads it itself after `ns`
     - *First use*: open Hammerspoon once and grant it Accessibility in System Settings → Privacy & Security (it's a signed app, so this survives updates)
@@ -28,7 +30,7 @@ Loose ends to deal with later: [TODO.md](./TODO.md)
     - Claude Code has the `extradock-v5` MCP server and ExtraDock's own `extradock-assistant` skill
     - The Running apps widget hides every app pinned in another dock; that list is worked out from the docks, not written by hand
 - Burly: pick which Safari profile a link opens in (`burly/burly.nix`; direct-download package)
-    - Destinations are Personal plus one per profile in `profiles.nix`, which sets its hotkey (the workspace number) and petal colour. Other settings are in `burly/burly.nix`
+    - Destinations are Personal plus one per profile in `profiles.nix`, which sets its picker hotkey (the workspace number) and petal colour. Burly's own global hotkeys are off; hyper + digit is Hammerspoon's (above). Other settings are in `burly/burly.nix`
     - `burly-apply` merges them into Burly's settings on `ns`, restarting Burly if anything changed. Run `burly-apply [--dry-run]` by hand any time. In-app changes to declared settings are undone by the next `ns`
     - *First use*: open Burly, finish onboarding and set it as the default browser; the next `ns` applies the settings
 - Raycast (`other.nix`)
