@@ -9,15 +9,34 @@
 # close-all-windows-but-current on backspace). Anything not listed is
 # unbound.
 #
-# The upstream release is ad-hoc signed, so its Accessibility grant is
-# pinned to the exact binary: re-grant it after a version bump.
+# The upstream release is ad-hoc signed, which would pin its Accessibility
+# grant to the exact binary and void it on every version bump. So launchd
+# runs a copy of AeroSpace.app at a fixed path, re-signed with a stable
+# identity, the same way as SketchyBar — see ./signing.nix. Grant
+# Accessibility to that copy (~/.local/libexec/aerospace/AeroSpace.app),
+# once.
 #
 # Consumed from modules/interface/default.nix as:
 #     ./aerospace.nix
-{ username, lib, pkgs, ... }:
+{ config, username, lib, pkgs, ... }:
 let
   # Unstable: fast-moving 0.x beta that tracks new macOS releases.
   aerospace = pkgs.unstable.aerospace;
+
+  # The app launchd runs: a stable-path, stably-signed copy of the store's
+  # (./signing.nix). This path is what the Accessibility grant is given to,
+  # so don't move it.
+  storeApp = "${aerospace}/Applications/AeroSpace.app";
+  signedApp = "/Users/${username}/.local/libexec/aerospace/AeroSpace.app";
+  signAerospace = import ./signing.nix { inherit pkgs; name = "aerospace"; };
+
+  # nix-darwin's agent command (the store app plus `--config-path <its
+  # generated TOML>`), pointed at the signed copy instead.
+  agentCommand = config.launchd.user.agents.aerospace.command;
+  signedCommand =
+    assert lib.assertMsg (lib.hasPrefix storeApp agentCommand)
+      "aerospace.nix: nix-darwin's AeroSpace agent no longer runs ${storeApp}";
+    builtins.replaceStrings [ storeApp ] [ signedApp ] agentCommand;
 
   profiles = import ./profiles.nix;
 
@@ -251,6 +270,45 @@ in
       };
     };
   };
+
+  # Shared with SketchyBar and aerospace-swipe, which declare it identically
+  # (the definitions merge); declared here too so this works without them.
+  age.secrets.alix-local-signing-identity = {
+    file = ../secrets/agefiles/alix-local-signing-identity.age;
+    owner = username;
+    mode = "0400";
+  };
+
+  # Run the signed copy. Same shape as nix-darwin's own ProgramArguments
+  # (modules/launchd), which it derives from the agent's `command`.
+  launchd.user.agents.aerospace.serviceConfig.ProgramArguments = lib.mkForce [
+    "/bin/sh"
+    "-c"
+    "/bin/wait4path /nix/store && exec ${signedCommand}"
+  ];
+
+  # Re-sign when AeroSpace's store path changes, then restart it onto the
+  # new copy — only then, unlike SketchyBar, since restarting AeroSpace
+  # reshuffles windows. (The agent's plist names the fixed path, so a new
+  # version alone doesn't change it, and nix-darwin won't restart it.) Runs
+  # as the user so the copy is user-owned; mkAfter, as for SketchyBar's. A
+  # signing failure is reported but doesn't fail activation; the previous
+  # signed copy keeps running.
+  system.activationScripts.postActivation.text = lib.mkAfter ''
+    if [ "$(cat ${signedApp}.source 2>/dev/null)" != ${storeApp} ]; then
+      if launchctl asuser "$(id -u -- ${username})" \
+          sudo --user=${username} -- \
+          ${signAerospace} ${storeApp} \
+            /run/agenix/alix-local-signing-identity ${signedApp}; then
+        launchctl asuser "$(id -u -- ${username})" \
+          sudo --user=${username} -- \
+          launchctl kickstart -k "gui/$(id -u -- ${username})/org.nixos.aerospace" \
+          2>/dev/null || true
+      else
+        echo "aerospace: signing failed; its Accessibility grant may not apply" >&2
+      fi
+    fi
+  '';
 
   # Ghostty: ⌘T opens a new window rather than a tab, so each shell is its
   # own window for AeroSpace to tile. Appends to the config file declared in

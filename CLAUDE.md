@@ -31,9 +31,9 @@ living at `~/.config/nix-darwin/`.
 | `modules/interface/other.nix` | interface tools too small for their own module — currently the Raycast cask |
 | `modules/interface/README.md` | user-facing list of the interface config (AeroSpace, Hammerspoon, Raycast, SketchyBar) |
 | `modules/interface/profiles.nix` | the profiles (Fermioniq, ASAC, …): name, workspace, colour, optional app bundle IDs. Plain data, imported by `aerospace.nix` (window rules), `sketchybar/config.nix` (generates `profiles.lua` for the pill colours), `burly/burly.nix` (destinations) and `hammerspoon/default.nix` (Safari hotkeys) |
-| `modules/interface/aerospace.nix` | AeroSpace: `services.aerospace` (nix-darwin's module — launchd agent + generated TOML), from unstable; default key bindings re-declared, outer gaps clearing SketchyBar and ExtraDock; also appends Ghostty's ⌘T → new-window keybind to the config file `dev.nix` owns |
+| `modules/interface/aerospace.nix` | AeroSpace: `services.aerospace` (nix-darwin's module — launchd agent + generated TOML), from unstable, launchd pointed at a re-signed copy of AeroSpace.app (like SketchyBar); default key bindings re-declared, outer gaps clearing SketchyBar and ExtraDock; also appends Ghostty's ⌘T → new-window keybind to the config file `dev.nix` owns |
 | `modules/interface/aerospace-swipe.nix` | aerospace-swipe: four-finger trackpad swipes switch AeroSpace workspaces. Built from a pinned GitHub commit, run as a launchd agent from a re-signed copy (like SketchyBar); also turns off macOS's own horizontal Spaces swipes |
-| `modules/interface/signing.nix` | the re-signing script SketchyBar and aerospace-swipe share: copies a store binary to a fixed path and signs it with the agenix'd identity, so TCC grants survive rebuilds |
+| `modules/interface/signing.nix` | the re-signing script SketchyBar, aerospace-swipe and AeroSpace share: copies a store binary or `.app` bundle to a fixed path and signs it with the agenix'd identity, so TCC grants survive rebuilds |
 | `modules/interface/safari-window.nix` | `safari-window <profile>`: focuses an open Safari window in that profile (preferring the focused workspace, matched by AeroSpace window title), else opens one (File → New Window via System Events) and loads the homepage (set here). Plain function taking `{ pkgs }`, used by SketchyBar's Safari button and Hammerspoon's `safari.lua` |
 | `modules/interface/hammerspoon/` | Hammerspoon: the cask, its prefs (config path, updater off), `init.lua` — Fn+2 → €, Fn+3 → #, standing in for the ⌥ characters AeroSpace's bindings take over — `safari.lua` (generated via `replaceVars`), hyper + workspace digit → that profile's Safari window, and `notifications.lua`, which reads Slack's and MailMate's unread counts into SketchyBar's notifications item and pops its native menu |
 | `modules/core/home.nix` | base Home Manager config (git identity, zsh, python/uv/node, `nix-switch`) and `home.stateVersion` — imported by `modules/core/default.nix`, so core must always be enabled |
@@ -325,7 +325,10 @@ Nix-managed unless noted.
   binding **silently dropped** — e.g. the § key is `sectionSign`, not `section`. The
   `on-mode-changed` callback triggers SketchyBar's `aerospace_mode_change` event; it gets no env
   var for the new mode, so it asks `aerospace list-modes --current`. The upstream release is
-  ad-hoc signed, so the Accessibility grant must be given again after each version bump. The
+  ad-hoc signed, so — like SketchyBar — launchd runs a re-signed copy at
+  `~/.local/libexec/aerospace/AeroSpace.app` (`ProgramArguments` overridden with nix-darwin's own
+  command, store app swapped for the copy); grant Accessibility to that, once. It's re-signed and
+  restarted only when AeroSpace's store path changes, since a restart reshuffles windows. The
   outer gaps exist because SketchyBar and ExtraDock don't reserve screen space: top = SketchyBar
   height (40) − the 32pt macOS reserves for the native menu bar, bottom = ExtraDock bar thickness
   + edge gap.
@@ -362,7 +365,7 @@ Nix-managed unless noted.
   every grant (the toggle stays on but no longer applies). Plugin scripts are SketchyBar's
   children, so their requests (e.g. the clock's osascript keystroke → Accessibility) count as
   SketchyBar's. So launchd runs a copy at `~/.local/libexec/sketchybar/sketchybar`, re-signed each
-  activation with the agenix'd `alix-local-signing-identity` cert (`modules/interface/signing.nix`, shared with aerospace-swipe).
+  activation with the agenix'd `alix-local-signing-identity` cert (`modules/interface/signing.nix`, shared with aerospace-swipe and AeroSpace).
   **Grant permissions to that path, never a store path.** The native menu bar is **never
   auto-hidden** (`_HIHideMenuBar = false`, in `sketchybar/default.nix`); SketchyBar
   (`topmost = on`, opaque) draws over it. Auto-hidden, notification banners sat under SketchyBar.

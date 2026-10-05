@@ -13,7 +13,7 @@ Loose ends to deal with later: [TODO.md](./TODO.md)
           ```json
           "window.title": "Fermioniq - ${activeEditorShort}${separator}${rootName}${separator}${profileName}"
           ```
-    - After a version bump, grant Accessibility to AeroSpace again in System Settings → Privacy & Security (the release is ad-hoc signed, so the old grant stops applying)
+    - launchd runs a re-signed copy at `~/.local/libexec/aerospace/AeroSpace.app` (like SketchyBar's), so its Accessibility grant survives version bumps
     - Four-finger swipe left / right moves to the next / previous workspace with windows on it, like swiping between Spaces (`aerospace-swipe.nix`, using [aerospace-swipe](https://github.com/acsandmann/aerospace-swipe)). macOS's own three- and four-finger swipe between Spaces is turned off so they don't both fire; you may need to log out and back in for that
         - Settings are `config.json` in `aerospace-swipe.nix`; after changing them, restart it with `launchctl kickstart -k gui/$(id -u)/org.nixos.aerospace-swipe`
         - launchd runs a re-signed copy at `~/.local/libexec/aerospace-swipe/aerospace-swipe` (like SketchyBar's), so its Accessibility grant survives rebuilds. Logs are in `~/Library/Logs/aerospace-swipe*.log`

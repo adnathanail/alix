@@ -1,14 +1,15 @@
-# Re-signs a Nix-built binary with a stable self-signed identity so its
-# privacy grants (System Settings → Privacy & Security) survive updates.
-# Used for SketchyBar (./sketchybar) and aerospace-swipe
-# (./aerospace-swipe.nix).
+# Re-signs a Nix-built binary or .app bundle with a stable self-signed
+# identity so its privacy grants (System Settings → Privacy & Security)
+# survive updates. Used for SketchyBar (./sketchybar), aerospace-swipe
+# (./aerospace-swipe.nix) and AeroSpace (./aerospace.nix).
 #
 # SketchyBar and the scripts and helpers it spawns need TCC grants for some
 # things — e.g. Accessibility for the config's menus helper reading the
 # front app's menu bar, or the calendar's osascript keystroke that opens
 # Fantastical's Mini Window. The scripts and helpers are SketchyBar's
 # children, so macOS attributes their requests to SketchyBar itself.
-# aerospace-swipe needs Accessibility for its event tap.
+# aerospace-swipe needs Accessibility for its event tap, AeroSpace for
+# moving windows.
 #
 # TCC pins a grant to the binary's path *and* its designated requirement.
 # The nixpkgs-built binaries are only ad-hoc signed, so their requirement is
@@ -40,9 +41,15 @@
 # calls in SketchyBar's click scripts just message the server, so they keep
 # using the store binary.
 #
-# Returns a script taking: <store binary> <.p12> <destination>. Run it as
-# the user (see sketchybar/default.nix), so $dest is user-owned.
-{ pkgs, name, identifier }:
+# A bundle (AeroSpace.app) is signed whole — its main executable and its
+# resources — and keeps its own CFBundleIdentifier, so pass no
+# `identifier` for one.
+#
+# Returns a script taking: <store binary or .app> <.p12> <destination>. Run
+# it as the user (see sketchybar/default.nix), so $dest is user-owned.
+# `$dest.source` records the store path the copy was made from, so a caller
+# can tell whether there's a new copy (see aerospace.nix).
+{ pkgs, name, identifier ? null }:
 
 pkgs.writeShellScript "sign-${name}" ''
   set -euo pipefail
@@ -55,21 +62,29 @@ pkgs.writeShellScript "sign-${name}" ''
   fi
 
   mkdir -p "$(dirname "$dest")"
-  rm -f "$dest.new"
+  rm -rf "$dest.new"
   # The .p12 is only ever at rest inside agenix, so its password protects
   # nothing and doesn't need to be secret. rcodesign logs every step, so
   # its output is only shown if it fails.
   if ! out=$(${pkgs.rcodesign}/bin/rcodesign sign \
       --p12-file "$p12" --p12-password nix-darwin \
-      --binary-identifier ${identifier} \
+      ${pkgs.lib.optionalString (identifier != null) "--binary-identifier ${identifier}"} \
       "$src" "$dest.new" 2>&1); then
     echo "$out" >&2
     exit 1
   fi
-  chmod 755 "$dest.new"
   # rename(), not overwrite: never rewrite the binary of a running process
-  # in place.
-  mv -f "$dest.new" "$dest"
+  # in place. A bundle is a directory, which mv can't rename over, so the
+  # old one is moved aside first.
+  if [ -d "$dest.new" ]; then
+    rm -rf "$dest.old"
+    [ ! -e "$dest" ] || mv "$dest" "$dest.old"
+    mv "$dest.new" "$dest"
+    rm -rf "$dest.old"
+  else
+    chmod 755 "$dest.new"
+    mv -f "$dest.new" "$dest"
+  fi
   echo "$src" > "$dest.source"
   echo "${name}: signed $src -> $dest"
 ''

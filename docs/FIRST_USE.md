@@ -100,7 +100,7 @@ Then:
 6. Press hyper (⇧⌃⌥⌘) + 1: it asks to let Hammerspoon control Safari and System Events; allow both.
 7. System Settings → Privacy & Security:
     - **Device Control and Data Access**:
-         - AeroSpace, aerospace-swipe: Should prompt on `ns` (aerospace-swipe's entry is its re-signed copy at `~/.local/libexec/aerospace-swipe/aerospace-swipe`)
+         - AeroSpace, aerospace-swipe: Should prompt on `ns` (their entries are the re-signed copies under `~/.local/libexec/`)
          - SketchyBar: Click the Apple icon and it should ask
          - Hammerspoon: Should prompt after opening
          - Raycast: Should ask during setup
