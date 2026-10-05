@@ -30,7 +30,7 @@ Ask Claude Code to run the `update-packages` skill
 ### Core
 
 Apps
-- Claude Code (`nixpkgs-master`)
+- Claude Code (`nixpkgs-master`), with a user-wide `CLAUDE.md` from `modules/core/claude-user.md`
 - VS Code (`nixpkgs-unstable`)
 - 1Password
 - GitButler

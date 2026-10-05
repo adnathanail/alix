@@ -2,16 +2,6 @@
 
 Context for working on this nix-darwin configuration. Read this before making changes.
 
-## Committing
-
-**Do not commit without asking**
-
-Sometimes this repository is managed with GitButler.
-Check whether you are on the `gitbutler/workspace` branch; if so, use the `but` CLI to interact with it.
-Make changes in new commits, as opposed to modifying existing commits, unless explicitly told to.
-
-**Do not add attributions to yourself in commit messages**
-
 ## What this is
 
 Declarative macOS config for a single MacBook: a Nix flake with **nix-darwin** + **Home Manager**,

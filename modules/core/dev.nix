@@ -14,7 +14,13 @@
     programs.claude-code = {
       enable = true;
       package = pkgs.master.claude-code;
+      # User-wide CLAUDE.md (~/.claude/CLAUDE.md). Not named CLAUDE.md in
+      # the repo, or Claude Code would load it as memory for this directory.
+      context = ./claude-user.md;
     };
+
+    # Same user-wide instructions for the work account (claude-work, below).
+    home.file.".claude-work/CLAUDE.md".source = ./claude-user.md;
 
     # Stop Claude Code self-updating into the read-only store;
     # you update it via Nix instead.
