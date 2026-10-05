@@ -19,8 +19,8 @@ local profiles = require("profiles")
 -- Safari's default profile, for workspaces without one of their own.
 local default_profile = "Personal"
 
-local safari = sbar.add("item", "widgets.safari", {
-  position = "right",
+local safari = sbar.add("item", "safari", {
+  position = "left",
   padding_left = 8,
   padding_right = 8,
   icon = {
@@ -34,7 +34,7 @@ local safari = sbar.add("item", "widgets.safari", {
   label = { drawing = false },
 })
 
-sbar.add("bracket", "widgets.safari.bracket", { safari.name }, {
+sbar.add("bracket", "safari.bracket", { safari.name }, {
   background = { color = colors.bg1 }
 })
 
