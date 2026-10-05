@@ -15,7 +15,6 @@
     name = "Fermioniq"; # work
     workspace = 4;
     colour = "#ee8076";
-    apps = [ "com.tinyspeck.slackmacgap" ]; # Slack
   }
   {
     name = "ASAC";

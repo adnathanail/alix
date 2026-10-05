@@ -141,7 +141,10 @@ in
       # (`aerospace list-windows --all --format '%{app-bundle-id}'`).
       on-window-detected = [
         { "if".app-id = "com.gitbutler.app"; run = "move-node-to-workspace 0"; }
+        # Messaging, all together on 8.
         { "if".app-id = "com.freron.MailMate"; run = "move-node-to-workspace 8"; }
+        { "if".app-id = "com.tinyspeck.slackmacgap"; run = "move-node-to-workspace 8"; }
+        { "if".app-id = "net.whatsapp.WhatsApp"; run = "move-node-to-workspace 8"; }
         { "if".app-id = "com.spotify.client"; run = "move-node-to-workspace 9"; }
       ]
       # The profiles' workspaces (./profiles.nix), then the Safari and VS
