@@ -32,6 +32,12 @@
     ];
   };
 
+  # Fonts, installed system-wide into /Library/Fonts (macOS finds fonts by
+  # scanning the Fonts folders, and HM has no Darwin font-install option).
+  fonts.packages = [
+    pkgs.tex-gyre.schola
+  ];
+
   homebrew.casks = [
     "orbstack"
     "slack"

@@ -111,3 +111,7 @@ macOS settings (`modules/core/macos.nix`)
 - psql (PostgreSQL client)
 - mysql (client only, from `mariadb.client` — `mysql`, `mysqldump`, `mysqladmin`; no server)
 - poppler (PDF tools: `pdftotext`, `pdftoppm`, `pdfinfo`, etc. for Claude)
+
+### Fonts
+
+- TeX Gyre Schola
