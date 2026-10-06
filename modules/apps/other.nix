@@ -61,6 +61,8 @@
     # Reference manager. Its Safari connector ships inside Zotero.app (no
     # separate App Store listing) — enable it in Safari → Settings → Extensions.
     "zotero"
+    # Affinity by Canva — the unified Designer/Photo/Publisher app.
+    "affinity"
   ];
 
   homebrew.brews = [
