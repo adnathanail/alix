@@ -17,7 +17,7 @@
 
   # Home Manager modules
   home-manager.users.${username}.imports = [
-    ./rocq.nix
+    # ./rocq.nix
     ./eleventy.nix
     ./typst.nix
     ./go.nix
