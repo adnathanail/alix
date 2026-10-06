@@ -19,6 +19,7 @@
         tomoki1207.pdf
         tamasfe.even-better-toml
         leanprover.lean4
+        github.vscode-github-actions
       ] ++ [
         # TikZiT — graphical editor for TikZ diagrams (.tikz files). Not in
         # the prebuilt nixpkgs extension set, so it comes straight from the
