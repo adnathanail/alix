@@ -30,14 +30,20 @@
           version = "0.5.2";
           sha256 = "sha256-+Xnv6RT7xxGmQItzR0k7Xp0N3Bu6Em214LEHSZud20M=";
         })
-        # GitButler for IDE — shows the GitButler branch/stack state inside
-        # VS Code. Not in the prebuilt nixpkgs extension set, so it comes
-        # straight from the marketplace; bump version + sha256 together.
-        (pkgs.vscode-utils.extensionFromVscodeMarketplace {
-          publisher = "BartInTheField";
-          name = "gitbutler-for-ide";
-          version = "2026.8.9";
-          sha256 = "sha256-E9kb7pKuR5Ds9h863tWR1Ls184KEyXdecXbq6OglxUE=";
+        # gitbutler-vscode — custom VS Code extension
+        # Not on the marketplace, so the .vsix comes from the
+        # GitHub release; bump version + sha256 together.
+        (pkgs.vscode-utils.buildVscodeMarketplaceExtension rec {
+          mktplcRef = {
+            publisher = "adnathanail";
+            name = "gitbutler-vscode";
+            version = "0.0.1";
+          };
+          vsix = pkgs.fetchurl {
+            name = "${mktplcRef.publisher}-${mktplcRef.name}.vsix";
+            url = "https://github.com/adnathanail/gitbutler-vscode/releases/download/v${mktplcRef.version}/gitbutler-vscode-v${mktplcRef.version}.vsix";
+            sha256 = "sha256-9ChmioG4t2XnCb9wGV8szQzpgMnt/BqBajARVAsYLFY=";
+          };
         })
         # Highlight — regex-driven decorations for arbitrary patterns (TODOs,
         # custom annotations) in any language. Not in the prebuilt nixpkgs

@@ -89,7 +89,7 @@ gh api repos/adnathanail/clonager/tags --jq '.[0].name'
 | ExtraDock | `modules/interface/extradock.nix` | `AppitStudio/extra-dock5-updates`, versioned `v<version>` release tag |
 | aerospace-swipe | `modules/interface/aerospace-swipe.nix` | `acsandmann/aerospace-swipe`, a commit on `main` (no releases) |
 | VS Code: TikZiT | `modules/core/vscode.nix` | `alekskissinger.vstikzit` |
-| VS Code: GitButler for IDE | `modules/core/vscode.nix` | `BartInTheField.gitbutler-for-ide` |
+| VS Code: gitbutler-vscode | `modules/core/vscode.nix` | `adnathanail/gitbutler-vscode`, `v<version>` GitHub release (`.vsix` asset, not on the marketplace) |
 | VS Code: Highlight | `modules/core/vscode.nix` | `fabiospampinato.vscode-highlight` |
 | VS Code: Nunjucks | `modules/apps/eleventy.nix` | `ronnidc.nunjucks` |
 | VS Code: WASM WASI Core | `modules/apps/rocq.nix` | `ms-vscode.wasm-wasi-core` |
@@ -115,6 +115,9 @@ curl -s -X POST "https://marketplace.visualstudio.com/_apis/public/gallery/exten
   -d '{"filters":[{"criteria":[{"filterType":7,"value":"<publisher>.<name>"}]}],"flags":103}' \
   | jq -r '.results[0].extensions[0].versions[0].version'
 # compare to the `version` in the relevant modules/**/*.nix file
+
+# gitbutler-vscode — latest GitHub release; compare to its `version` in modules/core/vscode.nix
+gh release view -R adnathanail/gitbutler-vscode --json tagName --jq .tagName
 
 # nx
 curl -s https://registry.npmjs.org/nx/latest | jq -r .version
