@@ -37,12 +37,12 @@
           mktplcRef = {
             publisher = "adnathanail";
             name = "gitbutler-vscode";
-            version = "0.0.1";
+            version = "0.0.2";
           };
           vsix = pkgs.fetchurl {
             name = "${mktplcRef.publisher}-${mktplcRef.name}.vsix";
             url = "https://github.com/adnathanail/gitbutler-vscode/releases/download/v${mktplcRef.version}/gitbutler-vscode-v${mktplcRef.version}.vsix";
-            sha256 = "sha256-9ChmioG4t2XnCb9wGV8szQzpgMnt/BqBajARVAsYLFY=";
+            sha256 = "sha256-N+bpYohCoEciSj+xxjwkvzlgul4+lA2hEdOLzMCRC3A=";
           };
         })
         # Highlight — regex-driven decorations for arbitrary patterns (TODOs,
