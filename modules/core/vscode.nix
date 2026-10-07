@@ -19,7 +19,6 @@
         tomoki1207.pdf
         tamasfe.even-better-toml
         leanprover.lean4
-        github.vscode-github-actions
         ms-vscode.makefile-tools
       ] ++ [
         # TikZiT — graphical editor for TikZ diagrams (.tikz files). Not in
