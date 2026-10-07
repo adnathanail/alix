@@ -22,6 +22,7 @@ Modifications from FelixKratz's setup:
 - Fix WiFi SSID command
 - Open Fantastical mini-window when clicking date/tiem
 - Add open WiFi settings button to WiFi popup
+- Only the WiFi icon opens the popup; clicking the upload/download speeds swaps them for the current network's name (and back)
 - The WiFi icon becomes a hotspot icon while connected to a hotspot — any network macOS flags as expensive, i.e. iPhone Personal Hotspot and metered Android hotspots (`config/helpers/event_providers/network_path/`)
 - The workspaces/menus switch (and ⌥`) cycles workspaces → app menus → native macOS bar; an eye-with-a-slash icon in the native bar (or ⌥` again) returns to SketchyBar
 - Spaces show AeroSpace workspaces (focused + non-empty ones) instead of native macOS Spaces; click one to switch to it

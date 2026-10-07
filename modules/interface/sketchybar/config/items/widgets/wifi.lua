@@ -8,6 +8,23 @@ sbar.exec("killall network_load >/dev/null; $CONFIG_DIR/helpers/event_providers/
 
 local popup_width = 250
 
+-- Shown in place of the up/down speeds when clicked; clicking again switches
+-- back to the speeds.
+local wifi_ssid = sbar.add("item", "widgets.wifi.ssid", {
+  position = "right",
+  drawing = false,
+  padding_left = 0,
+  icon = { drawing = false },
+  label = {
+    font = {
+      style = settings.font.style_map["Bold"],
+      size = 12.0,
+    },
+    max_chars = 18,
+    string = "????????????",
+  },
+})
+
 local wifi_up = sbar.add("item", "widgets.wifi1", {
   position = "right",
   padding_left = -5,
@@ -64,7 +81,8 @@ local wifi = sbar.add("item", "widgets.wifi.padding", {
 local wifi_bracket = sbar.add("bracket", "widgets.wifi.bracket", {
   wifi.name,
   wifi_up.name,
-  wifi_down.name
+  wifi_down.name,
+  wifi_ssid.name
 }, {
   background = { color = colors.bg1 },
   popup = { align = "center", height = 30 }
@@ -206,7 +224,27 @@ local function update_wifi_icon()
   end)
 end
 
-wifi:subscribe({"wifi_change", "system_woke"}, update_wifi_icon)
+-- `ipconfig getsummary`'s SSID (and `networksetup -getairportnetwork`) are
+-- redacted without Location Services on this machine, but
+-- `-listpreferredwirelessnetworks` isn't, and macOS keeps the connected
+-- network at the top of that list. That list is also populated while
+-- disconnected, so check the interface is active first.
+local function get_ssid(callback)
+  sbar.exec("ipconfig getsummary en0 | grep -Fxq '  Active : FALSE' || networksetup -listpreferredwirelessnetworks en0 | sed -n '2s/^\t//p'", function(result)
+    callback((result:gsub("%s+$", "")))
+  end)
+end
+
+local function update_ssid()
+  get_ssid(function(name)
+    wifi_ssid:set({ label = name == "" and "Disconnected" or name })
+  end)
+end
+
+wifi:subscribe({"wifi_change", "system_woke"}, function()
+  update_wifi_icon()
+  update_ssid()
+end)
 
 wifi:subscribe("hotspot_change", function(env)
   hotspot = env.hotspot == "on"
@@ -234,13 +272,8 @@ local function toggle_details()
     sbar.exec("ipconfig getifaddr en0", function(result)
       ip:set({ label = result })
     end)
-    -- `ipconfig getsummary`'s SSID (and `networksetup -getairportnetwork`)
-    -- are redacted without Location Services on this machine, but
-    -- `-listpreferredwirelessnetworks` isn't, and macOS keeps the connected
-    -- network at the top of that list. That list is also populated while
-    -- disconnected, so check the interface is active first.
-    sbar.exec("ipconfig getsummary en0 | grep -Fxq '  Active : FALSE' || networksetup -listpreferredwirelessnetworks en0 | sed -n '2s/^\t//p'", function(result)
-      ssid:set({ label = result })
+    get_ssid(function(name)
+      ssid:set({ label = name })
     end)
     sbar.exec("networksetup -getinfo Wi-Fi | awk -F 'Subnet mask: ' '/^Subnet mask: / {print $2}'", function(result)
       mask:set({ label = result })
@@ -253,8 +286,20 @@ local function toggle_details()
   end
 end
 
-wifi_up:subscribe("mouse.clicked", toggle_details)
-wifi_down:subscribe("mouse.clicked", toggle_details)
+-- Clicking the speeds (or the SSID standing in for them) swaps between the two.
+local showing_ssid = false
+
+local function toggle_ssid()
+  showing_ssid = not showing_ssid
+  if showing_ssid then update_ssid() end
+  wifi_up:set({ drawing = not showing_ssid })
+  wifi_down:set({ drawing = not showing_ssid })
+  wifi_ssid:set({ drawing = showing_ssid })
+end
+
+wifi_up:subscribe("mouse.clicked", toggle_ssid)
+wifi_down:subscribe("mouse.clicked", toggle_ssid)
+wifi_ssid:subscribe("mouse.clicked", toggle_ssid)
 wifi:subscribe("mouse.clicked", toggle_details)
 wifi:subscribe("mouse.exited.global", hide_details)
 
