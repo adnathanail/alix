@@ -22,6 +22,7 @@ Modifications from FelixKratz's setup:
 - Fix WiFi SSID command
 - Open Fantastical mini-window when clicking date/tiem
 - Add open WiFi settings button to WiFi popup
+- The WiFi icon becomes a hotspot icon while connected to a hotspot — any network macOS flags as expensive, i.e. iPhone Personal Hotspot and metered Android hotspots (`config/helpers/event_providers/network_path/`)
 - The workspaces/menus switch (and ⌥`) cycles workspaces → app menus → native macOS bar; an eye-with-a-slash icon in the native bar (or ⌥` again) returns to SketchyBar
 - Spaces show AeroSpace workspaces (focused + non-empty ones) instead of native macOS Spaces; click one to switch to it
 - Spaces' app icons use the icon map shipped with `sketchybar-app-font` (so every app the font knows gets its icon); point an app at a different glyph in the `overrides` table in `config/helpers/app_icons.lua`

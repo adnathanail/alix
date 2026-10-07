@@ -186,16 +186,38 @@ wifi_up:subscribe("network_update", function(env)
   })
 end)
 
-wifi:subscribe({"wifi_change", "system_woke"}, function(env)
+-- Whether macOS flags the current network as a hotspot (expensive), pushed
+-- in by the network_path event provider.
+local hotspot = false
+
+local function update_wifi_icon()
   sbar.exec("ipconfig getifaddr en0", function(ip)
     local connected = not (ip == "")
+    local icon = icons.wifi.disconnected
+    if connected then
+      icon = hotspot and icons.wifi.hotspot or icons.wifi.connected
+    end
     wifi:set({
       icon = {
-        string = connected and icons.wifi.connected or icons.wifi.disconnected,
+        string = icon,
         color = connected and colors.white or colors.red,
       },
     })
   end)
+end
+
+wifi:subscribe({"wifi_change", "system_woke"}, update_wifi_icon)
+
+wifi:subscribe("hotspot_change", function(env)
+  hotspot = env.hotspot == "on"
+  update_wifi_icon()
+end)
+
+-- Started on `forced` (which fires once the initial config has loaded)
+-- rather than at the top of the file: it only triggers on network changes,
+-- so its first trigger has to land after this item has subscribed.
+wifi:subscribe("forced", function(env)
+  sbar.exec("killall network_path >/dev/null; $CONFIG_DIR/helpers/event_providers/network_path/bin/network_path hotspot_change")
 end)
 
 local function hide_details()

@@ -6,7 +6,10 @@
 #   - items/calendar.lua: click opens Fantastical's Mini Window, not Calendar
 #   - items/widgets/wifi.lua: SSID read from the preferred-networks list, as
 #     ipconfig's is redacted without Location Services; plus an "Open Wi-Fi
-#     Settings" row at the bottom of its popup
+#     Settings" row at the bottom of its popup; the Wi-Fi glyph becomes a
+#     hotspot glyph on networks macOS flags as expensive, pushed in by the
+#     new helpers/event_providers/network_path provider (+ its makefile line)
+#   - icons.lua: wifi.hotspot, in both icon sets
 #   - items/menubar.lua (+ its require in items/init.lua): new, the
 #     `bar_cycle` event — workspaces → app menus → native macOS menu bar —
 #     that the switch and front_app clicks now trigger instead of
