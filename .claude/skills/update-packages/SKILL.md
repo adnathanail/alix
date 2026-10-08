@@ -1,6 +1,6 @@
 ---
 name: update-packages
-description: "Check for and apply package/dependency updates across this nix-darwin config — the 10 flake inputs (nixpkgs-master tracks raw master for claude-code; clonager is pinned to a release tag) plus everything pinned outside the flake-lock system (ExtraDock, aerospace-swipe, VS Code marketplace extensions, nx, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
+description: "Check for and apply package/dependency updates across this nix-darwin config — the 10 flake inputs (nixpkgs-master tracks raw master for claude-code; clonager is pinned to a release tag) plus everything pinned outside the flake-lock system (ExtraDock, aerospace-swipe, VS Code marketplace extensions, nx, Vite+, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
 ---
 
 # Update packages
@@ -96,6 +96,7 @@ gh api repos/adnathanail/clonager/tags --jq '.[0].name'
 | VS Code: coq-lsp | `modules/apps/rocq.nix` | `ejgallego.coq-lsp` |
 | VS Code: vizx | `modules/apps/rocq.nix` | `inqwire.vizx` |
 | `nx` | `modules/apps/nx/nx.nix` + `modules/apps/nx/package.json` | npm package `nx` |
+| Vite+ (`vp`) | `modules/apps/vite-plus.nix` | npm package `@voidzero-dev/vite-plus-cli-darwin-arm64` |
 | uv tools | `modules/apps/uvtools.nix` | one PyPI package per entry — currently `qi` → `quantuminspire` |
 
 Check each, read-only:
@@ -122,6 +123,9 @@ gh release view -R adnathanail/gitbutler-vscode --json tagName --jq .tagName
 # nx
 curl -s https://registry.npmjs.org/nx/latest | jq -r .version
 # compare to the "nx" version in modules/apps/nx/package.json
+
+# Vite+ — compare to `version` in modules/apps/vite-plus.nix
+curl -s https://registry.npmjs.org/@voidzero-dev/vite-plus-cli-darwin-arm64/latest | jq -r .version
 
 # each uv tool — read the current package name out of modules/apps/uvtools.nix first
 curl -s https://pypi.org/pypi/<package>/json | jq -r .info.version
@@ -190,6 +194,13 @@ nix hash file --sri --type sha256 /tmp/extradock-new.dmg
 After the user has rebuilt and relaunched ExtraDock, run `extradock-apply --dry-run`: it
 should say ExtraDock already matches. Errors or unexpected changes mean the MCP tool
 schemas moved, so `modules/interface/extradock-apply.py` needs updating.
+
+**Vite+:** edit `version` and `hash` together in `modules/apps/vite-plus.nix`; the hash is
+the tarball's npm integrity string, used as-is:
+
+```bash
+curl -s https://registry.npmjs.org/@voidzero-dev/vite-plus-cli-darwin-arm64/<version> | jq -r .dist.integrity
+```
 
 **aerospace-swipe:** edit `rev`, the `version` date and `hash` together in
 `modules/interface/aerospace-swipe.nix`:
