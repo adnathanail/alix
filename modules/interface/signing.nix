@@ -1,7 +1,8 @@
 # Re-signs a Nix-built binary or .app bundle with a stable self-signed
 # identity so its privacy grants (System Settings → Privacy & Security)
-# survive updates. Used for SketchyBar (./sketchybar), aerospace-swipe
-# (./aerospace-swipe.nix) and AeroSpace (./aerospace.nix).
+# survive updates. Used for SketchyBar (./sketchybar) and its Wi-Fi name
+# helper, aerospace-swipe (./aerospace-swipe.nix) and AeroSpace
+# (./aerospace.nix).
 #
 # SketchyBar and the scripts and helpers it spawns need TCC grants for some
 # things — e.g. Accessibility for the config's menus helper reading the

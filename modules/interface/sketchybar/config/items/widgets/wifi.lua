@@ -224,14 +224,22 @@ local function update_wifi_icon()
   end)
 end
 
--- `ipconfig getsummary`'s SSID (and `networksetup -getairportnetwork`) are
--- redacted without Location Services on this machine, but
--- `-listpreferredwirelessnetworks` isn't, and macOS keeps the connected
--- network at the top of that list. That list is also populated while
--- disconnected, so check the interface is active first.
+-- macOS only reveals the SSID to processes with Location Services access,
+-- so a helper (wifi-ssid.m beside config/ in the repo, its own launchd agent)
+-- reads it and keeps it in this file, triggering wifi_ssid_change. The file
+-- is empty while there's no network, and also while the helper has no
+-- access — hence the interface check, to tell those apart.
+local ssid_file = os.getenv("HOME") .. "/.cache/sketchybar/wifi-ssid"
+sbar.add("event", "wifi_ssid_change")
+
 local function get_ssid(callback)
-  sbar.exec("ipconfig getsummary en0 | grep -Fxq '  Active : FALSE' || networksetup -listpreferredwirelessnetworks en0 | sed -n '2s/^\t//p'", function(result)
-    callback((result:gsub("%s+$", "")))
+  sbar.exec("ipconfig getsummary en0 | grep -Fxq '  Active : FALSE' || echo active", function(active)
+    if type(active) ~= "string" or not active:find("active") then return callback("") end
+    local file = io.open(ssid_file)
+    local name = file and file:read("a") or ""
+    if file then file:close() end
+    name = name:gsub("%s+$", "")
+    callback(name == "" and "Name unavailable" or name)
   end)
 end
 
@@ -245,6 +253,8 @@ wifi:subscribe({"wifi_change", "system_woke"}, function()
   update_wifi_icon()
   update_ssid()
 end)
+
+wifi:subscribe("wifi_ssid_change", update_ssid)
 
 wifi:subscribe("hotspot_change", function(env)
   hotspot = env.hotspot == "on"

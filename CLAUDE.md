@@ -44,7 +44,7 @@ living at `~/.config/nix-darwin/`.
 | `modules/interface/extradock.nix` | ExtraDock 5, an HM module imported by `modules/interface/default.nix` |
 | `modules/interface/extradock-config.nix` | ExtraDock's docks and settings as Nix. Applied on every `ns` by `extradock-apply` (`extradock-apply.py`, over ExtraDock's MCP); also built into an `.extradock5backup` at `~/.config/extradock/` for a fresh machine's one-off **Import Backup**. Registers the `extradock-v5` MCP server + bundled skill with Claude Code |
 | `modules/interface/burly/` | Burly (link router → Safari profiles): `burly.nix` (HM module) installs the pinned DMG and declares its settings, with a destination per profile from `profiles.nix`; `burly-apply.py` merges them into the JSON blob Burly keeps under one defaults key (`burly.settings.v1`, as Data), quitting and reopening Burly around the write. Runs on every `ns` |
-| `modules/interface/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, signing and restart; `config/` is FelixKratz's vendored Lua config (plus local tweaks), built by `config.nix` along with its C helpers; `layered-window-levels.patch` is a local SketchyBar fix; `menubar-return.m` is a tiny native status-item helper that returns from the macOS menu bar to SketchyBar; `option-hint.c` polls for a held Option key to show the AeroSpace hint pill; `app-font/` holds custom glyphs (SVG + app-name mapping) that an overlay in `default.nix` builds into `sketchybar-app-font` |
+| `modules/interface/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, signing and restart; `config/` is FelixKratz's vendored Lua config (plus local tweaks), built by `config.nix` along with its C helpers; `layered-window-levels.patch` is a local SketchyBar fix; `menubar-return.m` is a tiny native status-item helper that returns from the macOS menu bar to SketchyBar; `option-hint.c` polls for a held Option key to show the AeroSpace hint pill; `wifi-ssid.m` is a small app bundle (own launchd agent, re-signed like the server) that reads the Wi-Fi SSID with Location Services access and hands it to the wifi widget; `app-font/` holds custom glyphs (SVG + app-name mapping) that an overlay in `default.nix` builds into `sketchybar-app-font` |
 | `modules/graveyard.nix` | Things we might want to (or already have) killed |
 | `modules/secrets/README.md` | operator steps for secrets: key generation, fresh-machine restore, adding/re-encrypting a secret |
 | `modules/secrets/agefiles/*.age`, `modules/secrets/secrets.nix` | encrypted secrets + their recipients (run `agenix` from `modules/secrets/`; keys are `agefiles/<name>.age`); the modules that consume them live alongside (env vars) or with their feature (SketchyBar) |
@@ -355,7 +355,7 @@ Nix-managed unless noted.
   every grant (the toggle stays on but no longer applies). Plugin scripts are SketchyBar's
   children, so their requests (e.g. the clock's osascript keystroke → Accessibility) count as
   SketchyBar's. So launchd runs a copy at `~/.local/libexec/sketchybar/sketchybar`, re-signed each
-  activation with the agenix'd `alix-local-signing-identity` cert (`modules/interface/signing.nix`, shared with aerospace-swipe and AeroSpace).
+  activation with the agenix'd `alix-local-signing-identity` cert (`modules/interface/signing.nix`, shared with aerospace-swipe, AeroSpace and the Wi-Fi name helper).
   **Grant permissions to that path, never a store path.** The native menu bar is **never
   auto-hidden** (`_HIHideMenuBar = false`, in `sketchybar/default.nix`); SketchyBar
   (`topmost = on`, opaque) draws over it. Auto-hidden, notification banners sat under SketchyBar.
@@ -375,5 +375,5 @@ A fresh machine comes up in stages — core (including the macOS `system.default
 uncommenting its line in `flake.nix` — with the manual steps between them in `docs/FIRST_USE.md`. Only these orders evaluate: interface needs secrets' agenix
 module; apps needs the nix-private checkout (cloned once SSH works) for MailMate and clonager config. Manual, non-Nix setup still needed: App Store sign-in (**before** enabling
 `modules/apps`, whose `masApps` otherwise abort activation), per-app sign-ins/licences, and System Settings → Privacy & Security grants — Accessibility
-(Raycast, SketchyBar, AeroSpace, aerospace-swipe, Hammerspoon), Screen Recording (Slack, Pika), Input Monitoring (Raycast),
+(Raycast, SketchyBar, AeroSpace, aerospace-swipe, Hammerspoon), Screen Recording (Slack, Pika), Input Monitoring (Raycast), Location Services (SketchyBar Wi-Fi),
 Notifications/Calendar/Contacts/Mic/Camera per app.

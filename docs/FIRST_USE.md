@@ -98,7 +98,8 @@ Then:
 5. ExtraDock: set the licence (Settings → License), then import `~/.config/extradock/ExtraDock.extradock5backup` with **Import Backup** (not Import Settings; ⌘⇧G in the file picker to type the path).
    That's the only manual import: it also turns on **Allow AI assistants**, after which every `ns` keeps ExtraDock in step through `extradock-apply`. Check with `extradock-apply --dry-run` (should say it already matches).
 6. Press hyper (⇧⌃⌥⌘) + 1: it asks to let Hammerspoon control Safari and System Events; allow both.
-7. System Settings → Privacy & Security:
+7. Allow **SketchyBar Wi-Fi** to use your location when it asks, so the bar can show the Wi-Fi network's name.
+8. System Settings → Privacy & Security:
     - **Device Control and Data Access**:
          - AeroSpace, aerospace-swipe: Should prompt on `ns` (their entries are the re-signed copies under `~/.local/libexec/`)
          - SketchyBar: Click the Apple icon and it should ask
@@ -106,6 +107,7 @@ Then:
          - Raycast: Should ask during setup
          - ExtraDock: Should ask during setup
     - **Input Monitoring**: Raycast (should during setup)
+    - *Location*: SketchyBar Wi-Fi
 
 See [modules/interface/README.md](../modules/interface/README.md).
 

@@ -19,7 +19,7 @@ FelixKratz features:
 - Spaces
 
 Modifications from FelixKratz's setup:
-- Fix WiFi SSID command
+- Fix WiFi SSID command — the name comes from a small helper app, `SketchyBar Wi-Fi` (`wifi-ssid.m`), since macOS only reveals it to apps with Location Services access
 - Open Fantastical mini-window when clicking date/tiem
 - Add open WiFi settings button to WiFi popup
 - Only the WiFi icon opens the popup; clicking the upload/download speeds swaps them for the current network's name (and back)

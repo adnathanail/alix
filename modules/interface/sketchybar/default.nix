@@ -46,6 +46,46 @@ let
     '';
   };
 
+  # Publishes the current Wi-Fi network's name (./wifi-ssid.m). An app
+  # bundle, as Location Services only lists bundles, and macOS only reveals
+  # the SSID to processes it has granted. Like the server, launchd runs a
+  # re-signed copy at a fixed path (../signing.nix), so the grant survives
+  # rebuilds; grant it to that copy, listed as "SketchyBar Wi-Fi".
+  wifiSsidApp = pkgs.stdenv.mkDerivation {
+    name = "sketchybar-wifi-ssid";
+    src = pkgs.replaceVars ./wifi-ssid.m { inherit (pkgs) sketchybar; };
+    dontUnpack = true;
+    infoPlist = pkgs.writeText "Info.plist" (lib.generators.toPlist { escape = true; } {
+      CFBundleIdentifier = "com.adnathanail.sketchybar-wifi-ssid";
+      CFBundleName = "SketchyBar Wi-Fi";
+      CFBundleExecutable = "wifi-ssid";
+      CFBundlePackageType = "APPL";
+      CFBundleVersion = "1";
+      CFBundleShortVersionString = "1.0";
+      LSUIElement = true;
+      NSLocationUsageDescription =
+        "Shows the name of the current Wi-Fi network in SketchyBar.";
+    });
+    buildPhase = ''
+      runHook preBuild
+      $CC -fobjc-arc -O2 -framework Cocoa -framework CoreLocation \
+        -framework CoreWLAN -x objective-c $src -o wifi-ssid
+      runHook postBuild
+    '';
+    installPhase = ''
+      runHook preInstall
+      app=$out/Applications/SketchyBarWiFi.app/Contents
+      install -Dm755 wifi-ssid $app/MacOS/wifi-ssid
+      install -Dm644 $infoPlist $app/Info.plist
+      runHook postInstall
+    '';
+  };
+  signedWifiSsidApp = "/Users/${username}/.local/libexec/sketchybar-wifi-ssid/SketchyBarWiFi.app";
+  signWifiSsid = import ../signing.nix {
+    inherit pkgs;
+    name = "sketchybar-wifi-ssid";
+  };
+
   # Watches for Option being held, for the AeroSpace key hints
   # (./option-hint.c).
   optionHint = pkgs.stdenv.mkDerivation {
@@ -192,6 +232,18 @@ in {
     };
   };
 
+  # Publishes the Wi-Fi network's name (./wifi-ssid.m). Its plist names the
+  # signed copy's fixed path, so activation (below) restarts it whenever a
+  # new build is signed.
+  launchd.user.agents.sketchybar-wifi-ssid = {
+    serviceConfig = {
+      ProgramArguments = [ "${signedWifiSsidApp}/Contents/MacOS/wifi-ssid" ];
+      RunAtLoad = true;
+      KeepAlive = true;
+      StandardErrorPath = "/Users/${username}/Library/Logs/sketchybar-wifi-ssid.err.log";
+    };
+  };
+
   # SketchyBar only executes sketchybarrc once, at process startup — it
   # never re-sources it on its own. Activation updates the config files on
   # disk (xdg.configFile above) but nix-darwin only reloads a launchd job
@@ -212,7 +264,23 @@ in {
   # the freshly signed binary. It runs as the user (via the same asuser
   # dance), so the output is user-owned. A signing failure is reported but
   # doesn't fail activation; the previous signed copy keeps running.
+  #
+  # The Wi-Fi name helper is signed the same way, but only restarted when
+  # its store path changes.
   system.activationScripts.postActivation.text = lib.mkAfter ''
+    if [ "$(cat ${signedWifiSsidApp}.source 2>/dev/null)" != ${wifiSsidApp}/Applications/SketchyBarWiFi.app ]; then
+      if launchctl asuser "$(id -u -- ${username})" \
+          sudo --user=${username} -- \
+          ${signWifiSsid} ${wifiSsidApp}/Applications/SketchyBarWiFi.app \
+            /run/agenix/alix-local-signing-identity ${signedWifiSsidApp}; then
+        launchctl asuser "$(id -u -- ${username})" \
+          sudo --user=${username} -- \
+          launchctl kickstart -k "gui/$(id -u -- ${username})/org.nixos.sketchybar-wifi-ssid" \
+          2>/dev/null || true
+      else
+        echo "sketchybar-wifi-ssid: signing failed; its Location Services grant may not apply" >&2
+      fi
+    fi
     launchctl asuser "$(id -u -- ${username})" \
       sudo --user=${username} -- \
       ${signSketchybar} ${pkgs.sketchybar}/bin/sketchybar \

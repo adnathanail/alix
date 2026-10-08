@@ -4,8 +4,9 @@
 # Edit it in place; to re-sync with upstream, copy the directory over again
 # and re-apply the local tweaks:
 #   - items/calendar.lua: click opens Fantastical's Mini Window, not Calendar
-#   - items/widgets/wifi.lua: SSID read from the preferred-networks list, as
-#     ipconfig's is redacted without Location Services; plus an "Open Wi-Fi
+#   - items/widgets/wifi.lua: SSID read from the file ../wifi-ssid.m keeps
+#     (refreshed on its wifi_ssid_change event), as ipconfig's is redacted
+#     without Location Services; plus an "Open Wi-Fi
 #     Settings" row at the bottom of its popup; the Wi-Fi glyph becomes a
 #     hotspot glyph on networks macOS flags as expensive, pushed in by the
 #     new helpers/event_providers/network_path provider (+ its makefile line)
