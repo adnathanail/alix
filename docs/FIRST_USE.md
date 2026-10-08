@@ -127,8 +127,10 @@ Then:
    - System Settings → General → AutoFill & Passwords, untick **Passwords** under AutoFill From (leave 1Password ticked).
 3. MailMate: sign into each account once (OAuth in the browser)
 4. PyCharm: select the `ALix keymap`.
-5. Sign into the rest (Slack, Todoist, Fantastical, …) and grant per-app permissions as they ask (Screen Recording for Slack and Pika, Calendar/Contacts/Mic/Camera per app).
-6. Clone the repos from clonager's config (as airlifted in step -1). `cg clone` only prints
+5. Vite+: `vp env on`, so its shims choose each project's Node.js version, then `ns` once more
+   to remove the self-managed `vp` that setup links into the shim dir.
+6. Sign into the rest (Slack, Todoist, Fantastical, …) and grant per-app permissions as they ask (Screen Recording for Slack and Pika, Calendar/Contacts/Mic/Camera per app).
+7. Clone the repos from clonager's config (as airlifted in step -1). `cg clone` only prints
    the git commands, so review them, then run them:
    ```bash
    cg clone        # review
