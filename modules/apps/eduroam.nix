@@ -111,8 +111,11 @@ in
       else
         eduroam_uuid=$(cat ${template} ${privateFiles} | shasum -a 256 | tr a-f A-F \
           | sed -E 's/^(.{8})(.{4})(.{4})(.{4})(.{12}).*/\1-\2-\3-\4-\5/')
-        if ! { profiles show -all; profiles show -user ${username}; } 2>/dev/null \
-            | grep -qi -- "$eduroam_uuid"; then
+        # Captured rather than piped into grep: activation runs under
+        # pipefail, so `profiles` exiting non-zero (or grep -q closing the
+        # pipe early) would read as "not installed".
+        eduroam_installed=$({ profiles show -all; profiles show -user ${username}; } 2>/dev/null || true)
+        if [[ "$eduroam_installed" != *"$eduroam_uuid"* ]]; then
           install -d -m 700 -o ${username} -g staff "$eduroam_dest"
           # A PEM certificate's body is the base64 DER a profile's <data> wants.
           sed -e "s|@USERNAME@|$eduroam_user|" -e "s|@PROFILE_UUID@|$eduroam_uuid|" \
