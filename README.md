@@ -62,6 +62,9 @@ macOS settings (`modules/core/macos.nix`)
   - Outlook.com/Hotmail needs OAuth on **both** IMAP and SMTP, and both hosts must be
     `*.office365.com` — the setup wizard gets the SMTP host wrong. See CLAUDE.md →
     *Per-tool notes* → MailMate before touching account settings
+- eduroam (University of Amsterdam Wi-Fi) — a configuration profile with UvA's PEAP settings and RADIUS certificate pins
+  - UvAnetID and the two root CAs read from `~/.config/nix-private/eduroam/`; the password is asked for on first join and kept in the Keychain
+  - Activation opens the profile when it isn't installed yet (or has changed); click Install in System Settings → General → Device Management
 - Todoist
 - Slack
 - Fantastical
