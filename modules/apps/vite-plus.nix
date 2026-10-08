@@ -62,8 +62,14 @@ in
   # files run after .zshenv and prepend their own entries, which would put
   # Nix's node back in front. GUI apps that read the login shell's
   # environment (VS Code) pick this up too.
+  # fallback-bin goes last, as in vp's own env script: it holds the shims
+  # for anything switched back to system-first (`vp env off <tool>`).
   programs.zsh.initContent = ''
-    path=("$HOME/.local/share/vite-plus/bin" ''${path:#$HOME/.local/share/vite-plus/bin})
+    path=(
+      "$HOME/.local/share/vite-plus/bin"
+      ''${path:#$HOME/.local/share/vite-plus/(bin|fallback-bin)}
+      "$HOME/.local/share/vite-plus/fallback-bin"
+    )
   '';
 
   home.activation.vitePlusDropSelfManagedVp = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
