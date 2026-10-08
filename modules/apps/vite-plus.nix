@@ -14,20 +14,21 @@
 # bun. Its attempt to add ~/.config/vite-plus/env to the shell profile fails
 # harmlessly against HM's read-only .zshrc.
 #
-# vp manages the Node.js version: in managed mode (`vp env on`, run once by
-# hand — it's stored in ~/.config/vite-plus/config.json) the shims pick the
-# version a project asks for (package.json `engines`/`devEngines`,
-# .node-version, .nvmrc, or `vp env pin`) and download it on demand, falling
-# back to `vp env default`. Those runtimes live in vp's data dir, outside the
-# store, much as uv manages Python. Nix's `pkgs.nodejs` (core/home.nix) is
-# then only reached through `vp env off`.
+# vp runs in system-first mode (`vp env off`, run once by hand — it's stored
+# in ~/.config/vite-plus/config.json). Plain `node`/`npm`/`pnpm` stay Nix's
+# everywhere; commands run through vp (`vp node`, `vp env exec`, `vp dev`, …)
+# use the version the project asks for (package.json `devEngines`/`engines`,
+# .node-version, .nvmrc, or `vp env pin`), downloaded on demand into vp's
+# data dir, outside the store, much as uv manages Python. vp's default,
+# managed mode (`vp env on`) would make the shims pick the project's version
+# for plain `node` too, and vp's own default outside projects.
 #
-# The shims only work ahead of Nix's node on PATH, so this module puts the
-# shim dir first itself rather than sourcing vp's env script (which would
-# also run `vp` on every shell start for completions). That dir also gets
-# vp/vpr/vpx links to vp's self-managed copy, which would shadow this pinned
-# one, so activation removes them. Don't use `vp upgrade` — bump the pin
-# here instead.
+# PATH is set here rather than by sourcing vp's env script (which would also
+# run `vp` on every shell start for completions). In system-first mode the
+# node/npm/pnpm shims sit in fallback-bin, after Nix's tools; in managed mode
+# they move to bin, ahead of them. bin also gets vp/vpr/vpx links to vp's
+# self-managed copy, which would shadow this pinned one, so activation
+# removes them. Don't use `vp upgrade` — bump the pin here instead.
 { config, pkgs, lib, ... }:
 let
   version = "1.1.0";
@@ -58,12 +59,11 @@ in
 {
   home.packages = [ vite-plus ];
 
-  # In .zshrc rather than home.sessionPath: /etc/zshrc and the login-shell
-  # files run after .zshenv and prepend their own entries, which would put
-  # Nix's node back in front. GUI apps that read the login shell's
-  # environment (VS Code) pick this up too.
-  # fallback-bin goes last, as in vp's own env script: it holds the shims
-  # for anything switched back to system-first (`vp env off <tool>`).
+  # bin first and fallback-bin last, as in vp's own env script. In .zshrc
+  # rather than home.sessionPath: /etc/zshrc and the login-shell files run
+  # after .zshenv and prepend their own entries, which would put Nix's tools
+  # back in front of bin. GUI apps that read the login shell's environment
+  # (VS Code) pick this up too.
   programs.zsh.initContent = ''
     path=(
       "$HOME/.local/share/vite-plus/bin"

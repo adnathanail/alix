@@ -105,7 +105,7 @@ macOS settings (`modules/core/macos.nix`)
 - [uv tools](./modules/apps/uvtools.nix)
 - pnpm (Node package manager)
 - nx (Nx monorepo CLI)
-- Vite+ (`vp`, `vpr`, `vpx` — VoidZero's web toolchain CLI; prebuilt binary; its shims (first on PATH) pick each project's Node.js version; `vp env off` hands back to Nix's `node`)
+- Vite+ (`vp`, `vpr`, `vpx` — VoidZero's web toolchain CLI; prebuilt binary; commands run through `vp` use each project's pinned Node.js version, while plain `node` stays Nix's)
 - [clonager](https://github.com/adnathanail/clonager) (tracks the git clones on this laptop; config in `~/.config/nix-private/clonager/config.yaml`, which `clonager discover` edits in place; `cs` = `clonager status`; cmd-clicking a repo name opens it in VS Code)
 - gh (GitHub) — `git_protocol: ssh`
 - doctl (DigitalOcean)
