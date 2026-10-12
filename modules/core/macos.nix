@@ -24,6 +24,10 @@
     { app = "/Users/${username}/Applications/Home Manager Apps/Visual Studio Code.app"; }
     { app = "/Applications/GitButler.app"; }
     { spacer = { small = true; }; }
+    # Pinned so the Dock keeps its unread badge while it's closed, which
+    # SketchyBar's notifications item reads (modules/interface/hammerspoon/
+    # notifications.lua).
+    { app = "/System/Applications/Messages.app"; }
   ];
 
   # Menu-bar clock: 24h time with seconds, no date.

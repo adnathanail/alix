@@ -9,8 +9,10 @@
 --     `-long` dump is searched instead.)
 --   * Messages badges through the notification system (UNUserNotificationCenter),
 --     which leaves lsappinfo's StatusLabel unset and only the Dock drawing
---     it. So its count is read off its Dock item through Accessibility, which
---     needs Messages in the Dock: running, since it isn't pinned.
+--     it. So its count is read off its Dock item through Accessibility.
+--     Messages is pinned in the Dock (modules/core/macos.nix), and the Dock
+--     keeps a pinned app's badge after it quits, so this works with
+--     Messages closed too.
 --   * MailMate draws its Dock icon itself, so it has no badge for anything
 --     to read. Its own menu-bar counters do carry their counts as titles,
 --     read here through Accessibility. Those items carry only the number,
@@ -40,12 +42,11 @@ local function dockBadge(bundleID)
 end
 
 -- The badge the Dock draws on an app's icon, for apps whose badge
--- lsappinfo can't see.
-local function dockItemBadge(bundleID)
-  local app = hs.application.get(bundleID)
+-- lsappinfo can't see. Matched by the Dock item's title, so it also finds
+-- a pinned app that isn't running.
+local function dockItemBadge(_, name)
   local dock = hs.application.get("com.apple.dock")
-  if not app or not dock then return nil end
-  local name = app:name()
+  if not dock then return nil end
   for _, list in ipairs(hs.axuielement.applicationElement(dock):attributeValue("AXChildren") or {}) do
     for _, dockItem in ipairs(list:attributeValue("AXChildren") or {}) do
       if dockItem:attributeValue("AXTitle") == name then
@@ -112,7 +113,7 @@ end
 local function check()
   local found = {}
   for _, source in ipairs(sources) do
-    local ok, badge = pcall(source.read, source.bundleID)
+    local ok, badge = pcall(source.read, source.bundleID, source.name)
     if ok and badge then
       table.insert(found, { source = source, badge = badge })
     end
