@@ -1,5 +1,5 @@
 -- Local addition: the icons of the apps with something unread (Slack,
--- MailMate) and their combined count, hidden while there's nothing.
+-- Messages, MailMate) and their combined count, hidden while there's nothing.
 --
 -- Hammerspoon does the reading and sets this item's drawing, icons and
 -- label directly (modules/interface/hammerspoon/notifications.lua). A click asks it

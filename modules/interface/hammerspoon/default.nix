@@ -1,8 +1,8 @@
 # Hammerspoon — Lua desktop automation. https://www.hammerspoon.org
 #
 # Does Fn+2 → € and Fn+3 → # (./init.lua), in place of the ⌥-typed
-# characters AeroSpace's bindings take over, and reads Slack's and MailMate's
-# unread counts for SketchyBar's notifications item (./notifications.lua).
+# characters AeroSpace's bindings take over, and reads Slack's, Messages' and
+# MailMate's unread counts for SketchyBar's notifications item (./notifications.lua).
 # Hyper + a workspace's digit focuses or opens a Safari window in that
 # workspace's profile (./safari.lua, generated from ../profiles.nix).
 #

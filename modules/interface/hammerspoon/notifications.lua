@@ -1,4 +1,4 @@
--- Unread counts from Slack and MailMate, shown by SketchyBar's
+-- Unread counts from Slack, Messages and MailMate, shown by SketchyBar's
 -- widgets.notifications item (modules/interface/sketchybar/config/items/
 -- notifications.lua), which is always on screen. Clicking it opens a native
 -- menu from here — one line per app, choosing one focuses that app.
@@ -7,6 +7,10 @@
 --   * Slack sets an ordinary Dock badge, read with lsappinfo. (Its
 --     `-only StatusLabel` comes back empty on this macOS, so the full
 --     `-long` dump is searched instead.)
+--   * Messages badges through the notification system (UNUserNotificationCenter),
+--     which leaves lsappinfo's StatusLabel unset and only the Dock drawing
+--     it. So its count is read off its Dock item through Accessibility, which
+--     needs Messages in the Dock: running, since it isn't pinned.
 --   * MailMate draws its Dock icon itself, so it has no badge for anything
 --     to read. Its own menu-bar counters do carry their counts as titles,
 --     read here through Accessibility. Those items carry only the number,
@@ -35,6 +39,25 @@ local function dockBadge(bundleID)
   return label
 end
 
+-- The badge the Dock draws on an app's icon, for apps whose badge
+-- lsappinfo can't see.
+local function dockItemBadge(bundleID)
+  local app = hs.application.get(bundleID)
+  local dock = hs.application.get("com.apple.dock")
+  if not app or not dock then return nil end
+  local name = app:name()
+  for _, list in ipairs(hs.axuielement.applicationElement(dock):attributeValue("AXChildren") or {}) do
+    for _, dockItem in ipairs(list:attributeValue("AXChildren") or {}) do
+      if dockItem:attributeValue("AXTitle") == name then
+        local label = dockItem:attributeValue("AXStatusLabel")
+        if label == nil or label == "" then return nil end
+        return label
+      end
+    end
+  end
+  return nil
+end
+
 local function mailmateUnread(bundleID)
   local app = hs.application.get(bundleID)
   if not app then return nil end
@@ -49,6 +72,7 @@ local sources = {
   -- glyph: the app's sketchybar-app-font icon, shown in the bar while it has
   -- something (the font's own icon map gives each app's).
   { name = "Slack", bundleID = "com.tinyspeck.slackmacgap", glyph = ":slack:", read = dockBadge },
+  { name = "Messages", bundleID = "com.apple.MobileSMS", glyph = ":messages:", read = dockItemBadge },
   { name = "MailMate", bundleID = "com.freron.MailMate", glyph = ":mail:", read = mailmateUnread },
 }
 
