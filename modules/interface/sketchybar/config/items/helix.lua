@@ -1,5 +1,5 @@
 local colors = require("colors")
-local settings = require("settings")
+local hint_pill = require("helpers.hint_pill")
 
 -- Helix key hints, shown beside the app menus (the second step of
 -- items/menubar.lua's cycle) while the focused window is a Ghostty window
@@ -9,32 +9,12 @@ local settings = require("settings")
 -- line, so a title of `hx …` means Helix is in the foreground. That is
 -- checked whenever focus moves. Starting or quitting hx changes no focus, so
 -- a zsh hook (../../default.nix) triggers `helix_change HELIX=on|off` too.
-local hint = sbar.add("item", "helix.hint", {
-  drawing = false,
-  -- Hidden items skip their event handlers by default, which would leave
-  -- it unable to show itself.
-  updates = true,
-  icon = {
-    string = "HELIX",
-    color = colors.black,
-    font = { style = settings.font.style_map["Heavy"], size = 12.0 },
-    padding_left = 10,
-    padding_right = 6,
-  },
-  label = {
-    string = "i a insert · v select · w b e word · x line · d c delete/change"
-      .. " · y p yank/paste · u U undo/redo · gg ge top/end · / n search"
-      .. " · ␣ menu · :w :q",
-    color = colors.black,
-    font = { style = settings.font.style_map["Semibold"], size = 12.0 },
-    padding_right = 10,
-  },
-  background = {
-    color = colors.magenta,
-    border_color = colors.black,
-    border_width = 1,
-    height = 26,
-  },
+local hint = hint_pill("helix.hint", {
+  tag = "HELIX",
+  hints = "i a insert · v select · w b e word · x line · d c delete/change"
+    .. " · y p yank/paste · u U undo/redo · gg ge top/end · / n search"
+    .. " · ␣ menu · :w :q",
+  color = colors.magenta,
   padding_left = 7,
 })
 

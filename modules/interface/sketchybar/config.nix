@@ -38,6 +38,8 @@
 #     and unread count, pushed in by Hammerspoon
 #   - items/helix.lua (+ its require): new, a Helix key-hint pill beside
 #     the app menus while the focused Ghostty window is running hx
+#   - helpers/hint_pill.lua: new, the key-hint pill that items/aerospace_mode.lua
+#     and items/helix.lua build theirs from
 #
 # Upstream assumes a mutable ~/.config/sketchybar, which the store isn't, so
 # this derivation fixes up the three places that break:
