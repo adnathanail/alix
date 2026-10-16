@@ -25,7 +25,7 @@
 
   home.packages = [
     pkgs.python3
-    pkgs.uv
+    pkgs.master.uv
     pkgs.nodejs
     # Names the configuration explicitly: without `#<name>`, darwin-rebuild
     # picks it by `scutil --get LocalHostName`, which differs on a new Mac.

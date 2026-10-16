@@ -25,7 +25,7 @@ let
   # `--from <spec> <name>` rather than plain `uv tool run <name>` so the
   # package installed from and the executable run stay decoupled.
   mkUvTool = name: spec: pkgs.writeShellScriptBin name ''
-    exec ${pkgs.uv}/bin/uv tool run --from ${lib.escapeShellArg spec} ${lib.escapeShellArg name} "$@"
+    exec ${pkgs.master.uv}/bin/uv tool run --from ${lib.escapeShellArg spec} ${lib.escapeShellArg name} "$@"
   '';
 in {
   home.packages = lib.mapAttrsToList mkUvTool uvTools;

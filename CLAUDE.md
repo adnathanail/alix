@@ -86,6 +86,7 @@ feature module picks its own fresher package where it's used:
 
 - `modules/core/dev.nix` — `pkgs.master.claude-code` (as `programs.claude-code.package`)
 - `modules/apps/other.nix` — `pkgs.unstable.prek`
+- `modules/core/home.nix` — `pkgs.unstable.uv` (also used by the shims in `modules/apps/uvtools.nix`)
 - `modules/interface/aerospace.nix` — `services.aerospace.package = pkgs.unstable.aerospace`
 - `modules/core/vscode.nix` — `programs.vscode.package = pkgs.unstable.vscode`
 - `modules/interface/sketchybar/default.nix` — its patch overlay builds from
