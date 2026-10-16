@@ -157,6 +157,29 @@ in {
   home-manager.users.${username} = { pkgs, ... }: {
     home.packages = [ pkgs.sketchybar ];
 
+    # Tells the Helix key-hint pill (config/items/helix.lua) when hx starts
+    # and quits in Ghostty. Starting a program changes no focus, so nothing
+    # else would tell it.
+    programs.zsh.initContent = ''
+      if [[ $TERM_PROGRAM == ghostty ]]; then
+        autoload -Uz add-zsh-hook
+        _sketchybar_helix_preexec() {
+          if [[ $1 == hx || $1 == "hx "* ]]; then
+            _sketchybar_in_helix=1
+            sketchybar --trigger helix_change HELIX=on
+          fi
+        }
+        _sketchybar_helix_precmd() {
+          if (( ''${_sketchybar_in_helix:-0} )); then
+            _sketchybar_in_helix=0
+            sketchybar --trigger helix_change HELIX=off
+          fi
+        }
+        add-zsh-hook preexec _sketchybar_helix_preexec
+        add-zsh-hook precmd _sketchybar_helix_precmd
+      fi
+    '';
+
     # recursive: per-file links inside a real directory rather than one
     # directory symlink, so HM never has to replace an existing
     # ~/.config/sketchybar directory (a collision).

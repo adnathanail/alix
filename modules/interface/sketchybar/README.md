@@ -30,6 +30,7 @@ Modifications from FelixKratz's setup:
 - Custom app icons built into the font from `app-font/` (currently GitButler): add `svgs/:name:.svg` (24×24, solid shapes) and `mappings/:name:` (the app names, e.g. `"GitButler"`)
 - Safari button (between Spotify and the widgets) for the current workspace's profile: coloured by the profile, it focuses that profile's open Safari window or opens a new one (Personal on workspaces without a profile) — `config/items/safari.lua`
 - Red "SERVICE" pill with the key hints while AeroSpace is in service mode, and a blue ⌥ pill with the main-mode hints while Option is held (`option-hint.c` watches the key)
+- Purple HELIX pill with Helix key hints next to the app menus, while the focused window is Ghostty running `hx` — spotted from the window title (Ghostty's shell integration sets it to the running command) on focus changes, plus a zsh hook in `default.nix` for when hx starts or quits (`config/items/helix.lua`)
 - Lock/unlock animation ([Source](https://github.com/nicolas-martin/awesome-sketchybar/blob/master/plugins/Simple-LockUnlock-Animation.md))
 - Replace media with Spotify-specific setup, because macOS removed their private media API
 

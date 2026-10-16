@@ -1,6 +1,7 @@
 require("items.apple")
 require("items.aerospace_mode")
 require("items.menus")
+require("items.helix")
 require("items.spaces")
 require("items.front_app")
 require("items.safari")
