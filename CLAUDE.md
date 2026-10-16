@@ -86,7 +86,7 @@ feature module picks its own fresher package where it's used:
 
 - `modules/core/dev.nix` — `pkgs.master.claude-code` (as `programs.claude-code.package`)
 - `modules/apps/other.nix` — `pkgs.unstable.prek`
-- `modules/core/home.nix` — `pkgs.unstable.uv` (also used by the shims in `modules/apps/uvtools.nix`)
+- `modules/core/home.nix` — `pkgs.master.uv` (also used by the shims in `modules/apps/uvtools.nix`)
 - `modules/interface/aerospace.nix` — `services.aerospace.package = pkgs.unstable.aerospace`
 - `modules/core/vscode.nix` — `programs.vscode.package = pkgs.unstable.vscode`
 - `modules/interface/sketchybar/default.nix` — its patch overlay builds from
@@ -95,12 +95,12 @@ feature module picks its own fresher package where it's used:
 Do the same for anything new that needs to be fresher than the pin. Plain `pkgs.<name>` stays
 stable, so reference the fresher one explicitly everywhere it's needed.
 
-`claude-code` draws from its own `nixpkgs-master` input — raw `master`, not the
+`claude-code` and `uv` draw from their own `nixpkgs-master` input — raw `master`, not the
 `nixpkgs-unstable` channel branch. `nixpkgs-unstable` only advances once Hydra's build/test gate
 promotes a `master` commit, which can lag a same-day claude-code release by hours to a day;
 tracking `master` directly picks up each release the moment nixpkgs merges it. This is safe here
-specifically because only the single `claude-code` derivation is taken from it (a
-`fetchurl`'d binary, no wide dependency surface) — the usual risk of tracking unvetted `master`
+specifically because only those two derivations are taken from it (claude-code is a
+`fetchurl`'d binary; uv is a self-contained Rust build) — the usual risk of tracking unvetted `master`
 (a broken build for some other package) doesn't apply. `nix flake update nixpkgs-master` moves
 independently of `nixpkgs-unstable`.
 

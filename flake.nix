@@ -5,13 +5,14 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-    # claude-code tracks raw `master` rather than the `nixpkgs-unstable`
+    # claude-code and uv track raw `master` rather than the `nixpkgs-unstable`
     # channel branch. `nixpkgs-unstable` only advances once Hydra's
     # build/test gate promotes a `master` commit, which can lag same-day
     # package bumps (e.g. a new claude-code release) by hours to a day.
-    # Since the overlay only cherry-picks the single claude-code derivation
-    # (a fetchurl'd binary, not a build with a wide dependency surface), the
-    # usual risk of tracking unvetted `master` is low here.
+    # Since only those two derivations are taken from it (claude-code is a
+    # fetchurl'd binary, uv a self-contained Rust build — neither has a wide
+    # dependency surface), the usual risk of tracking unvetted `master` is
+    # low here.
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
 
     nix-darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
@@ -64,7 +65,7 @@
           system = prev.stdenv.hostPlatform.system;
           config.allowUnfree = true;   # vscode is unfree
         };
-        # claude-code tracks raw master — see the nixpkgs-master input comment.
+        # claude-code and uv track raw master — see the nixpkgs-master input comment.
         master = import nixpkgs-master {
           system = prev.stdenv.hostPlatform.system;
           config.allowUnfree = true;

@@ -1,6 +1,6 @@
 ---
 name: update-packages
-description: "Check for and apply package/dependency updates across this nix-darwin config — the 10 flake inputs (nixpkgs-master tracks raw master for claude-code; clonager is pinned to a release tag) plus everything pinned outside the flake-lock system (ExtraDock, aerospace-swipe, VS Code marketplace extensions, nx, Vite+, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
+description: "Check for and apply package/dependency updates across this nix-darwin config — the 10 flake inputs (nixpkgs-master tracks raw master for claude-code and uv; clonager is pinned to a release tag) plus everything pinned outside the flake-lock system (ExtraDock, aerospace-swipe, VS Code marketplace extensions, nx, Vite+, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
 ---
 
 # Update packages
@@ -45,7 +45,7 @@ user anything — don't mutate `flake.lock` or any source file in this phase.
 |---|---|
 | `nixpkgs` | `nixpkgs-26.05-darwin` branch |
 | `nixpkgs-unstable` | `nixpkgs-unstable` branch |
-| `nixpkgs-master` | `master` branch (used only for `claude-code`, to avoid `nixpkgs-unstable`'s channel-promotion lag) |
+| `nixpkgs-master` | `master` branch (used only for `claude-code` and `uv`, to avoid `nixpkgs-unstable`'s channel-promotion lag) |
 | `nix-darwin` | `nix-darwin-26.05` branch |
 | `home-manager` | `release-26.05` branch |
 | `nix-homebrew` | default branch (also carries its own `brew-src` sub-pin, which updates alongside it) |
