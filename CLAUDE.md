@@ -17,7 +17,7 @@ living at `~/.config/nix-darwin/`.
 | Path | Owns |
 | --- | --- |
 | `flake.nix` | inputs, unstable overlay, Homebrew settings (`onActivation`, `greedyCasks`), nix-homebrew + HM wiring |
-| `modules/apps/other.nix` | apps too small for their own module: the Homebrew casks and brews, the Safari extensions (1Password, Save to Raindrop.io), and small CLIs added to the HM packages (`prek`, `pnpm`, `doctl`, `psql`, the MariaDB client), and `programs.gh` (git protocol SSH), and the fonts in `fonts.packages` (TeX Gyre Schola) |
+| `modules/apps/other.nix` | apps too small for their own module: the Homebrew casks and brews, the Safari extensions (1Password, Save to Raindrop.io), and small CLIs added to the HM packages (`prek`, `pnpm`, `doctl`, `psql`, the MariaDB client, Zed, Helix), and `programs.gh` (git protocol SSH), and the fonts in `fonts.packages` (TeX Gyre Schola) |
 | `modules/interface/other.nix` | interface tools too small for their own module — currently the Raycast cask |
 | `modules/interface/README.md` | user-facing list of the interface config (AeroSpace, Hammerspoon, Raycast, SketchyBar) |
 | `modules/interface/profiles.nix` | the profiles (Fermioniq, ASAC, …): name, workspace, colour, optional app bundle IDs. Plain data, imported by `aerospace.nix` (window rules), `sketchybar/config.nix` (generates `profiles.lua` for the pill colours), `burly/burly.nix` (destinations) and `hammerspoon/default.nix` (Safari hotkeys) |
@@ -85,7 +85,7 @@ exposes `nixpkgs-unstable` as `pkgs.unstable` and `nixpkgs-master` as `pkgs.mast
 feature module picks its own fresher package where it's used:
 
 - `modules/core/dev.nix` — `pkgs.master.claude-code` (as `programs.claude-code.package`)
-- `modules/apps/other.nix` — `pkgs.unstable.prek`
+- `modules/apps/other.nix` — `pkgs.unstable.prek`, `pkgs.unstable.zed-editor`
 - `modules/core/home.nix` — `pkgs.master.uv` (also used by the shims in `modules/apps/uvtools.nix`)
 - `modules/interface/aerospace.nix` — `services.aerospace.package = pkgs.unstable.aerospace`
 - `modules/core/vscode.nix` — `programs.vscode.package = pkgs.unstable.vscode`

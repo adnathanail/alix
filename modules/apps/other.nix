@@ -29,6 +29,10 @@
       # MySQL CLI: MariaDB's client-only output, since stable has no
       # client-only MySQL build (see CLAUDE.md → mysql CLI).
       pkgs.mariadb.client
+      # Zed editor; from unstable because stable lags its weekly releases.
+      # nixpkgs builds it with the in-app updater disabled.
+      pkgs.unstable.zed-editor
+      pkgs.helix          # `hx`, modal terminal editor
     ];
   };
 
