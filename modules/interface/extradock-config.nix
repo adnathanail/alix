@@ -79,6 +79,17 @@ let
   slack = app "com.tinyspeck.slackmacgap" "/Applications/Slack.app";
   whatsapp = app "net.whatsapp.WhatsApp" "/Applications/WhatsApp.app";
 
+  # Folders
+  # Newest first, as a list.
+  downloads = lib.recursiveUpdate (folder "/Users/adnathanail/Downloads") {
+    folder.customization.folderBrowser = {
+      descending = true;
+      foldersFirst = false;
+      layout = "list";
+      sort = "modified";
+    };
+  };
+
   # --- Docks ----------------------------------------------------------------
   # All sit on the bottom edge. `alignment` is leading / center / trailing.
 
@@ -94,7 +105,7 @@ let
         spacer
         vscode
         gitbutler
-        (folder "/Users/adnathanail/Downloads")
+        downloads
         trash
       ];
     }
