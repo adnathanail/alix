@@ -89,6 +89,7 @@ macOS settings (`modules/core/macos.nix`)
 - Pika (colour picker with contrast checking)
 - Zotero (reference manager; Safari connector is bundled in the app)
 - Affinity (Canva's unified Designer / Photo / Publisher app)
+- qBittorrent (torrent client)
 - Zed (`nixpkgs-unstable`; editor, `zeditor` on the command line)
 - ExtraDock 5 (customizable extra docks; direct-download package, see `modules/interface/extradock.nix`; docks and settings in `modules/interface/extradock-config.nix`, applied on `ns` over its MCP by `extradock-apply`)
 - Xcode
