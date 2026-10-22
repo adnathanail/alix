@@ -31,13 +31,13 @@
 # removes them. Don't use `vp upgrade` — bump the pin here instead.
 { config, pkgs, lib, ... }:
 let
-  version = "1.1.0";
+  version = "1.3.0";
   vite-plus = pkgs.stdenvNoCC.mkDerivation {
     pname = "vite-plus";
     inherit version;
     src = pkgs.fetchurl {
       url = "https://registry.npmjs.org/@voidzero-dev/vite-plus-cli-darwin-arm64/-/vite-plus-cli-darwin-arm64-${version}.tgz";
-      hash = "sha512-PFpvpBUCqlvS1f2oCsNHnJSFHT7SOK/QeCJwhs/GLcvtOyyAY4tT6QmxyZzom4D33g63GfZ6y25e3yyFkchncg==";
+      hash = "sha512-F6e5Mk8ysDNzIBOmy1Vd6PJdwYrTz7AKPLfRDlYEQQDMr7aq8RFXMbWrrof0TroRnF0wbF+SC2m70T4rX74HHA==";
     };
     installPhase = ''
       runHook preInstall
