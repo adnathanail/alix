@@ -18,8 +18,8 @@
     (pkgs.vscode-utils.extensionFromVscodeMarketplace {
       publisher = "ms-vscode";
       name = "wasm-wasi-core";
-      version = "1.0.2";
-      sha256 = "sha256-hrzPNPaG8LPNMJq/0uyOS8jfER1Q0CyFlwR42KmTz8g=";
+      version = "1.0.4";
+      sha256 = "sha256-veFVo6QkzYLFJ9/W6A566MBQlUNGJC2pX6XbRdp6oSk=";
     })
     (pkgs.vscode-utils.extensionFromVscodeMarketplace {
       publisher = "ejgallego";
