@@ -44,7 +44,7 @@ living at `~/.config/nix-darwin/`.
 | `modules/interface/extradock.nix` | ExtraDock 5, an HM module imported by `modules/interface/default.nix` |
 | `modules/interface/extradock-config.nix` | ExtraDock's docks and settings as Nix. Applied on every `ns` by `extradock-apply` (`extradock-apply.py`, over ExtraDock's MCP); also built into an `.extradock5backup` at `~/.config/extradock/` for a fresh machine's one-off **Import Backup**. Registers the `extradock-v5` MCP server + bundled skill with Claude Code |
 | `modules/interface/burly/` | Burly (link router → Safari profiles): `burly.nix` (HM module) installs the pinned DMG and declares its settings, with a destination per profile from `profiles.nix`; `burly-apply.py` merges them into the JSON blob Burly keeps under one defaults key (`burly.settings.v1`, as Data), quitting and reopening Burly around the write. Runs on every `ns` |
-| `modules/interface/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, signing and restart; `config/` is FelixKratz's vendored Lua config (plus local tweaks), built by `config.nix` along with its C helpers; `layered-window-levels.patch` is a local SketchyBar fix; `menubar-return.m` is a tiny native status-item helper that returns from the macOS menu bar to SketchyBar; `option-hint.c` polls for a held Option key to show the AeroSpace hint pill; `config/items/helix.lua` is a Helix key-hint pill beside the app menus while the focused Ghostty window runs `hx` (title match, plus a zsh hook in `default.nix` for hx starting/quitting); `wifi-ssid.m` is a small app bundle (own launchd agent, re-signed like the server) that reads the Wi-Fi SSID with Location Services access and hands it to the wifi widget; `app-font/` holds custom glyphs (SVG + app-name mapping) that an overlay in `default.nix` builds into `sketchybar-app-font` |
+| `modules/interface/sketchybar/` | SketchyBar: `default.nix` owns fonts, launchd, signing and restart; `config/` is FelixKratz's vendored Lua config (plus local tweaks), built by `config.nix` along with its C helpers; `menubar-return.m` is a tiny native status-item helper that returns from the macOS menu bar to SketchyBar; `option-hint.c` polls for a held Option key to show the AeroSpace hint pill; `config/items/helix.lua` is a Helix key-hint pill beside the app menus while the focused Ghostty window runs `hx` (title match, plus a zsh hook in `default.nix` for hx starting/quitting); `wifi-ssid.m` is a small app bundle (own launchd agent, re-signed like the server) that reads the Wi-Fi SSID with Location Services access and hands it to the wifi widget; `app-font/` holds custom glyphs (SVG + app-name mapping) that an overlay in `default.nix` builds into `sketchybar-app-font` |
 | `modules/graveyard.nix` | Things we might want to (or already have) killed |
 | `modules/secrets/README.md` | operator steps for secrets: key generation, fresh-machine restore, adding/re-encrypting a secret |
 | `modules/secrets/agefiles/*.age`, `modules/secrets/secrets.nix` | encrypted secrets + their recipients (run `agenix` from `modules/secrets/`; keys are `agefiles/<name>.age`); the modules that consume them live alongside (env vars) or with their feature (SketchyBar) |
@@ -89,7 +89,7 @@ feature module picks its own fresher package where it's used:
 - `modules/core/home.nix` — `pkgs.master.uv` (also used by the shims in `modules/apps/uvtools.nix`)
 - `modules/interface/aerospace.nix` — `services.aerospace.package = pkgs.unstable.aerospace`
 - `modules/core/vscode.nix` — `programs.vscode.package = pkgs.unstable.vscode`
-- `modules/interface/sketchybar/default.nix` — its patch overlay builds from
+- `modules/interface/sketchybar/default.nix` — an overlay points `sketchybar` at
   `final.unstable.sketchybar`
 
 Do the same for anything new that needs to be fresher than the pin. Plain `pkgs.<name>` stays
@@ -363,14 +363,11 @@ Nix-managed unless noted.
   The last step of the bar's workspaces → menus → native-bar cycle shows the native bar by hiding SketchyBar, not by changing the setting. Only the server needs it; the CLI calls
   in the plugins keep using the store binary. Homebrew wouldn't fix it (stable path, still ad-hoc
   signed). The same pattern would work for any other Nix-built binary that needs grants.
-  Also carries a local patch, `modules/interface/sketchybar/layered-window-levels.patch` (applied by an
-  overlay in `modules/interface/sketchybar/default.nix` that builds from `final.unstable.sketchybar`):
-  macOS raises a clicked window above its same-level siblings, and upstream puts the bar
-  background, brackets and items on one level, so clicking empty bar space lifted the
-  background over every item and dimmed the whole bar until restart. The patch gives each layer
-  its own level, stacking up from the configured one (background +0, brackets +1, items +2) so that at `topmost = on` the whole bar stays above the native menu bar. Re-stacking after
-  the click instead was tried and fixed it, but flashed for the length of the click. May need
-  rebasing when SketchyBar is bumped — the build fails loudly if it no longer applies.
+  Clicking empty bar space used to lift the bar background over every item and dim the bar
+  until restart (macOS raises a clicked window above its same-level siblings). SketchyBar
+  2.24.1 fixed this upstream (FelixKratz/SketchyBar#863, window ordering groups), replacing a
+  local patch that put background, brackets and items on separate window levels. If it
+  regresses, that per-level approach is in git history.
 
 A fresh machine comes up in stages — core (including the macOS `system.defaults`) → secrets → interface → apps, each enabled by
 uncommenting its line in `flake.nix` — with the manual steps between them in `docs/FIRST_USE.md`. Only these orders evaluate: interface needs secrets' agenix

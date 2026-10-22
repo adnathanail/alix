@@ -34,10 +34,6 @@ Modifications from FelixKratz's setup:
 - Lock/unlock animation ([Source](https://github.com/nicolas-martin/awesome-sketchybar/blob/master/plugins/Simple-LockUnlock-Animation.md))
 - Replace media with Spotify-specific setup, because macOS removed their private media API
 
-## Source patch
-
-We apply a local patch (`modules/interface/sketchybar/layered-window-levels.patch`) that stops the bar dimming after a click on empty bar space
-
 ## Re-signing
 
 We resign the installed app, with a stable identity from agenix (`modules/interface/signing.nix`, shared with aerospace-swipe), so that accessibility grants stay between updates.

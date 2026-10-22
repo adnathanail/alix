@@ -104,19 +104,11 @@ let
     '';
   };
 in {
-  # Local patch: put the bar background, brackets and items on three
-  # separate window levels. Upstream shares one, and macOS raises a clicked
-  # window above its same-level siblings, so clicking empty bar space lifted
-  # the background over every item and dimmed the whole bar until SketchyBar
-  # restarted (see the patch for details).
-  #
   # Built from unstable (pkgs.unstable, from flake.nix's unstableOverlay):
   # stable's 2.23 predates the rendering rework for macOS 26+.
   nixpkgs.overlays = [
     (final: prev: {
-      sketchybar = final.unstable.sketchybar.overrideAttrs (old: {
-        patches = (old.patches or [ ]) ++ [ ./layered-window-levels.patch ];
-      });
+      sketchybar = final.unstable.sketchybar;
 
       # Custom app icons, built into the font alongside upstream's: each
       # ./app-font/svgs/:name:.svg is a glyph (24x24, solid shapes only —
