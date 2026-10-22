@@ -26,6 +26,11 @@
     # you update it via Nix instead.
     home.sessionVariables.DISABLE_AUTOUPDATER = "1";
 
+    # nixpkgs' wrapper defaults this to "system", which on macOS reads only
+    # SSL_CERT_FILE / /etc/ssl/certs and fails every API call with
+    # UNABLE_TO_GET_ISSUER_CERT_LOCALLY. Trust Bun's bundled Mozilla roots too.
+    home.sessionVariables.CLAUDE_CODE_CERT_STORE = "bundled,system";
+
     # Work uses a separate Anthropic account; CLAUDE_CONFIG_DIR points
     # Claude Code at an isolated config/credentials dir (default is
     # ~/.claude) so logging in here doesn't clobber the personal session.

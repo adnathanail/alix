@@ -222,7 +222,9 @@ Nix-managed unless noted.
 - **Claude Code** *(Nix, `pkgs.master.claude-code`, `modules/core/dev.nix`)* —
   `programs.claude-code`, plus the `claude-work` alias (separate `CLAUDE_CONFIG_DIR` for the work
   account). Self-updater off via
-  `home.sessionVariables.DISABLE_AUTOUPDATER = "1"`. The `claude symlink points to an invalid
+  `home.sessionVariables.DISABLE_AUTOUPDATER = "1"`. `CLAUDE_CODE_CERT_STORE = "bundled,system"`
+  overrides nixpkgs' wrapper default of `system`, which on macOS fails every API call with
+  `UNABLE_TO_GET_ISSUER_CERT_LOCALLY`; drop it if nixpkgs fixes the default. The `claude symlink points to an invalid
   binary` warning is a harmless false positive (Nix wraps it as a script). The VS Code extension
   and PyCharm plugin update independently of the CLI.
 - **uv tools** *(`modules/apps/uvtools.nix`)* — the escape hatch for Python CLIs nixpkgs doesn't carry at
