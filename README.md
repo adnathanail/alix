@@ -83,6 +83,7 @@ macOS settings (`modules/core/macos.nix`)
 - Telegram
 - Signal
 - Brave Browser
+- Search (small WebKit browser; direct-download package with auto-install off, see `modules/apps/search.nix`)
 - Raindrop.io
 - DeepL (translator)
 - DockFlow (Dock preset switcher)

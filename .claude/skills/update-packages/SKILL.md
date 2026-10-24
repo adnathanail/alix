@@ -1,6 +1,6 @@
 ---
 name: update-packages
-description: "Check for and apply package/dependency updates across this nix-darwin config — the 10 flake inputs (nixpkgs-master tracks raw master for claude-code and uv; clonager is pinned to a release tag) plus everything pinned outside the flake-lock system (ExtraDock, aerospace-swipe, VS Code marketplace extensions, nx, Vite+, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
+description: "Check for and apply package/dependency updates across this nix-darwin config — the 10 flake inputs (nixpkgs-master tracks raw master for claude-code and uv; clonager is pinned to a release tag) plus everything pinned outside the flake-lock system (ExtraDock, Search, aerospace-swipe, VS Code marketplace extensions, nx, Vite+, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
 ---
 
 # Update packages
@@ -17,8 +17,8 @@ All commands below assume cwd is the repo root. A session may start anywhere, so
 cd ~/.config/nix-darwin
 ```
 
-Then check the GitHub CLI is logged in — Phase 1 uses `gh` for the clonager, ExtraDock
-and aerospace-swipe checks:
+Then check the GitHub CLI is logged in — Phase 1 uses `gh` for the clonager, ExtraDock,
+Search and aerospace-swipe checks:
 
 ```bash
 gh auth status
@@ -87,6 +87,7 @@ gh api repos/adnathanail/clonager/tags --jq '.[0].name'
 | What | Pinned in | Identity |
 |---|---|---|
 | ExtraDock | `modules/interface/extradock.nix` | `AppitStudio/extra-dock5-updates`, versioned `v<version>` release tag |
+| Search (browser) | `modules/apps/search.nix` | `driceroland/Search`, versioned `v<version>` release tag (`Search.dmg` asset) |
 | aerospace-swipe | `modules/interface/aerospace-swipe.nix` | `acsandmann/aerospace-swipe`, a commit on `main` (no releases) |
 | VS Code: TikZiT | `modules/core/vscode.nix` | `alekskissinger.vstikzit` |
 | VS Code: gitbutler-vscode | `modules/core/vscode.nix` | `adnathanail/gitbutler-vscode`, `v<version>` GitHub release (`.vsix` asset, not on the marketplace) |
@@ -105,6 +106,9 @@ Check each, read-only:
 # ExtraDock — list release tags (skip -beta pre-releases); compare to `version` in
 # modules/interface/extradock.nix
 gh release list -R AppitStudio/extra-dock5-updates -L 10 --exclude-pre-releases
+
+# Search — latest release tag; compare to `version` in modules/apps/search.nix
+gh release view -R driceroland/Search --json tagName --jq .tagName
 
 # aerospace-swipe — latest commit on main
 gh api repos/acsandmann/aerospace-swipe/commits/main --jq '.sha + " " + .commit.committer.date'
@@ -189,6 +193,18 @@ nix hash file --sri --type sha256 /tmp/extradock-new.dmg
 After the user has rebuilt and relaunched ExtraDock, run `extradock-apply --dry-run`: it
 should say ExtraDock already matches. Errors or unexpected changes mean the MCP tool
 schemas moved, so `modules/interface/extradock-apply.py` needs updating.
+
+**Search:** download the new DMG to get the fresh hash, then edit `version` and `hash`
+together in `modules/apps/search.nix`:
+
+```bash
+curl -sL "https://github.com/driceroland/Search/releases/download/v<version>/Search.dmg" -o /tmp/search-new.dmg
+nix hash file --sri --type sha256 /tmp/search-new.dmg
+```
+
+Skim the release notes (`gh release view -R driceroland/Search v<version>`) — the module
+sets its `update.install` default to keep the app from installing updates itself, so a
+renamed key there would quietly turn that back on.
 
 **Vite+:** edit `version` and `hash` together in `modules/apps/vite-plus.nix`; the hash is
 the tarball's npm integrity string, used as-is:
@@ -277,7 +293,7 @@ Once every selected item is applied and confirmed:
 
 ```bash
 rm -f result                 # any `nix build` result symlink left in the repo root
-rm -rf /tmp/extradock-*.dmg /tmp/ext*.vsix /tmp/ext-extracted   # scratch downloads
+rm -rf /tmp/extradock-*.dmg /tmp/search-*.dmg /tmp/ext*.vsix /tmp/ext-extracted   # scratch downloads
 git status                   # final review — confirm only the intended files changed
 ```
 
