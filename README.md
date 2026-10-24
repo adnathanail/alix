@@ -106,6 +106,7 @@ macOS settings (`modules/core/macos.nix`)
 ### CLIs
 
 - prek
+- ShellCheck (shell script linter)
 - [uv tools](./modules/apps/uvtools.nix)
 - pnpm (Node package manager)
 - nx (Nx monorepo CLI)
