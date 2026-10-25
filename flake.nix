@@ -39,7 +39,7 @@
     agenix.inputs.nixpkgs.follows = "nixpkgs";
 
     # clonager: my git-clone tracker.
-    clonager.url = "github:adnathanail/clonager/v0.5.3";
+    clonager.url = "github:adnathanail/clonager/v0.6.0";
     clonager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
