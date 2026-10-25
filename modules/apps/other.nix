@@ -34,6 +34,7 @@
       pkgs.unstable.zed-editor
       pkgs.helix          # `hx`, modal terminal editor
       pkgs.shellcheck     # shell script linter
+      pkgs.ffmpeg         # audio/video conversion
       # Torrent client. From Nix because Homebrew disabled its cask for
       # failing Gatekeeper. Its in-app update check only links to the download
       # page; turn it off in Preferences → Advanced.
