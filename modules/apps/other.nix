@@ -25,7 +25,6 @@
       pkgs.unstable.prek
       pkgs.pnpm
       pkgs.doctl
-      pkgs.awscli2        # `aws`
       pkgs.postgresql     # psql client
       # MySQL CLI: MariaDB's client-only output, since stable has no
       # client-only MySQL build (see CLAUDE.md → mysql CLI).

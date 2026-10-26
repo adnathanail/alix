@@ -23,6 +23,7 @@
     ./eleventy.nix
     ./typst.nix
     ./go.nix
+    ./fermioniq.nix
     ./nx/nx.nix
     ./vite-plus.nix
     ./pycharm/pycharm.nix
