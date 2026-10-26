@@ -27,7 +27,7 @@ living at `~/.config/nix-darwin/`.
 | `modules/interface/safari-window.nix` | `safari-window <profile>`: focuses an open Safari window in that profile (preferring the focused workspace, matched by AeroSpace window title), else opens one (File → New Window via System Events) and loads the homepage (set here). Plain function taking `{ pkgs }`, used by SketchyBar's Safari button and Hammerspoon's `safari.lua` |
 | `modules/interface/hammerspoon/` | Hammerspoon: the cask, its prefs (config path, updater off), `init.lua` — Fn+2 → €, Fn+3 → #, standing in for the ⌥ characters AeroSpace's bindings take over — `safari.lua` (generated via `replaceVars`), hyper + workspace digit → that profile's Safari window, and `notifications.lua`, which reads Slack's, Messages' and MailMate's unread counts into SketchyBar's notifications item and pops its native menu |
 | `modules/core/home.nix` | base Home Manager config (git identity, zsh, python/uv/node, `nix-switch`) and `home.stateVersion` — imported by `modules/core/default.nix`, so core must always be enabled |
-| `modules/core/dev.nix` | Claude Code (`programs.claude-code`, updater opt-out, `claude-work` and `ncc` aliases), the Ghostty + GitButler casks, and Ghostty's config file — a darwin module with its HM part under `home-manager.users.${username}` |
+| `modules/core/dev.nix` | Claude Code (`programs.claude-code`, `settings.json` for both accounts, the status line built from `claude-statusline.sh`, updater opt-out, `claude-work` and `ncc` aliases), the Ghostty + GitButler casks, and Ghostty's config file — a darwin module with its HM part under `home-manager.users.${username}` |
 | `modules/core/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey; Touch ID for sudo |
 | `modules/core/vscode.nix` | VS Code: editor from unstable, settings, extensions (HM module) |
 | `modules/{core,apps,interface,secrets}/default.nix` | each directory's entry point, imported once from `flake.nix`: lists its nix-darwin modules in `imports` and its HM modules in `home-manager.users.${username}.imports`. Add a new module to its directory's `default.nix` (by plain path), not the root files. `username`, `privateDir` and `agenix` reach every nix-darwin module through `specialArgs` in `flake.nix`, so a module that needs them just takes `{ username, ... }:` — HM modules don't get them (use `config.home.username` there if ever needed) |
@@ -221,7 +221,13 @@ Nix-managed unless noted.
 
 - **Claude Code** *(Nix, `pkgs.master.claude-code`, `modules/core/dev.nix`)* —
   `programs.claude-code`, plus the `claude-work` alias (separate `CLAUDE_CONFIG_DIR` for the work
-  account). Self-updater off via
+  account). **`~/.claude/settings.json` and `~/.claude-work/settings.json` are read-only store
+  symlinks** generated from `claudeSettings` in `modules/core/dev.nix` — don't edit them directly
+  (or via `/config`, the `update-config` skill, `/statusline`, etc.); change `claudeSettings` and
+  ask the user to rebuild. The status line is `modules/core/claude-statusline.sh`, built into the
+  store by `writeShellApplication`, so edit it in the repo too. Project-level
+  `.claude/settings.json` / `settings.local.json` files are not Nix-managed and stay writable.
+  Self-updater off via
   `home.sessionVariables.DISABLE_AUTOUPDATER = "1"`. `CLAUDE_CODE_CERT_STORE = "bundled,system"`
   overrides nixpkgs' wrapper default of `system`, which on macOS fails every API call with
   `UNABLE_TO_GET_ISSUER_CERT_LOCALLY`; drop it if nixpkgs fixes the default. The `claude symlink points to an invalid

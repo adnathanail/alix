@@ -7,20 +7,45 @@
   # toolchain). GitButler needs /Applications.
   homebrew.casks = [ "ghostty" "gitbutler" ];
 
-  home-manager.users.${username} = { pkgs, ... }: {
+  home-manager.users.${username} = { pkgs, ... }:
+  let
+    # Status line: repo, branch, context tokens, cost, lines changed, model,
+    # 5-hour quota. Its dependencies are pinned onto PATH; bashOptions is
+    # emptied because the script expects failed lookups (e.g. no git branch)
+    # to fall through rather than abort.
+    statusline = pkgs.writeShellApplication {
+      name = "claude-statusline";
+      runtimeInputs = with pkgs; [ jq git gawk coreutils ];
+      bashOptions = [ ];
+      text = builtins.readFile ./claude-statusline.sh;
+    };
+
+    # settings.json, shared by the personal and work accounts. Nix-owned, so
+    # settings changed from inside Claude Code (e.g. /config) don't persist —
+    # change them here and rebuild.
+    claudeSettings = {
+      theme = "auto";
+      statusLine = {
+        type = "command";
+        command = "${statusline}/bin/claude-statusline";
+      };
+    };
+  in {
     # Claude Code from raw nixpkgs master (pkgs.master) — see the
-    # nixpkgs-master input comment in flake.nix. Manage config here:
-    # settings = { theme = "dark"; };
+    # nixpkgs-master input comment in flake.nix.
     programs.claude-code = {
       enable = true;
       package = pkgs.master.claude-code;
+      settings = claudeSettings;
       # User-wide CLAUDE.md (~/.claude/CLAUDE.md). Not named CLAUDE.md in
       # the repo, or Claude Code would load it as memory for this directory.
       context = ./claude-user.md;
     };
 
-    # Same user-wide instructions for the work account (claude-work, below).
+    # Same user-wide instructions and settings for the work account
+    # (claude-work, below).
     home.file.".claude-work/CLAUDE.md".source = ./claude-user.md;
+    home.file.".claude-work/settings.json".text = builtins.toJSON claudeSettings;
 
     # Stop Claude Code self-updating into the read-only store;
     # you update it via Nix instead.
