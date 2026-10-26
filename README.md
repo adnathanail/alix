@@ -115,6 +115,7 @@ macOS settings (`modules/core/macos.nix`)
 - [clonager](https://github.com/adnathanail/clonager) (tracks the git clones on this laptop; config in `~/.config/nix-private/clonager/config.yaml`, which `clonager discover` edits in place; `cs` = `clonager status`; cmd-clicking a repo name opens it in VS Code)
 - gh (GitHub) — `git_protocol: ssh`
 - doctl (DigitalOcean)
+- AWS CLI (`aws`, v2)
 - Rocq (with std++ library)
 - Typst (with the Tinymist VS Code extension)
 - Go
