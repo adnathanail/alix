@@ -83,6 +83,7 @@
     "zotero"
     # Affinity by Canva — the unified Designer/Photo/Publisher app.
     "affinity"
+    "sourcetree"
   ];
 
   homebrew.brews = [
