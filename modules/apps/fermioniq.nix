@@ -2,6 +2,7 @@
   # CLIs for Fermioniq's cloud infrastructure.
   home.packages = [
     pkgs.awscli2        # `aws`
+    pkgs.ssm-session-manager-plugin  # `session-manager-plugin`, for `aws ssm start-session`
     pkgs.opentofu       # `tofu`, open-source Terraform fork
   ];
 

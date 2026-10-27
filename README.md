@@ -115,7 +115,7 @@ macOS settings (`modules/core/macos.nix`)
 - [clonager](https://github.com/adnathanail/clonager) (tracks the git clones on this laptop; config in `~/.config/nix-private/clonager/config.yaml`, which `clonager discover` edits in place; `cs` = `clonager status`; cmd-clicking a repo name opens it in VS Code)
 - gh (GitHub) — `git_protocol: ssh`
 - doctl (DigitalOcean)
-- [Fermioniq](./modules/apps/fermioniq.nix): AWS CLI (`aws`, v2), OpenTofu (`tofu`), mise (per-project tool versions, activated in zsh)
+- [Fermioniq](./modules/apps/fermioniq.nix): AWS CLI (`aws`, v2) with the Session Manager plugin (`aws ssm start-session`), OpenTofu (`tofu`), mise (per-project tool versions, activated in zsh)
 - Rocq (with std++ library)
 - Typst (with the Tinymist VS Code extension)
 - Go
