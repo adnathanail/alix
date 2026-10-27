@@ -79,6 +79,7 @@ macOS settings (`modules/core/macos.nix`)
 - GIMP
 - UTM
 - Sourcetree
+- LibreOffice
 - Anki
 - Private Internet Access (VPN)
 - Telegram

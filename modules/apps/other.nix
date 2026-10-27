@@ -84,6 +84,10 @@
     # Affinity by Canva — the unified Designer/Photo/Publisher app.
     "affinity"
     "sourcetree"
+    # Office suite (Writer, Calc, Impress — one app). Its update check only
+    # links to the download page; turn it off in Preferences → LibreOffice →
+    # Online Update.
+    "libreoffice"
   ];
 
   homebrew.brews = [
