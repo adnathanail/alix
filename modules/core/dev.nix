@@ -29,6 +29,23 @@
         type = "command";
         command = "${statusline}/bin/claude-statusline";
       };
+      # Play a sound whenever Claude finishes a turn, and a different one
+      # when it stops to ask for permission.
+      hooks.Stop = [{
+        hooks = [{
+          type = "command";
+          command = "/usr/bin/afplay /System/Library/Sounds/Glass.aiff";
+          async = true;
+        }];
+      }];
+      hooks.Notification = [{
+        matcher = "permission_prompt";
+        hooks = [{
+          type = "command";
+          command = "/usr/bin/afplay /System/Library/Sounds/Ping.aiff";
+          async = true;
+        }];
+      }];
     };
   in {
     # Claude Code from raw nixpkgs master (pkgs.master) — see the

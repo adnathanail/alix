@@ -30,7 +30,7 @@ Ask Claude Code to run the `update-packages` skill
 ### Core
 
 Apps
-- Claude Code (`nixpkgs-master`), with a user-wide `CLAUDE.md` from `modules/core/claude-user.md`, a Nix-managed `settings.json` and a status line script (`modules/core/claude-statusline.sh`), shared with the `claude-work` account
+- Claude Code (`nixpkgs-master`), with a user-wide `CLAUDE.md` from `modules/core/claude-user.md`, a Nix-managed `settings.json`, a status line script (`modules/core/claude-statusline.sh`) and sounds when a turn finishes or a permission prompt appears (`Stop` and `Notification` hooks), shared with the `claude-work` account
 - VS Code (`nixpkgs-unstable`)
 - 1Password
 - GitButler
