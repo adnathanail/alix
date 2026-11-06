@@ -55,6 +55,16 @@
           version = "2.1.0";
           sha256 = "sha256-pZZHV9vcF5bx3DE4AyoNoPdzzhPE+DlhK1kQg5+pwGI=";
         })
+        # OpenTofu — language support for .tf/.tofu files. Not in the stable
+        # nixpkgs extension set, so it comes straight from the marketplace.
+        # Published per platform, hence arch; bump version + sha256 together.
+        (pkgs.vscode-utils.extensionFromVscodeMarketplace {
+          publisher = "opentofu";
+          name = "vscode-opentofu";
+          version = "0.6.3";
+          arch = "darwin-arm64";
+          sha256 = "sha256-Evrp8coF3nR0TDhH4u9TOj4Qyq+KL9P4ry8V8//DJsk=";
+        })
       ];
       userSettings = {
         # Open Claude code in terminal

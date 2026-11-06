@@ -92,6 +92,7 @@ gh api repos/adnathanail/clonager/tags --jq '.[0].name'
 | VS Code: TikZiT | `modules/core/vscode.nix` | `alekskissinger.vstikzit` |
 | VS Code: gitbutler-vscode | `modules/core/vscode.nix` | `adnathanail/gitbutler-vscode`, `v<version>` GitHub release (`.vsix` asset, not on the marketplace) |
 | VS Code: Highlight | `modules/core/vscode.nix` | `fabiospampinato.vscode-highlight` |
+| VS Code: OpenTofu | `modules/core/vscode.nix` | `opentofu.vscode-opentofu`, per-platform builds (`arch = "darwin-arm64"`) |
 | VS Code: Nunjucks | `modules/apps/eleventy.nix` | `ronnidc.nunjucks` |
 | VS Code: WASM WASI Core | `modules/apps/rocq.nix` | `ms-vscode.wasm-wasi-core` |
 | VS Code: coq-lsp | `modules/apps/rocq.nix` | `ejgallego.coq-lsp` |
@@ -246,6 +247,9 @@ gzips the response and the raw bytes won't hash-match otherwise), hash it, edit
 curl -sL --compressed "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/<publisher>/vsextensions/<name>/<newversion>/vspackage" -o /tmp/ext.vsix
 nix hash file --sri --type sha256 /tmp/ext.vsix
 ```
+
+An extension with an `arch` in its Nix entry publishes per-platform builds, so append
+`?targetPlatform=<arch>` to that URL to hash the same file Nix fetches.
 
 For a major-version bump, skim the changelog before applying — it's usually bundled
 inside the vsix:
