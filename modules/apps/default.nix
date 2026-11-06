@@ -14,7 +14,6 @@
     ./macapps.nix   # Mac App Store apps (iMovie, Reeder, …)
     ./clonager.nix  # clonager CLI + its config (from nix-private)
     ./eduroam.nix   # UvA eduroam Wi-Fi profile (username + CAs from nix-private)
-    ./search.nix    # Search, a small WebKit browser (direct-download package)
     ./rex.nix       # Rex Beta (direct-download package)
   ];
 

@@ -85,7 +85,6 @@ macOS settings (`modules/core/macos.nix`)
 - Telegram
 - Signal
 - Brave Browser
-- Search (small WebKit browser; direct-download package with auto-install off, see `modules/apps/search.nix`)
 - Rex Beta (direct-download package with update checks off, download location in nix-private; if the DMG isn't in the Nix store, the rebuild fails with the command to add it; see `modules/apps/rex.nix`)
 - Raindrop.io
 - DeepL (translator)
