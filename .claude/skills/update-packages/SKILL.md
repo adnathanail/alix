@@ -260,7 +260,7 @@ cat /tmp/ext-extracted/extension/*hangelog* 2>/dev/null
 
 ```bash
 # edit modules/apps/nx/package.json's "nx" version first
-cd nx && npm install --package-lock-only --ignore-scripts && cd ..
+(cd modules/apps/nx && npm install --package-lock-only --ignore-scripts)
 nix run nixpkgs#prefetch-npm-deps -- modules/apps/nx/package-lock.json
 ```
 
