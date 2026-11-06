@@ -144,7 +144,6 @@ let
     general = {
       alwaysOpaqueDockBackgrounds = false;
       appMode = "menuBarOnly";
-      crashReportingEnabled = true;
       dockThemes = [ ];
       gestures = {
         clickChordsEnabled = false;
