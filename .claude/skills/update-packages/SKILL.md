@@ -1,6 +1,6 @@
 ---
 name: update-packages
-description: "Check for and apply package/dependency updates across this nix-darwin config — the 10 flake inputs (nixpkgs-master tracks raw master for claude-code and uv; clonager is pinned to a release tag) plus everything pinned outside the flake-lock system (ExtraDock, Search, Rex Beta, aerospace-swipe, VS Code marketplace extensions, nx, Vite+, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
+description: "Check for and apply package/dependency updates across this nix-darwin config — the 10 flake inputs (nixpkgs-master tracks raw master for claude-code and uv; clonager is pinned to a release tag) plus everything pinned outside the flake-lock system (ExtraDock, Search, Rex Beta, aerospace-swipe, VS Code marketplace extensions, nx, Vite+, uv tools), plus Homebrew and Mac App Store app upgrades, which `ns` doesn't do. Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
 ---
 
 # Update packages
@@ -142,6 +142,17 @@ curl -s https://pypi.org/pypi/<package>/json | jq -r .info.version
 
 Delete the `/tmp/extradock-check.dmg` scratch file once done with it.
 
+### Installed Homebrew and Mac App Store apps
+
+`ns` never upgrades these (`onActivation.upgrade = false` in `flake.nix`), so check what's
+behind. `brew` compares against the currently locked tap pins; the App Store has no pin, so `mas`
+compares against what's live:
+
+```bash
+brew outdated --greedy --verbose
+mas outdated
+```
+
 Report the results as one table (source → current → latest → update available y/n)
 before moving to Phase 2.
 
@@ -174,6 +185,10 @@ symlinks the repo's keymap into a version-pinned path
 (`~/Library/Application Support/JetBrains/PyCharm<version>/keymaps/`) — check whether the
 PyCharm version changed and, if so, update that path in `pycharm.nix` too, or the keymap
 silently lands in an unused directory.
+
+If `<input>` is `homebrew-cask` or `homebrew-core`, the rebuild only points `brew` at the new
+pin. Once the user has run `ns`, re-run `brew outdated --greedy --verbose` and handle the result
+as described under **Homebrew casks and formulae** below.
 
 If `<input>` is `nixpkgs-unstable` (SketchyBar, AeroSpace and VS Code come from there),
 check whether the SketchyBar version moved and skim its release notes — the bar's Lua
@@ -273,6 +288,21 @@ strictly required — uv resolves it lazily on first invocation, cached under
 `~/.cache/uv` — but still confirm with the user before moving on. For a major bump,
 check the PyPI package's `pyproject.toml` (`[project.scripts]`) still exposes the same
 CLI entry-point name the shim wraps, and skim its changelog/release notes.
+
+**Homebrew casks and formulae:** no rebuild needed. Ask the user to run the upgrade, since casks
+can prompt for a password or need the app closed (suggest typing it with `!` so it runs in this
+session). Pass the selected names, or nothing to upgrade everything:
+
+```bash
+brew upgrade --greedy <names>
+```
+
+**Mac App Store apps:** no rebuild needed. `mas` needs root, so ask the user to run it, using the
+IDs from `mas outdated`, or no IDs to upgrade everything:
+
+```bash
+sudo mas upgrade <app-ids>
+```
 
 **If a rebuild breaks:** isolate the failing derivation instead of guessing:
 

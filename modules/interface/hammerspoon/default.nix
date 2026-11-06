@@ -30,7 +30,7 @@ in
   system.defaults.CustomUserPreferences."org.hammerspoon.Hammerspoon" = {
     # Read the config from ~/.config rather than ~/.hammerspoon.
     MJConfigFile = "~/.config/hammerspoon/init.lua";
-    # Updates come through the cask refresh on rebuild (Sparkle's own key).
+    # Updates come through `brew upgrade --greedy` (Sparkle's own key).
     SUEnableAutomaticChecks = false;
     # No Dock icon; the menu-bar icon stays, for the console and reload.
     MJShowDockIconKey = false;

@@ -16,7 +16,7 @@ living at `~/.config/nix-darwin/`.
 
 | Path | Owns |
 | --- | --- |
-| `flake.nix` | inputs, unstable overlay, Homebrew settings (`onActivation`, `greedyCasks`), nix-homebrew + HM wiring |
+| `flake.nix` | inputs, unstable overlay, Homebrew settings (`onActivation`), nix-homebrew + HM wiring |
 | `modules/apps/other.nix` | apps too small for their own module: the Homebrew casks and brews, the Safari extensions (1Password, Save to Raindrop.io), and small CLIs added to the HM packages (`prek`, `pnpm`, `doctl`, `psql`, the MariaDB client, Zed, Helix, ShellCheck, FFmpeg, qBittorrent, Obsidian), and `programs.gh` (git protocol SSH), and the fonts in `fonts.packages` (TeX Gyre Schola) |
 | `modules/interface/other.nix` | interface tools too small for their own module — currently the Raycast cask |
 | `modules/interface/README.md` | user-facing list of the interface config (AeroSpace, Hammerspoon, Raycast, SketchyBar) |
@@ -50,7 +50,7 @@ living at `~/.config/nix-darwin/`.
 | `modules/secrets/agefiles/*.age`, `modules/secrets/secrets.nix` | encrypted secrets + their recipients (run `agenix` from `modules/secrets/`; keys are `agefiles/<name>.age`); the modules that consume them live alongside (env vars) or with their feature (SketchyBar) |
 | `~/.config/nix-private/` (separate private repo, not in this one) | plain-text config that's private but not secret — clonager's config, MailMate's account plists. See *Private config* below |
 | `docs/FIRST_USE.md`, `docs/UPDATING_HOMEBREW.md` | the staged new-Mac runbook; how Homebrew app versions move (tap pins) |
-| `.claude/skills/update-packages/SKILL.md` | the package-update runbook — flake inputs + manual pins |
+| `.claude/skills/update-packages/SKILL.md` | the package-update runbook — flake inputs, manual pins, Homebrew and Mac App Store upgrades |
 
 ## Rules
 
@@ -59,7 +59,8 @@ living at `~/.config/nix-darwin/`.
 - **Add new software/tools/config to `README.md`** — or, for interface config or secrets,
   `modules/interface/README.md` / `modules/secrets/README.md`.
 - **Never use a tool's self-updater** — the store is read-only. Update via `nix flake update` +
-  rebuild, or the Homebrew cask refresh on rebuild. Disable in-app updaters where exposed.
+  rebuild, or `brew upgrade --greedy` / `mas upgrade` for Homebrew and App Store apps. Disable
+  in-app updaters where exposed.
 
 ## Key architectural decisions
 
@@ -131,19 +132,23 @@ designated-requirement signature (Nix's wrap step invalidates it, and HM install
 
 - `onActivation.cleanup = "zap"` — **anything not declared in `homebrew.casks` / `brews` /
   `masApps` gets uninstalled on rebuild.** This is why `mas` is pinned in `brews`.
-- `onActivation.upgrade = true`, `autoUpdate = false` (activation stays deterministic; bump
-  Homebrew itself with `nix flake update nix-homebrew`), `enableRosetta = false`.
+- `onActivation.upgrade = false`, `autoUpdate = false` (activation stays deterministic; bump
+  Homebrew itself with `nix flake update nix-homebrew`), `enableRosetta = false`. `ns` still
+  installs newly declared entries, but only `docs/UPDATING_HOMEBREW.md`'s manual commands upgrade
+  existing ones. Upgrading during activation moved apps nobody had touched: Mac App Store apps
+  and `version :latest` casks (`font-sf-pro`) follow what's live upstream, not the tap pin.
+  `brew bundle` also prints `Installing <name>` for a Mac App Store app it's upgrading.
 - **Tap metadata is pinned in `flake.lock`.** `homebrew-core` and `homebrew-cask` are
   `flake = false` inputs wired into `nix-homebrew.taps`, with `mutableTaps = false` and
   `homebrew.taps = builtins.attrNames config.nix-homebrew.taps` keeping the Brewfile in step.
   Tapping homebrew-core makes nix-homebrew's `brew` wrapper export
   `HOMEBREW_NO_INSTALL_FROM_API=1`, so brew resolves formulae/casks from the pinned store
-  checkouts rather than formulae.brew.sh. Consequences: cask versions move **only** on
-  `nix flake update homebrew-cask` (or `-core`) + rebuild; `brew update` / `brew tap` no longer
-  do anything (the taps are read-only store symlinks); a cask that only exists in a newer tap
-  revision won't resolve until the pin is bumped. `greedyCasks = true` is set so `brew bundle`
-  doesn't skip casks marked `auto_updates true` (most GUI apps here), which matters because
-  self-updating is deliberately off for Ghostty and Microsoft AutoUpdate.
+  checkouts rather than formulae.brew.sh. Consequences: newer cask versions become available
+  **only** on `nix flake update homebrew-cask` (or `-core`) + rebuild; `brew update` / `brew tap`
+  no longer do anything (the taps are read-only store symlinks); a cask that only exists in a
+  newer tap revision won't resolve until the pin is bumped. Upgrade with `brew upgrade --greedy`:
+  without `--greedy`, brew skips casks marked `auto_updates true` (most GUI apps here), which
+  matters because self-updating is deliberately off for Ghostty and Microsoft AutoUpdate.
 
 ### Secrets via agenix
 **Secrets live with their users, not in one secrets file.** `modules/secrets/agenix.nix` holds only the
@@ -289,7 +294,7 @@ Nix-managed unless noted.
   `DiagnosticDataTypePreference = "BasicTelemetry"` (`ZeroTelemetry` is enterprise-only). Add
   keys here, not in-app — see Microsoft Learn, *Set preferences for Outlook for Mac*. Microsoft
   AutoUpdate is disabled via `"com.microsoft.autoupdate2".HowToCheck = "Manual"` so updates flow
-  through the cask refresh.
+  through `brew upgrade --greedy` and `mas upgrade`.
 - **MailMate** *(Homebrew `mailmate@beta`; account config from nix-private)* — mechanics are
   commented in `modules/apps/mailmate.nix`; what follows is only what isn't.
   **Accounts are *not* in the defaults domain** — they're three NeXTSTEP-format ASCII plists

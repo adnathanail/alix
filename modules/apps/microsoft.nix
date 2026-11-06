@@ -13,7 +13,7 @@
   };
 
   # Microsoft AutoUpdate (MAU): keep Office updates manual so they flow
-  # through `darwin-rebuild` (Homebrew cask refresh), not MAU's
+  # through `brew upgrade --greedy` and `mas upgrade`, not MAU's
   # auto-installer. Applies to Outlook and any other Office app
   # installed later. MAU is a non-sandboxed helper so its prefs land at
   # ~/Library/Preferences/com.microsoft.autoupdate2.plist as expected.

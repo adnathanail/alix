@@ -120,17 +120,13 @@
             enable = true;
             onActivation = {
               autoUpdate = false;
-              upgrade = true;
+              # `ns` installs and removes what's declared, but never upgrades.
+              # Tap pins can't hold back Mac App Store apps or `version :latest`
+              # casks (font-sf-pro), which track whatever's live upstream.
+              # Upgrades are a separate step: see docs/UPDATING_HOMEBREW.md.
+              upgrade = false;
               cleanup = "zap";  # Uninstalls everything not declared here
             };
-            # `brew bundle` skips casks marked `auto_updates true` (most GUI
-            # apps) unless told otherwise, so without this `ns` would never
-            # upgrade them — and self-updating is deliberately off for some
-            # of them (Ghostty's Sparkle, Microsoft AutoUpdate). Upgrades go
-            # only as far as the tap pins in flake.lock (see nix-homebrew.taps
-            # below), so `ns` is reproducible: bump with
-            # `nix flake update homebrew-cask`.
-            greedyCasks = true;
             # Casks and brews: modules/apps/other.nix (plus any feature module
             # that brings its own, e.g. mailmate.nix, microsoft.nix).
           };
