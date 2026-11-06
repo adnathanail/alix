@@ -1,6 +1,6 @@
 ---
 name: update-packages
-description: "Check for and apply package/dependency updates across this nix-darwin config — the 10 flake inputs (nixpkgs-master tracks raw master for claude-code and uv; clonager is pinned to a release tag) plus everything pinned outside the flake-lock system (ExtraDock, Search, aerospace-swipe, VS Code marketplace extensions, nx, Vite+, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
+description: "Check for and apply package/dependency updates across this nix-darwin config — the 10 flake inputs (nixpkgs-master tracks raw master for claude-code and uv; clonager is pinned to a release tag) plus everything pinned outside the flake-lock system (ExtraDock, Search, Rex Beta, aerospace-swipe, VS Code marketplace extensions, nx, Vite+, uv tools). Use when asked to update packages, check for updates, bump pins/versions, or 'do package updates' for this repo."
 ---
 
 # Update packages
@@ -88,6 +88,7 @@ gh api repos/adnathanail/clonager/tags --jq '.[0].name'
 |---|---|---|
 | ExtraDock | `modules/interface/extradock.nix` | `AppitStudio/extra-dock5-updates`, versioned `v<version>` release tag |
 | Search (browser) | `modules/apps/search.nix` | `driceroland/Search`, versioned `v<version>` release tag (`Search.dmg` asset) |
+| Rex Beta | `modules/apps/rex.nix` | Sparkle appcast under the base URL in nix-private (`rex/base-url`), one `Rex-<version>-<build>.dmg` per build |
 | aerospace-swipe | `modules/interface/aerospace-swipe.nix` | `acsandmann/aerospace-swipe`, a commit on `main` (no releases) |
 | VS Code: TikZiT | `modules/core/vscode.nix` | `alekskissinger.vstikzit` |
 | VS Code: gitbutler-vscode | `modules/core/vscode.nix` | `adnathanail/gitbutler-vscode`, `v<version>` GitHub release (`.vsix` asset, not on the marketplace) |
@@ -109,6 +110,9 @@ gh release list -R AppitStudio/extra-dock5-updates -L 10 --exclude-pre-releases
 
 # Search — latest release tag; compare to `version` in modules/apps/search.nix
 gh release view -R driceroland/Search --json tagName --jq .tagName
+
+# Rex Beta — newest DMG in the appcast; compare to `version` and `build` in modules/apps/rex.nix
+curl -s "$(cat ~/.config/nix-private/rex/base-url)/appcast.xml" | grep -m1 -oE 'Rex-[^"]+\.dmg'
 
 # aerospace-swipe — latest commit on main
 gh api repos/acsandmann/aerospace-swipe/commits/main --jq '.sha + " " + .commit.committer.date'
@@ -205,6 +209,15 @@ nix hash file --sri --type sha256 /tmp/search-new.dmg
 Skim the release notes (`gh release view -R driceroland/Search v<version>`) — the module
 sets its `update.install` default to keep the app from installing updates itself, so a
 renamed key there would quietly turn that back on.
+
+**Rex Beta:** add the new DMG to the store (its `requireFile` source can't download it
+during the rebuild) and get the fresh hash, then edit `version`, `build` and `hash`
+together in `modules/apps/rex.nix`. Keep the download URL out of this public repo:
+
+```bash
+nix-prefetch-url --name Rex-<version>-<build>.dmg "$(cat ~/.config/nix-private/rex/base-url)/Rex-<version>-<build>.dmg" \
+  | xargs nix hash to-sri --type sha256
+```
 
 **Vite+:** edit `version` and `hash` together in `modules/apps/vite-plus.nix`; the hash is
 the tarball's npm integrity string, used as-is:

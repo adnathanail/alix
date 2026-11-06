@@ -188,7 +188,7 @@ re-run `op document edit "nix-darwin age key" ~/.config/age/keys.txt`.
 aren't secret but shouldn't sit in this public repo — email addresses, repo URLs — live as
 plain text in a separate private git repo checked out at `~/.config/nix-private`
 (`privateDir`, set in `flake.nix` and passed through `specialArgs`). Currently:
-`clonager/config.yaml` and `mailmate/{Sources,Identities,Submission}.plist`.
+`clonager/config.yaml`, `mailmate/{Sources,Identities,Submission}.plist` and `rex/base-url`.
 
 Modules reference these files by **absolute path as strings**, never as Nix paths, so they're
 read at runtime: nothing is copied into the (world-readable) store, nothing is pinned in
