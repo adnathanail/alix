@@ -71,7 +71,7 @@ let
 
   # Apps
   finder = app "com.apple.finder" "/System/Library/CoreServices/Finder.app";
-  ghostty = app "com.mitchellh.ghostty" "/Applications/Ghostty.app";
+  rex = app "com.superlogical.rex" "/Users/adnathanail/Applications/Home Manager Apps/Rex Beta.app";
   safari = app "com.apple.Safari" "/System/Volumes/Preboot/Cryptexes/App/System/Applications/Safari.app";
   vscode = app "com.microsoft.VSCode" "/Users/adnathanail/Applications/Home Manager Apps/Visual Studio Code.app";
   gitbutler = app "com.gitbutler.app" "/Applications/GitButler.app";
@@ -100,7 +100,7 @@ let
       appearance.background.glass.clear = true;
       elements = [
         finder
-        ghostty
+        rex
         safari
         spacer
         vscode
