@@ -66,7 +66,15 @@ let
     exec "$cli" "$@"
   '';
 in {
-  home-manager.users.${username}.home.packages = [ rex ];
+  home-manager.users.${username} = {
+    home.packages = [ rex rexCli ];
+
+    # Rex's config file: key bindings layered over the app's built-in ones.
+    # `rex config check` validates it; `rex keymap` shows the resolved keys.
+    xdg.configFile."rex/init.lua".text = ''
+      rex.unbind("cmd+n")
+    '';
+  };
 
   # The store copy is read-only, so Sparkle can't update it; stop it checking.
   system.defaults.CustomUserPreferences."com.superlogical.rex".SUEnableAutomaticChecks = false;
