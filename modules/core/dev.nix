@@ -89,5 +89,26 @@
     xdg.configFile."ghostty/config".text = ''
       auto-update = off
     '';
+
+    # Programs GitButler's `but tui` can open files in. User-defined entries
+    # come before the built-ins, so Helix is what `o` (open in default
+    # program) uses; `O` still offers the full list. This is GitButler's own
+    # program list, separate from git's core.editor. `hx` is installed by
+    # modules/apps/other.nix; the store path is used here so this works
+    # regardless of PATH.
+    home.file."Library/Application Support/gitbutler/programs.json".text = builtins.toJSON [
+      {
+        id = "helix";
+        name = "Helix";
+        category = "editor";
+        executable = {
+          type = "pathExecutable";
+          nameOrPath = "${pkgs.helix}/bin/hx";
+          requiresTerminal = true;
+        };
+        openArgs = [ "{{filepath}}" ];
+        openAtLineArgs = [ "{{filepath}}:{{line_number}}" ];
+      }
+    ];
   };
 }

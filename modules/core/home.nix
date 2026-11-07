@@ -17,6 +17,10 @@
         name = "Alex Nathanail";
         email = "7809723+adnathanail@users.noreply.github.com";
       };
+      # Commit messages, interactive rebases, and `but`'s "reword with
+      # editor". `but tui`'s `o` uses GitButler's own program list instead
+      # (modules/core/dev.nix).
+      core.editor = "hx";
       init.defaultBranch = "main";
       pull.rebase = true;
       fetch.prune = true;
