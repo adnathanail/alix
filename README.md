@@ -95,6 +95,7 @@ macOS settings (`modules/core/macos.nix`)
 - qBittorrent (torrent client; download only — torrents stop when they finish instead of seeding. Settings declared in `modules/apps/qbittorrent/qbittorrent.nix`)
 - Obsidian (Markdown notes; turn off its in-app automatic updates)
 - Zed (`nixpkgs-unstable`; editor, `zeditor` on the command line)
+- Fresh (`nixpkgs-master`; terminal editor, `fresh` on the command line; config and keybindings in `modules/apps/fresh.nix`)
 - ExtraDock 5 (customizable extra docks; direct-download package, see `modules/interface/extradock.nix`; docks and settings in `modules/interface/extradock-config.nix`, applied on `ns` over its MCP by `extradock-apply`)
 - Xcode
 - Android Studio
