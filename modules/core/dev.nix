@@ -91,24 +91,70 @@
     '';
 
     # Programs GitButler's `but tui` can open files in. User-defined entries
-    # come before the built-ins, so Helix is what `o` (open in default
-    # program) uses; `O` still offers the full list. This is GitButler's own
-    # program list, separate from git's core.editor. `hx` is installed by
-    # modules/apps/other.nix; the store path is used here so this works
-    # regardless of PATH.
-    home.file."Library/Application Support/gitbutler/programs.json".text = builtins.toJSON [
-      {
-        id = "helix";
-        name = "Helix";
-        category = "editor";
-        executable = {
-          type = "pathExecutable";
-          nameOrPath = "${pkgs.helix}/bin/hx";
-          requiresTerminal = true;
-        };
+    # come before the built-ins, in this order, so the first is what `o`
+    # (open in default program) uses; `O` offers the full list. This is
+    # GitButler's own program list, separate from git's core.editor. `hx` is
+    # installed by modules/apps/other.nix; its store path is used so this
+    # works regardless of PATH.
+    #
+    # "Helix in Rex split" opens the file in a Rex block below the TUI's,
+    # closing when Helix quits, so the TUI stays usable alongside it.
+    # REX_BLOCK (set in every Rex terminal, and passed on by the TUI) picks
+    # the TUI's block as the anchor; without it Rex splits the focused block.
+    # The block is labelled, and if one with that label is already in the
+    # TUI's window, the file is opened in that Helix instead (Escape, then
+    # `:open '<path>:<line>'` typed in one write) and the block focused, so
+    # there's one editor per window and its other buffers stay open.
+    # `rex` is the CLI wrapper from modules/apps/rex.nix, found on PATH.
+    # Without Rex, use "Helix" from `O`, which opens in the TUI's own terminal.
+    home.file."Library/Application Support/gitbutler/programs.json".text =
+      let
+        hx = "${pkgs.helix}/bin/hx";
+        jq = "${pkgs.jq}/bin/jq";
+        # Takes one arg, as GitButler passes it: `<path>` or `<path>:<line>`.
+        # Paths containing a single quote won't survive the `:open` quoting.
+        helixInRexSplit = pkgs.writeShellScript "helix-in-rex-split" ''
+          label="helix (gitbutler)"
+          if [ -n "''${REX_BLOCK:-}" ]; then
+            editor=$(rex block ls --json | ${jq} -r --arg a "$REX_BLOCK" --arg l "$label" '
+              (.blocks[] | select(.block_id == $a) | .window_id) as $w
+              | .blocks[] | select(.window_id == $w and .label == $l) | .block_id
+            ' | head -n 1)
+            if [ -n "$editor" ]; then
+              rex send-key -b "$editor" escape
+              rex send -b "$editor" ":open '$1'"$'\r'
+              exec rex block focus "$editor" >/dev/null
+            fi
+          fi
+          exec rex run --split=below ''${REX_BLOCK:+-b "$REX_BLOCK"} --label "$label" \
+            --shell=none --cwd "$PWD" -- ${hx} "$@" >/dev/null
+        '';
         openArgs = [ "{{filepath}}" ];
         openAtLineArgs = [ "{{filepath}}:{{line_number}}" ];
-      }
-    ];
+      in
+      builtins.toJSON [
+        {
+          id = "helix-rex";
+          name = "Helix in Rex split";
+          category = "editor";
+          executable = {
+            type = "pathExecutable";
+            nameOrPath = "${helixInRexSplit}";
+            requiresTerminal = false;
+          };
+          inherit openArgs openAtLineArgs;
+        }
+        {
+          id = "helix";
+          name = "Helix";
+          category = "editor";
+          executable = {
+            type = "pathExecutable";
+            nameOrPath = hx;
+            requiresTerminal = true;
+          };
+          inherit openArgs openAtLineArgs;
+        }
+      ];
   };
 }

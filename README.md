@@ -33,7 +33,7 @@ Apps
 - Claude Code (`nixpkgs-master`), with a user-wide `CLAUDE.md` from `modules/core/claude-user.md`, a Nix-managed `settings.json`, a status line script (`modules/core/claude-statusline.sh`) and sounds when a turn finishes or a permission prompt appears (`Stop` and `Notification` hooks), shared with the `claude-work` account
 - VS Code (`nixpkgs-unstable`)
 - 1Password
-- GitButler, with `but tui` opening files in Helix (`o`)
+- GitButler, with `but tui`'s `o` opening files in Helix in a Rex split below the TUI, reused for later files (plain Helix in the same terminal from `O`)
 - Ghostty
 
 CLI
