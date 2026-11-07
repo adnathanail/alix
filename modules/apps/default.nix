@@ -27,6 +27,7 @@
     ./nx/nx.nix
     ./vite-plus.nix
     ./pycharm/pycharm.nix
+    ./qbittorrent/qbittorrent.nix
     ./uvtools.nix
   ];
 }

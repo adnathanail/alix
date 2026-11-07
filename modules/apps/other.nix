@@ -35,10 +35,6 @@
       pkgs.helix          # `hx`, modal terminal editor
       pkgs.shellcheck     # shell script linter
       pkgs.ffmpeg         # audio/video conversion
-      # Torrent client. From Nix because Homebrew disabled its cask for
-      # failing Gatekeeper. Its in-app update check only links to the download
-      # page; turn it off in Preferences → Advanced.
-      pkgs.qbittorrent
       # Markdown notes. Its in-app updater swaps in a newer app.asar under
       # ~/Library/Application Support/obsidian, bypassing the Nix pin; turn
       # off Settings → General → Automatic updates.
