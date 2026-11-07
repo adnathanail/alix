@@ -53,6 +53,18 @@ let
       platforms = lib.platforms.darwin;
     };
   };
+
+  # The `rex` CLI. The app installs its server, which is also the CLI, under
+  # Application Support on first launch and runs it from `Versions/Current`, so
+  # this runs that copy and always matches the running server's version.
+  rexCli = pkgs.writeShellScriptBin "rex" ''
+    cli="$HOME/Library/Application Support/com.superlogical.rex/RexServer/Versions/Current/Rex Server.app/Contents/MacOS/rex"
+    if [ ! -x "$cli" ]; then
+      echo "rex: $cli is missing; open Rex Beta once to install it" >&2
+      exit 1
+    fi
+    exec "$cli" "$@"
+  '';
 in {
   home-manager.users.${username}.home.packages = [ rex ];
 
