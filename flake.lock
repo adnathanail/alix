@@ -44,16 +44,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1792956667,
-        "narHash": "sha256-95Rh3Cxh2F9WxQ+6dhD+f5kqFT2hcCyq8sXk2IK40qg=",
+        "lastModified": 1794171269,
+        "narHash": "sha256-TSEy0C3lZXDRPF2LhEjwx3O5HETXTWk/jOAhclpbzLw=",
         "owner": "adnathanail",
         "repo": "clonager",
-        "rev": "5eeac1d8dbbaa39d2b0e91a7d668484158389174",
+        "rev": "0c2d76ad79653129a89e78571e064184d146e64b",
         "type": "github"
       },
       "original": {
         "owner": "adnathanail",
-        "ref": "v0.6.0",
+        "ref": "v0.7.0",
         "repo": "clonager",
         "type": "github"
       }

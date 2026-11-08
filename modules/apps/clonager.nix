@@ -27,6 +27,10 @@ in
       discoverPaths = [ "~/Documents" "~/.config/nix-darwin" "~/.config/nix-private" ];
       # Cmd-clicking a repo's name opens it in VS Code, not Finder.
       openIn = "vscode";
+      # `clonager browse` starts with the most recently changed repos first,
+      # showing repo names without the folders above them.
+      browseSort = "recent";
+      browseHideFolders = true;
     };
 
     programs.zsh.shellAliases.cs = "clonager status";

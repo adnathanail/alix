@@ -114,7 +114,7 @@ macOS settings (`modules/core/macos.nix`)
 - pnpm (Node package manager)
 - nx (Nx monorepo CLI)
 - Vite+ (`vp`, `vpr`, `vpx` — VoidZero's web toolchain CLI; prebuilt binary; commands run through `vp` use each project's pinned Node.js version, while plain `node` stays Nix's)
-- [clonager](https://github.com/adnathanail/clonager) (tracks the git clones on this laptop; config in `~/.config/nix-private/clonager/config.yaml`, which `clonager discover` edits in place; `cs` = `clonager status`; cmd-clicking a repo name opens it in VS Code)
+- [clonager](https://github.com/adnathanail/clonager) (tracks the git clones on this laptop; config in `~/.config/nix-private/clonager/config.yaml`, which `clonager discover` edits in place; `cs` = `clonager status`; cmd-clicking a repo name opens it in VS Code; `clonager browse` starts sorted by most recent change, with folders hidden)
 - gh (GitHub) — `git_protocol: ssh`
 - doctl (DigitalOcean)
 - [Fermioniq](./modules/apps/fermioniq.nix): AWS CLI (`aws`, v2) with the Session Manager plugin (`aws ssm start-session`), OpenTofu (`tofu`), mise (per-project tool versions, activated in zsh)
