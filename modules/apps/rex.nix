@@ -103,8 +103,29 @@ in {
 
     # Rex's config file: key bindings layered over the app's built-in ones.
     # `rex config check` validates it; `rex keymap` shows the resolved keys.
+    # Rex has no API for custom GUI buttons; custom actions appear in the
+    # command palette and can be bound to keys.
     xdg.configFile."rex/init.lua".text = ''
       rex.unbind("cmd+n")
+
+      -- Open the GitButler app on the focused pane's directory. The directory
+      -- comes from the pane's foreground process: zsh doesn't report its
+      -- working directory to the terminal, so the terminal's `pwd` is empty.
+      rex.action{
+        name     = "gitbutler_gui",
+        title    = "Open GitButler Here",
+        keywords = "but git",
+        run = function(ctx)
+          local p, err = rex.block.call("com.superlogical.terminal", "process", { block_id = ctx.block_id })
+          if p == nil then error(err, 0) end
+          local dir = p.foreground and p.foreground.cwd
+          if dir == nil then error("can't tell this pane's directory", 0) end
+          local r, err2 = rex.exec({ "/opt/homebrew/bin/but", "gui" }, { cwd = dir, timeout = 20 })
+          if r == nil then error(err2, 0) end
+          if not r.ok then error(r.stderr, 0) end
+        end,
+      }
+      rex.bind("cmd+b", "gitbutler_gui")
     '';
   };
 

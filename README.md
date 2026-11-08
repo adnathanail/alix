@@ -85,7 +85,7 @@ macOS settings (`modules/core/macos.nix`)
 - Telegram
 - Signal
 - Brave Browser
-- Rex Beta (direct-download package with update checks off, Nix-managed `~/.config/rex/init.lua` (⌘N unbound), a `rex` CLI wrapper that runs the CLI the app installs, Rex's agent skill and `SessionStart` hook for Claude Code (both accounts), download location in nix-private; if the DMG isn't in the Nix store, the rebuild fails with the command to add it; see `modules/apps/rex.nix`)
+- Rex Beta (direct-download package with update checks off, Nix-managed `~/.config/rex/init.lua` (⌘N unbound; ⌘B or "Open GitButler Here" in the command palette opens the GitButler app on the focused pane's directory), a `rex` CLI wrapper that runs the CLI the app installs, Rex's agent skill and `SessionStart` hook for Claude Code (both accounts), download location in nix-private; if the DMG isn't in the Nix store, the rebuild fails with the command to add it; see `modules/apps/rex.nix`)
 - Raindrop.io
 - DeepL (translator)
 - DockFlow (Dock preset switcher)
