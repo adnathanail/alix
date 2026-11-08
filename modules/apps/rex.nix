@@ -108,24 +108,51 @@ in {
     xdg.configFile."rex/init.lua".text = ''
       rex.unbind("cmd+n")
 
-      -- Open the GitButler app on the focused pane's directory. The directory
-      -- comes from the pane's foreground process: zsh doesn't report its
-      -- working directory to the terminal, so the terminal's `pwd` is empty.
+      -- The focused pane's directory, from its foreground process: zsh
+      -- doesn't report its working directory to the terminal, so the
+      -- terminal's `pwd` is empty.
+      local function pane_dir(ctx)
+        local p, err = rex.block.call("com.superlogical.terminal", "process", { block_id = ctx.block_id })
+        if p == nil then error(err, 0) end
+        local dir = p.foreground and p.foreground.cwd
+        if dir == nil then error("can't tell this pane's directory", 0) end
+        return dir
+      end
+
+      -- Runs argv in dir, failing the action with the command's stderr.
+      local function run_in(dir, argv)
+        local r, err = rex.exec(argv, { cwd = dir, timeout = 20 })
+        if r == nil then error(err, 0) end
+        if not r.ok then error(r.stderr, 0) end
+        return r.stdout
+      end
+
+      local bin = "/etc/profiles/per-user/${username}/bin/"
+
+      -- Open the GitButler app on the focused pane's directory.
       rex.action{
         name     = "gitbutler_gui",
         title    = "Open GitButler Here",
         keywords = "but git",
         run = function(ctx)
-          local p, err = rex.block.call("com.superlogical.terminal", "process", { block_id = ctx.block_id })
-          if p == nil then error(err, 0) end
-          local dir = p.foreground and p.foreground.cwd
-          if dir == nil then error("can't tell this pane's directory", 0) end
-          local r, err2 = rex.exec({ "/opt/homebrew/bin/but", "gui" }, { cwd = dir, timeout = 20 })
-          if r == nil then error(err2, 0) end
-          if not r.ok then error(r.stderr, 0) end
+          run_in(pane_dir(ctx), { "/opt/homebrew/bin/but", "gui" })
         end,
       }
       rex.bind("cmd+b", "gitbutler_gui")
+
+      -- Open the root of the focused pane's git repository in VS Code.
+      rex.action{
+        name     = "vscode_repo",
+        title    = "Open Repository in VS Code",
+        keywords = "code git root",
+        run = function(ctx)
+          local r = rex.exec({ bin .. "git", "rev-parse", "--show-toplevel" }, { cwd = pane_dir(ctx), timeout = 5 })
+          if r == nil or not r.ok then error("not in a git repository", 0) end
+          local root = r.stdout:gsub("%s+$", "")
+          run_in(root, { bin .. "code", root })
+        end,
+      }
+      rex.bind("cmd+o", "vscode_repo")
     '';
   };
 
