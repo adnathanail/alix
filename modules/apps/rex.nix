@@ -153,6 +153,30 @@ in {
         end,
       }
       rex.bind("cmd+o", "vscode_repo")
+
+      -- Open a new tab running `cg browse` (clonager's repo browser). It's
+      -- typed into an interactive shell rather than run as the tab's
+      -- command, so picking a repo cds that shell (through clonager's shell
+      -- integration) and quitting browse leaves the shell open.
+      rex.action{
+        name     = "clonager_browse",
+        title    = "Browse Repositories",
+        keywords = "clonager cg repo",
+        run = function(ctx)
+          local sid = ctx.session_id or rex.session_id
+          local w, err = rex.call("session.new_window", {
+            session_id = sid,
+            layout = { block = { flavor = "com.superlogical.terminal.shell" } },
+          })
+          if w == nil then error(err, 0) end
+          local ok, err2 = rex.block.call("com.superlogical.terminal", "write", { block_id = w.block_ids[1], data = "cg browse\r" })
+          if ok == nil then error(err2, 0) end
+          -- The new window becomes the session's active one, but the app
+          -- keeps showing the tab it had, so ask the app to switch to it.
+          rex.client.queue("session.select", { session_id = sid, window_id = w.window_id })
+        end,
+      }
+      rex.bind("cmd+g", "clonager_browse")
     '';
   };
 
