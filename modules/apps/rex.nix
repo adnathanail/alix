@@ -65,9 +65,41 @@ let
     fi
     exec "$cli" "$@"
   '';
+
+  rexSkill = ''
+    ---
+    name: rex
+    description: Use the rex CLI to manage Rex sessions, open tabs, arrange panes, run commands, inspect terminal output, and control connected Rex apps.
+    metadata:
+      rex-stub: "2"
+    ---
+
+    Run `rex __internal skill --feature-session-naming=false` and follow the guide it prints. The guide comes from
+    the installed Rex CLI, so it describes the commands available in that version.
+
+    If the command fails, the installed Rex version predates the guide. Start with
+    `rex whoami --json`, then use `rex --help` and `rex COMMAND --help`.
+  '';
 in {
   home-manager.users.${username} = {
     home.packages = [ rex rexCli ];
+
+    # Rex's agent skill and session-start hook, as `rex skill setup` would
+    # install them; that command can't write the Nix-owned settings.json.
+    # Both are stubs that ask the installed CLI for their text, so they keep
+    # up with Rex versions. The hook tells Claude which Rex session and
+    # terminal it's in (silent outside Rex). Compare with what the current
+    # Rex would install after an update:
+    #     CLAUDE_CONFIG_DIR=$(mktemp -d) rex skill setup --agent claude
+    programs.claude-code.skills.rex = rexSkill;
+    home.file.".claude-work/skills/rex/SKILL.md".text = rexSkill;
+    programs.claude-code.settings.hooks.SessionStart = [{
+      hooks = [{
+        type = "command";
+        command = "/bin/sh -c '${rexCli}/bin/rex __internal session-start --agent claude --feature-session-naming=false 2>/dev/null || true'";
+        timeout = 5;
+      }];
+    }];
 
     # Rex's config file: key bindings layered over the app's built-in ones.
     # `rex config check` validates it; `rex keymap` shows the resolved keys.

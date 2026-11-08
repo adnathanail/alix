@@ -219,6 +219,22 @@ nix-prefetch-url --name Rex-<version>-<build>.dmg "$(cat ~/.config/nix-private/r
   | xargs nix hash to-sri --type sha256
 ```
 
+After the user has rebuilt and opened the new Rex once (that installs the CLI the `rex`
+wrapper runs), check that the agent skill and `SessionStart` hook in `modules/apps/rex.nix`
+still match what this Rex's own installer would write. Install into a throwaway config
+dir and diff by eye against `rexSkill` and the hook `command`:
+
+```bash
+d=$(mktemp -d) && CLAUDE_CONFIG_DIR=$d rex skill setup --agent claude >/dev/null \
+  && cat "$d/skills/rex/SKILL.md" && jq .hooks "$d/settings.json"
+```
+
+The skill's `<!-- Installed by "rex skill setup" -->` comment is left out of `rexSkill`
+deliberately (`rex skill remove` doesn't apply to it), and the hook calls the wrapper by
+store path rather than a bare `rex`; any other difference — a new
+`rex-stub` number, changed flags, extra hook events or skill files — gets copied into
+`rex.nix`.
+
 **Vite+:** edit `version` and `hash` together in `modules/apps/vite-plus.nix`; the hash is
 the tarball's npm integrity string, used as-is:
 
