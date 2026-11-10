@@ -4,7 +4,18 @@
     # Editor from unstable (pkgs.unstable, from flake.nix's unstableOverlay);
     # the extensions below stay on stable, which is fine — a newer editor
     # runs older extensions.
-    package = pkgs.unstable.vscode;
+    #
+    # VS Code's app bundle ships a prebuilt Node compile cache
+    # (Resources/app/node-compile-cache/) whose files are mode 0600, so the
+    # root-owned store copy is unreadable to the user and Home Manager's
+    # rsync into ~/Applications fails with "Permission denied". chmod rather
+    # than deleting it: file modes aren't part of the code signature, but
+    # removing files from the bundle would break it.
+    package = pkgs.unstable.vscode.overrideAttrs (old: {
+      postInstall = (old.postInstall or "") + ''
+        chmod -R a+rX "$out/Applications/Visual Studio Code.app/Contents/Resources/app/node-compile-cache" 2>/dev/null || true
+      '';
+    });
     # HM fully owns ~/.vscode/extensions. VS Code's marketplace-install
     # path can no longer rewrite extensions.json and desync the manifest
     # from the on-disk symlinks. Trade-off: extensions can only be added
