@@ -172,8 +172,26 @@ in {
           local ok, err2 = rex.block.call("com.superlogical.terminal", "write", { block_id = w.block_ids[1], data = "cg browse\r" })
           if ok == nil then error(err2, 0) end
           -- The new window becomes the session's active one, but the app
-          -- keeps showing the tab it had, so ask the app to switch to it.
-          rex.client.queue("session.select", { session_id = sid, window_id = w.window_id })
+          -- keeps showing the tab it had. `session.select` doesn't move
+          -- between tabs of the session the app already shows, so go to the
+          -- new tab by its position. The app learns about the tab a moment
+          -- after it's created and refuses to go to it until then, so wait
+          -- briefly and retry.
+          local view, err3 = rex.call("session.view", { session_id = sid })
+          if view == nil then error(err3, 0) end
+          local index
+          for i, win in ipairs(view.windows) do
+            if win.window_id == w.window_id then index = i end
+          end
+          if index == nil then error("the new tab isn't in the session", 0) end
+          local last_err
+          for _ = 1, 10 do
+            rex.exec({ "/bin/sleep", "0.1" }, { timeout = 5 })
+            local done, qerr = pcall(rex.client.queue, "client.tab.goto", { index = index })
+            if done then return end
+            last_err = qerr
+          end
+          error(last_err, 0)
         end,
       }
       rex.bind("cmd+g", "clonager_browse")
