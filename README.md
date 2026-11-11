@@ -46,6 +46,7 @@ CLI
 macOS settings (`modules/core/macos.nix`)
 - Touch ID for sudo
 - Dock: no recents, pinned apps
+- Per-keyboard modifier remapping (`modules/core/keyboards.nix`): Alt ↔ Windows swapped on the Razer BlackWidow Lite, so it matches a Mac layout; the built-in keyboard is unaffected
 - Hot corners: top left → Show desktop, bottom left → Apps (Launchpad)
 - Menu-bar clock (24h, seconds), battery percentage, Bluetooth in the menu bar
 

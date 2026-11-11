@@ -13,6 +13,7 @@
     ./dev.nix       # Claude Code, Ghostty, GitButler
     ./1password.nix # 1Password + CLI, nix-restore-age-key
     ./macos.nix     # Dock, menu bar, shortcuts, Touch ID
+    ./keyboards.nix # per-keyboard modifier remapping
   ];
 
   # Home Manager modules
