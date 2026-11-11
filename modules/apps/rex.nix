@@ -22,14 +22,14 @@
 { username, privateDir, pkgs, lib, ... }:
 let
   version = "0.1.0";
-  build = "1853";
+  build = "1925";
   dmg = "Rex-${version}-${build}.dmg";
   rex = pkgs.stdenvNoCC.mkDerivation {
     pname = "rex-beta";
     version = "${version}-${build}";
     src = pkgs.requireFile {
       name = dmg;
-      hash = "sha256-4uXEAh3+nZtiZd0aZBxvxzOpslIVkUVy6ngOCzATsKU=";
+      hash = "sha256-8ubEtR9X+mvEEjuU753QX4+pd+U4OTcXjKp0ZBVaQnk=";
       message = ''
         ${dmg} isn't in the Nix store. Add it, then rebuild:
           nix-prefetch-url --name ${dmg} "$(cat ${privateDir}/rex/base-url)/${dmg}"
