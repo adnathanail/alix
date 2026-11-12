@@ -172,26 +172,39 @@ in {
           local ok, err2 = rex.block.call("com.superlogical.terminal", "write", { block_id = w.block_ids[1], data = "cg browse\r" })
           if ok == nil then error(err2, 0) end
           -- The new window becomes the session's active one, but the app
-          -- keeps showing the tab it had. `session.select` doesn't move
-          -- between tabs of the session the app already shows, so go to the
-          -- new tab by its position. The app learns about the tab a moment
-          -- after it's created and refuses to go to it until then, so wait
-          -- briefly and retry.
-          local view, err3 = rex.call("session.view", { session_id = sid })
-          if view == nil then error(err3, 0) end
-          local index
-          for i, win in ipairs(view.windows) do
-            if win.window_id == w.window_id then index = i end
+          -- keeps showing the tab it had, so send the app to it with
+          -- `client.tab.goto`. Its index counts the tabs of every expanded
+          -- session in the sidebar, top to bottom (`session.list` order), and
+          -- skips collapsed ones. The server can't tell which are collapsed,
+          -- so expand this session and the ones above it first, so that the
+          -- count holds. (Rex's own ways of naming the tab by ID don't work
+          -- here: `session.select` queued from an action is ignored, and
+          -- `client.perform` is refused unless Remote Control is on.)
+          -- An action's calls only reach its own session; `session.attach`
+          -- opens the others, and returns their current view. Those calls go
+          -- out on the app's own connection, so never `session.detach`: that
+          -- disconnects the app from the session ("stream is not attached").
+          local list, lerr = rex.call("session.list", {})
+          if list == nil then error(lerr, 0) end
+          local index = 0
+          for _, s in ipairs(list.sessions) do
+            rex.client.queue("session.expand", { session_id = s.session_id })
+            if s.session_id == sid then
+              local view, verr = rex.call("session.view", { session_id = sid })
+              if view == nil then error(verr, 0) end
+              for i, win in ipairs(view.windows) do
+                if win.window_id == w.window_id then index = index + i end
+              end
+              break
+            end
+            local a, aerr = rex.call("session.attach", { session_id = s.session_id })
+            if a == nil then error(aerr, 0) end
+            index = index + #a.view.windows
           end
-          if index == nil then error("the new tab isn't in the session", 0) end
-          local last_err
-          for _ = 1, 10 do
-            rex.exec({ "/bin/sleep", "0.1" }, { timeout = 5 })
-            local done, qerr = pcall(rex.client.queue, "client.tab.goto", { index = index })
-            if done then return end
-            last_err = qerr
-          end
-          error(last_err, 0)
+          -- The app learns about the new tab a moment after it's created and
+          -- refuses to go to it until then.
+          rex.exec({ "/bin/sleep", "0.3" }, { timeout = 5 })
+          rex.client.queue("client.tab.goto", { index = index })
         end,
       }
       rex.bind("cmd+g", "clonager_browse")
