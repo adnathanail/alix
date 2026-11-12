@@ -27,8 +27,8 @@ If that sort of design decision context is important, put it in the local CLAUDE
 User-level Claude Code config is managed by a nix-darwin repo at `~/.config/nix-darwin`.
 `~/.claude/settings.json` (and `~/.claude-work/settings.json`) are read-only Nix store symlinks,
 so don't edit them directly or via `/config`, `/statusline` or the `update-config` skill. To
-change a user-wide setting, edit `claudeSettings` in `~/.config/nix-darwin/modules/core/dev.nix`
-(the status line script is `modules/core/claude-statusline.sh` there), then ask the user to
+change a user-wide setting, edit `claudeSettings` in `~/.config/nix-darwin/modules/core/dev.nix`,
+then ask the user to
 rebuild with `ns`. Project-level `.claude/settings.json` / `settings.local.json` are not managed
 and can be edited as usual.
 
@@ -39,4 +39,4 @@ apply without a rebuild:
 - Mods are kept in `~/.config/nix-darwin/claude/mods/<name>/` and load from there in both
   accounts. Edits to an existing mod reload in a running session. A new mod also needs its name
   added to the `CLAUDE_CODE_PLUGIN_DIRS` list in `modules/core/dev.nix` and a rebuild, and loads
-  in sessions started after that.
+  in sessions started after that. The status line is one of them, `statusline`.

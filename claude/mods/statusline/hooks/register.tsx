@@ -1,13 +1,15 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
-import type { Line, LinesChanged } from '../types'
+import type { Line } from '../types'
 
-// A coloured row above the prompt: repo | branch | context tokens | cost |
+// A coloured row under the prompt, above the engine's hint line: repo | branch | context tokens | cost |
 // lines added/removed | model | 5-hour quota.
 
-const line = atom({ plugin: 'statusline', key: 'line' } as const, null, { shape: 'line-1' })
-const lines = atom({ plugin: 'statusline', key: 'lines' } as const, { added: 0, removed: 0 }, { shape: 'lines-1' })
+const line = atom({ plugin: 'statusline', key: 'line' } as const, null, { shape: 'line-2' })
+
+// Untracked files counted at most; past this the count covers the first ones.
+const MAX_UNTRACKED = 500
 
 const COLOURS = {
   separator: '#5a5a5a',
@@ -32,18 +34,36 @@ function contextColour(percent: number): string {
   return `#${hex.join('')}`
 }
 
-type Patch = readonly { lines: readonly string[] }[]
+// Uncommitted lines in the repository holding `cwd`, or undefined outside
+// one (or before its first commit, when there is no HEAD to diff against).
+async function gitLines($: EngineInterface, cwd: string): Promise<{ added: number; removed: number } | undefined> {
+  const git = (args: string[], dir: string) =>
+    $.process.run(['git', '--no-optional-locks', ...args], { cwd: dir, timeoutMs: 5000 }).catch(() => undefined)
 
-// Counts a diff's added and removed lines, as the status line's
-// total_lines_added and total_lines_removed do.
-function countPatch(patch: Patch): LinesChanged {
+  const top = await git(['rev-parse', '--show-toplevel'], cwd)
+  if (top?.exitCode !== 0) return undefined
+  const root = top.stdout.trim()
+
+  // Tracked changes, staged or not. Binary files read "-\t-" and count as 0.
+  const diff = await git(['diff', '--numstat', 'HEAD'], root)
+  if (diff?.exitCode !== 0) return undefined
   let added = 0
   let removed = 0
-  for (const hunk of patch) {
-    for (const l of hunk.lines) {
-      if (l.startsWith('+')) added += 1
-      else if (l.startsWith('-')) removed += 1
-    }
+  for (const row of diff.stdout.split('\n')) {
+    const [plus, minus] = row.split('\t')
+    added += Number(plus) || 0
+    removed += Number(minus) || 0
+  }
+
+  // Untracked files are all additions; git diff leaves them out.
+  const others = await git(['ls-files', '--others', '--exclude-standard', '-z'], root)
+  const files = others?.exitCode === 0 ? others.stdout.split('\0').filter(Boolean).slice(0, MAX_UNTRACKED) : []
+  if (files.length > 0) {
+    const wc = await $.process.run(['wc', '-l', '--', ...files], { cwd: root, timeoutMs: 5000 }).catch(() => undefined)
+    // wc prints one row per file, then a total row when given several.
+    const rows = (wc?.stdout ?? '').trim().split('\n')
+    const total = files.length > 1 ? rows[rows.length - 1] : rows[0]
+    added += Number(total?.trim().split(/\s+/)[0]) || 0
   }
 
   return { added, removed }
@@ -68,6 +88,7 @@ async function measure($: EngineInterface): Promise<Line> {
   const branch = git?.exitCode === 0 ? git.stdout.trim() || undefined : undefined
 
   const fiveHour = usage.rateLimits.find(r => r.kind === 'five_hour')
+  const lines = await gitLines($, cwd)
 
   return {
     repo: basename(repo?.root ?? cwd),
@@ -78,6 +99,8 @@ async function measure($: EngineInterface): Promise<Line> {
     model,
     quotaPercent: fiveHour?.percentUsed,
     quotaResetsAt: fiveHour?.resetsAt ? Date.parse(fiveHour.resetsAt) : undefined,
+    added: lines?.added,
+    removed: lines?.removed,
   }
 }
 
@@ -102,19 +125,12 @@ export const register: Register = on => {
     return result
   })
 
-  // Edits and writes: count the lines their diffs changed.
+  // Tools that can change files: re-read the line counts and branch.
   on('tool.call', async ($, e, next) => {
     const result = await next(e)
 
-    if ((e.tool === 'Edit' || e.tool === 'Write') && 'result' in result && result.result && !result.isError) {
-      const patch = (result.result as { structuredPatch?: Patch }).structuredPatch ?? []
-      const counted = countPatch(patch)
-      if (counted.added > 0 || counted.removed > 0) {
-        await update($, lines, total => ({
-          added: total.added + counted.added,
-          removed: total.removed + counted.removed,
-        }))
-      }
+    if (['Edit', 'Write', 'NotebookEdit', 'Bash'].includes(String(e.tool))) {
+      await refresh($)
     }
 
     return result
@@ -128,11 +144,10 @@ export const register: Register = on => {
     return result
   })
 
-  on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
+  on('ui.render', { component: 'PromptHint' }, async ($, e, next) => {
     const current = await read($, line)
-    const changed = await read($, lines)
 
-    if (e.props.hasSurvey || current === null) {
+    if (current === null) {
       return next(e)
     }
 
@@ -152,11 +167,13 @@ export const register: Register = on => {
     const percent = current.compactAt > 0 ? (tokens / current.compactAt) * 100 : 0
     add('context', { text: `${(tokens / 1000).toFixed(1)}k tokens`, colour: contextColour(percent) })
     add('cost', { text: `$${(current.costUsd ?? 0).toFixed(2)}`, colour: COLOURS.cost })
-    add(
-      'lines',
-      { text: `+${changed.added}`, colour: COLOURS.added },
-      { text: ` -${changed.removed}`, colour: COLOURS.removed },
-    )
+    if (current.added !== undefined && current.removed !== undefined) {
+      add(
+        'lines',
+        { text: `+${current.added}`, colour: COLOURS.added },
+        { text: ` -${current.removed}`, colour: COLOURS.removed },
+      )
+    }
     add('model', { text: current.model, colour: COLOURS.model })
     if (current.quotaPercent !== undefined) {
       const hours =
@@ -166,16 +183,21 @@ export const register: Register = on => {
       add('quota', { text: `${Math.round(current.quotaPercent)}%${hours}`, colour: COLOURS.quota })
     }
 
+    const hint = await next(e)
+
     return (
-      <Box>
-        {parts.flatMap((part, i) => [
-          ...(i > 0 ? [<Text key={`sep-${part.key}`} color={COLOURS.separator} dimColor>{' | '}</Text>] : []),
-          ...part.pieces.map((piece, j) => (
-            <Text key={`${part.key}-${j}`} color={piece.colour} bold={piece.bold}>
-              {piece.text}
-            </Text>
-          )),
-        ])}
+      <Box flexDirection="column">
+        <Box key="status">
+          {parts.flatMap((part, i) => [
+            ...(i > 0 ? [<Text key={`sep-${part.key}`} color={COLOURS.separator} dimColor>{' | '}</Text>] : []),
+            ...part.pieces.map((piece, j) => (
+              <Text key={`${part.key}-${j}`} color={piece.colour} bold={piece.bold}>
+                {piece.text}
+              </Text>
+            )),
+          ])}
+        </Box>
+        <Box key="hint">{hint}</Box>
       </Box>
     )
   })

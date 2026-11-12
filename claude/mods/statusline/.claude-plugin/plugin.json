@@ -1,6 +1,6 @@
 {
   "name": "statusline",
   "version": "0.1.0",
-  "description": "A coloured row above the prompt: repo, branch, context used, cost, model and 5-hour quota",
+  "description": "A coloured row under the prompt: repo, branch, context used, cost, model and 5-hour quota",
   "types": "./types/index.d.ts"
 }

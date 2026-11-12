@@ -15,17 +15,6 @@
     claudeDir = "${config.home.homeDirectory}/.config/nix-darwin/claude";
     userInstructions = config.lib.file.mkOutOfStoreSymlink "${claudeDir}/claude-user.md";
 
-    # Status line: repo, branch, context tokens, cost, lines changed, model,
-    # 5-hour quota. Its dependencies are pinned onto PATH; bashOptions is
-    # emptied because the script expects failed lookups (e.g. no git branch)
-    # to fall through rather than abort.
-    statusline = pkgs.writeShellApplication {
-      name = "claude-statusline";
-      runtimeInputs = with pkgs; [ jq git gawk coreutils ];
-      bashOptions = [ ];
-      text = builtins.readFile ./claude-statusline.sh;
-    };
-
     # SessionStart hook: tells the session when the repository it starts in
     # is managed by GitButler, which keeps its state in .git/gitbutler/ (the
     # common dir, so linked worktrees count too). The checked-out branch
@@ -51,15 +40,12 @@
       # Mods (Claude Code plugins with a hooks module) load straight from
       # their folders in this repo, so edits apply without a rebuild: an
       # interactive session watches each folder and reloads the mod when a
-      # file in it is saved. Adding a mod means adding its folder here.
+      # file in it is saved. Adding a mod means adding its folder here. The
+      # status line is one of them (statusline), drawn under the prompt.
       env.CLAUDE_CODE_PLUGIN_DIRS = lib.concatMapStringsSep ":" (mod: "${claudeDir}/mods/${mod}") [
         "review-tracker"
         "statusline"
       ];
-      statusLine = {
-        type = "command";
-        command = "${statusline}/bin/claude-statusline";
-      };
       # Play a sound whenever Claude finishes a turn, and a different one
       # when it stops to ask for permission.
       hooks.Stop = [{

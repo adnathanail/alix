@@ -12,13 +12,14 @@ export type Line = {
   quotaPercent?: number
   // Epoch milliseconds.
   quotaResetsAt?: number
+  // Uncommitted lines in the repository: tracked changes against HEAD plus
+  // every line of untracked (not ignored) files. Absent outside a repository.
+  added?: number
+  removed?: number
 }
-
-// Lines added and removed by Edit and Write calls this session.
-export type LinesChanged = { added: number; removed: number }
 
 declare module 'claude-code' {
   interface PluginState {
-    statusline: { line: Shaped<Line | null>; lines: Shaped<LinesChanged> }
+    statusline: { line: Shaped<Line | null> }
   }
 }
