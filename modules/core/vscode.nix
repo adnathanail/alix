@@ -84,6 +84,12 @@
         "terminal.integrated.fontFamily" = "'JetBrains Mono'";
         # Open Claude code in terminal
         "claudeCode.useTerminal" = true;
+        # The editor comes from Nix. VS Code's own updater (Squirrel's
+        # ShipIt) asks for admin rights when it can't write to the app, then
+        # replaces the bundle inside the store path as root, leaving files
+        # only root can read and breaking Home Manager's copy into
+        # ~/Applications. Update through `nix flake update` instead.
+        "update.mode" = "none";
         # Extensions come from Nix; the store is read-only so VS Code's
         # in-app updater can't write to them.
         "extensions.autoCheckUpdates" = false;

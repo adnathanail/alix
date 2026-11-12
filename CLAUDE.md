@@ -265,6 +265,10 @@ Nix-managed unless noted.
   `pkgs.vscode-extensions.<publisher>.<name>`; otherwise
   `pkgs.vscode-utils.extensionFromVscodeMarketplace` with publisher, name, version, and hash
   (bump version + hash together). The first eval after adding the extension set is slow.
+  `"update.mode" = "none"` must stay: VS Code's Squirrel updater (ShipIt) otherwise gets admin
+  rights and rewrites the app *inside the store path* as root, leaving root-only 0600 files that
+  break Home Manager's rsync into `~/Applications`. If that has happened, repair the path with
+  `sudo nix-store --repair-path <vscode store path>`.
 - **PyCharm Professional** *(Nix, stable)* — lands at
   `~/Applications/Home Manager Apps/PyCharm.app`. The keymap at `modules/apps/pycharm/custom-keymap.xml`
   (named "ALix keymap" in-app) is symlinked into
