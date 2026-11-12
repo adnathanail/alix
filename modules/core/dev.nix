@@ -54,6 +54,7 @@
       # file in it is saved. Adding a mod means adding its folder here.
       env.CLAUDE_CODE_PLUGIN_DIRS = lib.concatMapStringsSep ":" (mod: "${claudeDir}/mods/${mod}") [
         "review-tracker"
+        "statusline"
       ];
       statusLine = {
         type = "command";
