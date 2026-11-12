@@ -131,3 +131,4 @@ macOS settings (`modules/core/macos.nix`)
 ### Fonts
 
 - TeX Gyre Schola
+- JetBrains Mono (code and terminal font in VS Code, Rex and GitButler)

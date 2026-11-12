@@ -143,6 +143,10 @@
           open_branch_on_click = true;
           # "Start commits with nothing checked".
           composer_starts_unchecked = true;
+          # Font family names; JetBrains Mono is installed by
+          # modules/apps/other.nix.
+          diff_font = "JetBrains Mono";
+          terminal_font = "JetBrains Mono";
         };
         apply = pkgs.writeShellScript "gitbutler-apply" ''
           exec ${pkgs.python3}/bin/python3 ${./gitbutler-apply.py} "$@" ${pkgs.writeText "gitbutler-prefs.json" (builtins.toJSON prefs)}

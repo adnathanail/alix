@@ -199,5 +199,10 @@ in {
   };
 
   # The store copy is read-only, so Sparkle can't update it; stop it checking.
-  system.defaults.CustomUserPreferences."com.superlogical.rex".SUEnableAutomaticChecks = false;
+  system.defaults.CustomUserPreferences."com.superlogical.rex" = {
+    SUEnableAutomaticChecks = false;
+    # Terminal font, by family name (installed by modules/apps/other.nix).
+    # Quit Rex before `ns`, or it may write its own value back over this.
+    "Workspace.terminalFontName" = "JetBrains Mono";
+  };
 }

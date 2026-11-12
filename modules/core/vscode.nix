@@ -78,6 +78,10 @@
         })
       ];
       userSettings = {
+        # JetBrains Mono, installed by modules/apps/other.nix.
+        "editor.fontFamily" = "'JetBrains Mono', Menlo, monospace";
+        "editor.fontLigatures" = true;
+        "terminal.integrated.fontFamily" = "'JetBrains Mono'";
         # Open Claude code in terminal
         "claudeCode.useTerminal" = true;
         # Extensions come from Nix; the store is read-only so VS Code's

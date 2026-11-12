@@ -44,8 +44,12 @@
 
   # Fonts, installed system-wide into /Library/Fonts (macOS finds fonts by
   # scanning the Fonts folders, and HM has no Darwin font-install option).
+  # JetBrains Mono is the code and terminal font in VS Code
+  # (modules/core/vscode.nix), Rex (modules/apps/rex.nix) and GitButler
+  # (modules/core/dev.nix).
   fonts.packages = [
     pkgs.tex-gyre.schola
+    pkgs.jetbrains-mono
   ];
 
   homebrew.casks = [
