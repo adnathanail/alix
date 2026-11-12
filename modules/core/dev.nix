@@ -104,6 +104,13 @@
     # ~/.claude) so logging in here doesn't clobber the personal session.
     programs.zsh.shellAliases.claude-work = "CLAUDE_CONFIG_DIR=$HOME/.claude-work claude";
 
+    # Claude Code without Home Manager's wrapper, which puts
+    # `--plugin-dir <its plugin>` before every command line. `claude plugin
+    # test` (and other subcommands that refuse options before `plugin`) only
+    # run this way: `claude-raw plugin test <mod folder>`. Home Manager's
+    # plugin (the ExtraDock MCP server and skills) isn't loaded.
+    programs.zsh.shellAliases.claude-raw = "${config.programs.claude-code.package}/bin/claude";
+
     # Jump into this config repo and start a Claude Code session there.
     programs.zsh.shellAliases.ncc = "cd ~/.config/nix-darwin && claude";
 

@@ -40,3 +40,5 @@ apply without a rebuild:
   accounts. Edits to an existing mod reload in a running session. A new mod also needs its name
   added to the `CLAUDE_CODE_PLUGIN_DIRS` list in `modules/core/dev.nix` and a rebuild, and loads
   in sessions started after that. The status line is one of them, `statusline`.
+- Run a mod's tests with `claude-raw plugin test <mod folder>`. Plain `claude` is a Home Manager
+  wrapper that puts `--plugin-dir` before every command line, which `claude plugin test` refuses.
