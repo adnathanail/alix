@@ -230,7 +230,7 @@ export const register: Register = on => {
       <Box flexDirection="column">
         <Button key={`item-${item.n}`} plain onPress={() => cycle(item)}>
           <Text
-            dimColor={isFinished(item)}
+            dimColor={item.status === 'skipped'}
             strikethrough={item.status === 'skipped'}
             color={item.status === 'doing' ? 'yellow' : item.status === 'done' ? 'green' : undefined}
           >
