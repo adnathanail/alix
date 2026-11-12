@@ -125,7 +125,17 @@
     home.activation.gitbutlerApply =
       let
         prefs = {
+          accent = "Teal";
+          corners = "Sharp";
+          ligatures = true;
+          # Side-by-side diffs.
+          split = true;
+          # Commit messages shown in the diff.
+          messages_in_diff = true;
+          hide_terminal_overview = true;
           open_branch_on_click = true;
+          # "Start commits with nothing checked".
+          composer_starts_unchecked = true;
         };
         apply = pkgs.writeShellScript "gitbutler-apply" ''
           exec ${pkgs.python3}/bin/python3 ${./gitbutler-apply.py} "$@" ${pkgs.writeText "gitbutler-prefs.json" (builtins.toJSON prefs)}
