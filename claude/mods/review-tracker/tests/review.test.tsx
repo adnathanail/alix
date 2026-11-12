@@ -34,6 +34,7 @@ test('set, mark and press an item', async ($, on) => {
 
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
   expect((await ui.find({ type: 'Text', text: /2\/2 finished/ }))).toBeTruthy()
+  expect((await ui.find({ type: 'Text', text: /^Finished$/ }))).toBeTruthy()
   await ui.press({ key: 'item-2' })
   expect((await ui.find({ type: 'Text', text: /\[ \] 2\. Rename foo/ }))).toBeTruthy()
   await ui.unmount()

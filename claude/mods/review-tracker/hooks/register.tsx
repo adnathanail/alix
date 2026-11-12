@@ -38,8 +38,12 @@ function nextStatus(status: ItemStatus): ItemStatus {
   return STATUSES[(STATUSES.indexOf(status) + 1) % STATUSES.length] ?? 'open'
 }
 
+function isFinished(item: ReviewItem): boolean {
+  return item.status === 'done' || item.status === 'skipped'
+}
+
 function summary(r: Review): string {
-  const finished = r.items.filter(i => i.status === 'done' || i.status === 'skipped').length
+  const finished = r.items.filter(isFinished).length
 
   return `${finished}/${r.items.length} finished`
 }
@@ -222,28 +226,34 @@ export const register: Register = on => {
       await update($, changes, list => withChange(list, item.n, item.status, to))
     }
 
+    const row = (item: ReviewItem) => (
+      <Box flexDirection="column">
+        <Button key={`item-${item.n}`} plain onPress={() => cycle(item)}>
+          <Text
+            dimColor={isFinished(item)}
+            strikethrough={item.status === 'skipped'}
+            color={item.status === 'doing' ? 'yellow' : item.status === 'done' ? 'green' : undefined}
+          >
+            {MARKS[item.status]} {item.n}. {item.text}
+          </Text>
+        </Button>
+        {item.note && <Text dimColor>    {item.note}</Text>}
+      </Box>
+    )
+    const remaining = r.items.filter(i => !isFinished(i))
+    const finished = r.items.filter(isFinished)
+
     return (
       <Box flexDirection="column">
         <Text bold>{r.title}</Text>
         <Text dimColor>{summary(r)} · press an item to change its status</Text>
-        {r.items.map(item => {
-          const isFinished = item.status === 'done' || item.status === 'skipped'
-
-          return (
-            <Box flexDirection="column">
-              <Button key={`item-${item.n}`} plain onPress={() => cycle(item)}>
-                <Text
-                  dimColor={isFinished}
-                  strikethrough={item.status === 'skipped'}
-                  color={item.status === 'doing' ? 'yellow' : item.status === 'done' ? 'green' : undefined}
-                >
-                  {MARKS[item.status]} {item.n}. {item.text}
-                </Text>
-              </Button>
-              {item.note && <Text dimColor>    {item.note}</Text>}
-            </Box>
-          )
-        })}
+        {remaining.map(row)}
+        {finished.length > 0 && (
+          <Box flexDirection="column" marginTop={1}>
+            <Text bold dimColor>Finished</Text>
+            {finished.map(row)}
+          </Box>
+        )}
       </Box>
     )
   })
