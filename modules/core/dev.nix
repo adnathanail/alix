@@ -26,6 +26,21 @@
       text = builtins.readFile ./claude-statusline.sh;
     };
 
+    # SessionStart hook: tells the session when the repository it starts in
+    # is managed by GitButler, which keeps its state in .git/gitbutler/ (the
+    # common dir, so linked worktrees count too). The checked-out branch
+    # doesn't show it: with one branch applied, GitButler checks that branch
+    # out instead of gitbutler/workspace. Silent outside such a repository.
+    gitbutlerCheck = pkgs.writeShellApplication {
+      name = "claude-gitbutler-check";
+      runtimeInputs = [ pkgs.git ];
+      text = ''
+        common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || exit 0
+        [ -d "$common/gitbutler" ] || exit 0
+        echo "This repository is managed by GitButler ($common/gitbutler exists). Use the \`but\` CLI rather than git write commands, whichever branch is checked out."
+      '';
+    };
+
     # settings.json, shared by the personal and work accounts. Nix-owned, so
     # settings changed from inside Claude Code (e.g. /config) don't persist —
     # change them here and rebuild. Other modules add to
@@ -51,6 +66,13 @@
           type = "command";
           command = "/usr/bin/afplay /System/Library/Sounds/Glass.aiff";
           async = true;
+        }];
+      }];
+      hooks.SessionStart = [{
+        hooks = [{
+          type = "command";
+          command = "${gitbutlerCheck}/bin/claude-gitbutler-check";
+          timeout = 5;
         }];
       }];
       hooks.Notification = [{

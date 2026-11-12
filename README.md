@@ -30,7 +30,7 @@ Ask Claude Code to run the `update-packages` skill
 ### Core
 
 Apps
-- Claude Code (`nixpkgs-master`), with a user-wide `CLAUDE.md` from `claude/claude-user.md` and mods from `claude/mods/` (both linked in place, so they're editable without a rebuild; mods: `review-tracker`, a pane tracking a review's numbered items), a Nix-managed `settings.json`, a status line script (`modules/core/claude-statusline.sh`) and sounds when a turn finishes or a permission prompt appears (`Stop` and `Notification` hooks), shared with the `claude-work` account
+- Claude Code (`nixpkgs-master`), with a user-wide `CLAUDE.md` from `claude/claude-user.md` and mods from `claude/mods/` (both linked in place, so they're editable without a rebuild; mods: `review-tracker`, a pane tracking a review's numbered items), a Nix-managed `settings.json`, a status line script (`modules/core/claude-statusline.sh`) and sounds when a turn finishes or a permission prompt appears (`Stop` and `Notification` hooks), a `SessionStart` hook telling the session when its repository is managed by GitButler, shared with the `claude-work` account
 - VS Code (`nixpkgs-unstable`)
 - 1Password
 - GitButler, with `but tui`'s `o` opening files in Helix in a Rex split below the TUI, reused for later files (plain Helix in the same terminal from `O`)

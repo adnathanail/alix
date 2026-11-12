@@ -6,8 +6,12 @@ Applies to every project. Project CLAUDE.md files can add to or override these.
 
 - **Do not commit without asking.**
 - **Do not add attributions to yourself in commit messages.**
-- Some repositories are managed with GitButler. If the current branch is `gitbutler/workspace`,
-  use the `but` CLI rather than git write commands.
+- Some repositories are managed with GitButler. In those, use the `but` CLI rather than git write
+  commands, whichever branch is checked out: with a single branch applied, GitButler checks that
+  branch out directly instead of `gitbutler/workspace`. A repository is managed with GitButler if
+  `test -d "$(git rev-parse --git-common-dir)/gitbutler"` succeeds (GitButler keeps its state in
+  `.git/gitbutler/`; the common dir covers linked worktrees too). A session-start hook says so
+  for the repository a session starts in; check any other repository before writing to it.
 - If you are told to commit, make changes in new commits rather than amending existing ones, unless told otherwise.
 
 ## Writing style
