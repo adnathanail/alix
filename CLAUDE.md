@@ -26,8 +26,9 @@ living at `~/.config/nix-darwin/`.
 | `modules/interface/signing.nix` | the re-signing script SketchyBar, aerospace-swipe and AeroSpace share: copies a store binary or `.app` bundle to a fixed path and signs it with the agenix'd identity, so TCC grants survive rebuilds |
 | `modules/interface/safari-window.nix` | `safari-window <profile>`: focuses an open Safari window in that profile (preferring the focused workspace, matched by AeroSpace window title), else opens one (File → New Window via System Events) and loads the homepage (set here). Plain function taking `{ pkgs }`, used by SketchyBar's Safari button and Hammerspoon's `safari.lua` |
 | `modules/interface/hammerspoon/` | Hammerspoon: the cask, its prefs (config path, updater off), `init.lua` — Fn+2 → €, Fn+3 → #, standing in for the ⌥ characters AeroSpace's bindings take over — `safari.lua` (generated via `replaceVars`), hyper + workspace digit → that profile's Safari window, and `notifications.lua`, which reads Slack's, Messages' and MailMate's unread counts into SketchyBar's notifications item and pops its native menu |
+| `claude/` | Claude Code config that sessions edit in place, linked out-of-store by `modules/core/dev.nix` so changes apply without a rebuild: `claude-user.md` (the user-wide `CLAUDE.md` for both accounts) and `mods/<name>/` (mods, loaded via `CLAUDE_CODE_PLUGIN_DIRS`) |
 | `modules/core/home.nix` | base Home Manager config (git identity, zsh, python/uv/node, `nix-switch`) and `home.stateVersion` — imported by `modules/core/default.nix`, so core must always be enabled |
-| `modules/core/dev.nix` | Claude Code (`programs.claude-code`, `settings.json` for both accounts, the status line built from `claude-statusline.sh`, updater opt-out, `claude-work` and `ncc` aliases), the Ghostty + GitButler casks, Ghostty's config file, and GitButler's `programs.json` (Helix in a reused Rex split first, for `but tui`'s `o`) — a darwin module with its HM part under `home-manager.users.${username}` |
+| `modules/core/dev.nix` | Claude Code (`programs.claude-code`, `settings.json` for both accounts, the links to `claude/`, the status line built from `claude-statusline.sh`, updater opt-out, `claude-work` and `ncc` aliases), the Ghostty + GitButler casks, Ghostty's config file, and GitButler's `programs.json` (Helix in a reused Rex split first, for `but tui`'s `o`) — a darwin module with its HM part under `home-manager.users.${username}` |
 | `modules/core/macos.nix` | macOS `system.defaults`: Dock, menu-bar clock, Control Center, `pbs` services hotkey; Touch ID for sudo |
 | `modules/core/keyboards.nix` | per-keyboard modifier remapping (Alt ↔ Windows on Windows-layout external keyboards), by vendor/product ID: the ByHost `com.apple.keyboard.modifiermapping.*` default that System Settings → Modifier Keys writes, plus `hidutil --matching` to apply it to an already-connected keyboard |
 | `modules/core/vscode.nix` | VS Code: editor from unstable, settings, extensions (HM module) |
@@ -235,6 +236,13 @@ Nix-managed unless noted.
   ask the user to rebuild. The status line is `modules/core/claude-statusline.sh`, built into the
   store by `writeShellApplication`, so edit it in the repo too. Project-level
   `.claude/settings.json` / `settings.local.json` files are not Nix-managed and stay writable.
+  The user-wide `CLAUDE.md` and the mods are the exception to Nix ownership: they live in
+  `claude/` and are linked with `mkOutOfStoreSymlink` (CLAUDE.md) or named by absolute path in
+  `env.CLAUDE_CODE_PLUGIN_DIRS` (mods), so sessions edit them in place and an interactive session
+  hot-reloads a mod on save. A plugin-dir mod is used rather than a directory marketplace because
+  installing from a marketplace writes `enabledPlugins` into the read-only `settings.json`. A
+  new mod needs adding to that list and a rebuild; `env` is read at session start. Both accounts
+  read the one checkout, so nothing needs syncing between them.
   Self-updater off via
   `home.sessionVariables.DISABLE_AUTOUPDATER = "1"`. `CLAUDE_CODE_CERT_STORE = "bundled,system"`
   overrides nixpkgs' wrapper default of `system`, which on macOS fails every API call with

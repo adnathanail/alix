@@ -7,8 +7,14 @@
   # toolchain). GitButler needs /Applications.
   homebrew.casks = [ "ghostty" "gitbutler" ];
 
-  home-manager.users.${username} = { pkgs, config, ... }:
+  home-manager.users.${username} = { pkgs, config, lib, ... }:
   let
+    # The repo's claude/ folder, by its checkout path rather than as a Nix
+    # path, so what links to it is writable and edits there apply without a
+    # rebuild (the same out-of-store pattern as nix-private).
+    claudeDir = "${config.home.homeDirectory}/.config/nix-darwin/claude";
+    userInstructions = config.lib.file.mkOutOfStoreSymlink "${claudeDir}/claude-user.md";
+
     # Status line: repo, branch, context tokens, cost, lines changed, model,
     # 5-hour quota. Its dependencies are pinned onto PATH; bashOptions is
     # emptied because the script expects failed lookups (e.g. no git branch)
@@ -27,6 +33,13 @@
     # hook); the work account's copy is built from the merged result.
     claudeSettings = {
       theme = "auto";
+      # Mods (Claude Code plugins with a hooks module) load straight from
+      # their folders in this repo, so edits apply without a rebuild: an
+      # interactive session watches each folder and reloads the mod when a
+      # file in it is saved. Adding a mod means adding its folder here.
+      env.CLAUDE_CODE_PLUGIN_DIRS = lib.concatMapStringsSep ":" (mod: "${claudeDir}/mods/${mod}") [
+        "review-tracker"
+      ];
       statusLine = {
         type = "command";
         command = "${statusline}/bin/claude-statusline";
@@ -56,14 +69,16 @@
       enable = true;
       package = pkgs.master.claude-code;
       settings = claudeSettings;
-      # User-wide CLAUDE.md (~/.claude/CLAUDE.md). Not named CLAUDE.md in
-      # the repo, or Claude Code would load it as memory for this directory.
-      context = ./claude-user.md;
     };
 
-    # Same user-wide instructions and settings for the work account
-    # (claude-work, below).
-    home.file.".claude-work/CLAUDE.md".source = ./claude-user.md;
+    # User-wide CLAUDE.md for both accounts (the work one is claude-work,
+    # below), linked to claude/claude-user.md so sessions can edit it in
+    # place. Not named CLAUDE.md in the repo, or Claude Code would load it as
+    # memory for that directory.
+    home.file.".claude/CLAUDE.md".source = userInstructions;
+    home.file.".claude-work/CLAUDE.md".source = userInstructions;
+
+    # Same settings for the work account.
     home.file.".claude-work/settings.json".text = builtins.toJSON config.programs.claude-code.settings;
 
     # Stop Claude Code self-updating into the read-only store;

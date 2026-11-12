@@ -1,0 +1,6 @@
+{
+  "name": "review-tracker",
+  "version": "0.1.0",
+  "description": "A pane that tracks the numbered items of a review as they are worked through",
+  "types": "./types/index.d.ts"
+}

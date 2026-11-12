@@ -27,3 +27,12 @@ change a user-wide setting, edit `claudeSettings` in `~/.config/nix-darwin/modul
 (the status line script is `modules/core/claude-statusline.sh` there), then ask the user to
 rebuild with `ns`. Project-level `.claude/settings.json` / `settings.local.json` are not managed
 and can be edited as usual.
+
+The editable parts live in that repo's `claude/` folder, linked into place, so changes there
+apply without a rebuild:
+
+- This file is `~/.config/nix-darwin/claude/claude-user.md`, shared by both accounts. Edit it there.
+- Mods are kept in `~/.config/nix-darwin/claude/mods/<name>/` and load from there in both
+  accounts. Edits to an existing mod reload in a running session. A new mod also needs its name
+  added to the `CLAUDE_CODE_PLUGIN_DIRS` list in `modules/core/dev.nix` and a rebuild, and loads
+  in sessions started after that.
