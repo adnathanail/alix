@@ -116,6 +116,29 @@
       auto-update = off
     '';
 
+    # GitButler GUI preferences, merged into the app's own preferences on
+    # every `ns` by gitbutler-apply (modules/core/gitbutler-apply.py — see
+    # there for how), named as GitButler stores them. Change them here, not
+    # in-app: an in-app change to a declared key is reverted on the next
+    # rebuild. Undeclared preferences stay app-managed. Failing shouldn't
+    # stop the rest of `ns`.
+    home.activation.gitbutlerApply =
+      let
+        prefs = {
+          open_branch_on_click = true;
+        };
+        apply = pkgs.writeShellScript "gitbutler-apply" ''
+          exec ${pkgs.python3}/bin/python3 ${./gitbutler-apply.py} "$@" ${pkgs.writeText "gitbutler-prefs.json" (builtins.toJSON prefs)}
+        '';
+      in
+      lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        if [[ -v DRY_RUN ]]; then
+          ${apply} --dry-run || true
+        else
+          ${apply} || true
+        fi
+      '';
+
     # Programs GitButler's `but tui` can open files in. User-defined entries
     # come before the built-ins, in this order, so the first is what `o`
     # (open in default program) uses; `O` offers the full list. This is

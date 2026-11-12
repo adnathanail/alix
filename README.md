@@ -33,7 +33,7 @@ Apps
 - Claude Code (`nixpkgs-master`), with a user-wide `CLAUDE.md` from `claude/claude-user.md` and mods from `claude/mods/` (both linked in place, so they're editable without a rebuild; mods: `review-tracker`, a pane tracking a review's numbered items; `statusline`, the status line: a coloured row under the prompt with repo, branch, context used, cost, uncommitted lines, model and 5-hour quota), a Nix-managed `settings.json` and sounds when a turn finishes or a permission prompt appears (`Stop` and `Notification` hooks), a `SessionStart` hook telling the session when its repository is managed by GitButler, shared with the `claude-work` account
 - VS Code (`nixpkgs-unstable`)
 - 1Password
-- GitButler, with `but tui`'s `o` opening files in Helix in a Rex split below the TUI, reused for later files (plain Helix in the same terminal from `O`)
+- GitButler, with Nix-declared GUI preferences (branches open on click; merged in on every `ns`, quitting and reopening GitButler if it's running) and `but tui`'s `o` opening files in Helix in a Rex split below the TUI, reused for later files (plain Helix in the same terminal from `O`)
 - Ghostty
 
 CLI
