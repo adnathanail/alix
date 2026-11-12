@@ -11,6 +11,13 @@ const line = atom({ plugin: 'statusline', key: 'line' } as const, null, { shape:
 // Untracked files counted at most; past this the count covers the first ones.
 const MAX_UNTRACKED = 500
 
+// When the row is wider than the terminal, these parts are dropped in this
+// order until it fits. If it still doesn't, the remaining parts wrap onto
+// further lines, each part kept whole.
+const DROP_ORDER = ['cost', 'model', 'lines']
+
+const SEPARATOR = ' | '
+
 const COLOURS = {
   separator: '#5a5a5a',
   repo: '#e6c83c',
@@ -156,7 +163,7 @@ export const register: Register = on => {
 
     // Each part is one or more coloured pieces; parts are separated by " | ".
     type Piece = { text: string; colour: string; bold?: boolean }
-    const parts: { key: string; pieces: Piece[] }[] = []
+    let parts: { key: string; pieces: Piece[] }[] = []
     const add = (key: string, ...pieces: Piece[]) => parts.push({ key, pieces })
 
     add('repo', { text: current.repo, colour: COLOURS.repo, bold: true })
@@ -183,19 +190,36 @@ export const register: Register = on => {
       add('quota', { text: `${Math.round(current.quotaPercent)}%${hours}`, colour: COLOURS.quota })
     }
 
+    // Width in cells, counting code points (the row's text is narrow
+    // characters), with a separator between each pair of parts.
+    const width = (list: typeof parts) =>
+      list.reduce((sum, part) => sum + part.pieces.reduce((n, p) => n + [...p.text].length, 0), 0) +
+      SEPARATOR.length * Math.max(0, list.length - 1)
+    const columns = e.viewport?.columns
+    if (columns !== undefined) {
+      for (const key of DROP_ORDER) {
+        if (width(parts) <= columns) break
+        parts = parts.filter(part => part.key !== key)
+      }
+    }
+
     const hint = await next(e)
 
     return (
       <Box flexDirection="column">
-        <Box key="status">
-          {parts.flatMap((part, i) => [
-            ...(i > 0 ? [<Text key={`sep-${part.key}`} color={COLOURS.separator} dimColor>{' | '}</Text>] : []),
-            ...part.pieces.map((piece, j) => (
-              <Text key={`${part.key}-${j}`} color={piece.colour} bold={piece.bold}>
-                {piece.text}
-              </Text>
-            )),
-          ])}
+        <Box key="status" flexWrap="wrap">
+          {parts.map((part, i) => (
+            // One unbreakable unit per part, its separator leading, so a wrap
+            // falls between parts rather than inside one.
+            <Box key={part.key} flexShrink={0}>
+              {i > 0 ? <Text key="sep" color={COLOURS.separator} dimColor>{SEPARATOR}</Text> : null}
+              {part.pieces.map((piece, j) => (
+                <Text key={`piece-${j}`} color={piece.colour} bold={piece.bold}>
+                  {piece.text}
+                </Text>
+              ))}
+            </Box>
+          ))}
         </Box>
         <Box key="hint">{hint}</Box>
       </Box>
