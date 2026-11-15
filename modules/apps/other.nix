@@ -75,6 +75,7 @@
     "telegram"
     "signal"
     "brave-browser"
+    "google-chrome"
     "raindropio"
     "deepl"
     "dockflow"
