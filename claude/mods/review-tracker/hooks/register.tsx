@@ -1,5 +1,5 @@
 import { atom, read, update } from 'claude-code'
-import type { EngineInterface, Register } from 'claude-code'
+import type { EngineInterface, Register, Timer } from 'claude-code'
 
 import type { ItemStatus, PaneChange, Review, ReviewItem } from '../types'
 
@@ -14,6 +14,24 @@ const review = atom({ plugin: 'review-tracker', key: 'review' } as const, null, 
 const changes = atom({ plugin: 'review-tracker', key: 'changes' } as const, [], {
   shape: 'changes-1',
 })
+
+// Items pressed in the pane in the last HOLD_MS, kept in the section they were
+// in when first pressed, so pressing again steps through every status.
+const held = atom({ plugin: 'review-tracker', key: 'held' } as const, [], {
+  shape: 'held-1',
+})
+const HOLD_MS = 5000
+// The timer that ends each item's hold, restarted by every press.
+const holdTimers = new Map<number, Timer>()
+
+function release($: EngineInterface, ns: number[]) {
+  for (const n of ns) {
+    holdTimers.get(n)?.cancel()
+    holdTimers.delete(n)
+  }
+
+  return update($, held, list => list.filter(h => !ns.includes(h.n)))
+}
 
 // Records a press in the pane, one entry per item: its status before the first
 // unreported press and after the last, dropped once they match again.
@@ -123,6 +141,8 @@ export const register: Register = on => {
       },
       isDeferred: false,
     })
+    // A reload drops the timers, so nothing would end a hold kept from before.
+    await update($, held, () => [])
 
     return next(e)
   })
@@ -131,6 +151,7 @@ export const register: Register = on => {
     if (e.args.trim() === 'clear') {
       await update($, review, () => null)
       await update($, changes, () => [])
+      await release($, [...holdTimers.keys()])
 
       return { text: 'Review tracker cleared.' }
     }
@@ -145,6 +166,7 @@ export const register: Register = on => {
     const r: Review = { title: input.title, items }
     await update($, review, () => r)
     await update($, changes, () => [])
+    await release($, [...holdTimers.keys()])
     await openPane($)
 
     return { result: `Tracking ${items.length} items in the review pane.` }
@@ -180,6 +202,8 @@ export const register: Register = on => {
     )
     // The result lists every status, the user's changes included.
     await update($, changes, () => [])
+    // Claude's own changes move an item at once.
+    await release($, (input.updates ?? []).map(u => u.n))
 
     return { result: asText(updated) }
   })
@@ -224,7 +248,21 @@ export const register: Register = on => {
           : { ...cur, items: cur.items.map(i => (i.n === item.n ? { ...i, status: to } : i)) },
       )
       await update($, changes, list => withChange(list, item.n, item.status, to))
+      await update($, held, list =>
+        list.some(h => h.n === item.n) ? list : [...list, { n: item.n, isFinished: isFinished(item) }],
+      )
+      holdTimers.get(item.n)?.cancel()
+      holdTimers.set(
+        item.n,
+        $.clock.after(HOLD_MS, () => {
+          holdTimers.delete(item.n)
+          void update($, held, list => list.filter(h => h.n !== item.n))
+        }),
+      )
     }
+    const holds = await read($, held)
+    const drawnFinished = (item: ReviewItem) =>
+      holds.find(h => h.n === item.n)?.isFinished ?? isFinished(item)
 
     const row = (item: ReviewItem) => (
       <Box flexDirection="column">
@@ -240,8 +278,8 @@ export const register: Register = on => {
         {item.note && <Text dimColor>    {item.note}</Text>}
       </Box>
     )
-    const remaining = r.items.filter(i => !isFinished(i))
-    const finished = r.items.filter(isFinished)
+    const remaining = r.items.filter(i => !drawnFinished(i))
+    const finished = r.items.filter(drawnFinished)
 
     return (
       <Box flexDirection="column">

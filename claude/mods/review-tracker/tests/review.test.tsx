@@ -1,4 +1,4 @@
-import { expect, test } from 'claude-code/testing'
+import { expect, mock, test } from 'claude-code/testing'
 
 const PANE = {
   plugin: 'review-tracker',
@@ -75,4 +75,34 @@ test('a press in the pane reaches the next prompt once', async ($, on) => {
   expect(first?.[0]).toContain('- item 2: open → done')
   expect(first?.[0]).not.toContain('item 1:')
   expect(second).toBeUndefined()
+})
+
+test('a pressed item stays in its section for five seconds', async ($, on) => {
+  const clock = mock.clock(on)
+  on('command.register', () => ({ value: { command: 'review-tracker' } }))
+  on('tool.register', (_, e) => ({ value: { tool: `mcp__review-tracker__${e.name}` } }))
+  on('ui.open', () => ({ value: { isPlaced: true } }))
+  on('session.start', (_, e) => ({ cwd: e.cwd }))
+
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  await $.tool.call({
+    tool: 'mcp__review-tracker__review_set',
+    title: 'PR review',
+    items: [{ n: 1, text: 'Fix the race' }, { n: 2, text: 'Rename foo' }],
+  })
+
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  await ui.press({ key: 'item-1' }) // open → doing
+  await ui.press({ key: 'item-1' }) // doing → done
+  expect(await ui.find({ type: 'Text', text: /\[x\] 1\. Fix the race/ })).toBeTruthy()
+  expect(await ui.find({ type: 'Text', text: /^Finished$/ })).toBeFalsy()
+
+  await clock.advance(4000)
+  await ui.press({ key: 'item-1' }) // done → skipped: the hold starts again
+  await clock.advance(4000)
+  expect(await ui.find({ type: 'Text', text: /^Finished$/ })).toBeFalsy()
+
+  await clock.advance(1000)
+  expect(await ui.find({ type: 'Text', text: /^Finished$/ })).toBeTruthy()
+  await ui.unmount()
 })
