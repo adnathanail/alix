@@ -84,6 +84,7 @@ macOS settings (`modules/core/macos.nix`)
 - Raspberry Pi Imager (writes `.img` files to SD cards / USB drives)
 - Anki
 - Private Internet Access (VPN)
+- Tailscale (mesh VPN, standalone app + `tailscale` CLI; in-app auto-updates off, see `modules/apps/other.nix`)
 - Telegram
 - Signal
 - Brave Browser

@@ -93,7 +93,17 @@
     "libreoffice"
     # Writes OS images (any .img, compressed or not) to SD cards and USB drives.
     "raspberry-pi-imager"
+    # Tailscale mesh VPN, the standalone (non-App Store) app. A cask because
+    # its system extension needs Tailscale's signature intact and /Applications.
+    # Also installs the `tailscale` CLI to /usr/local/bin.
+    "tailscale-app"
   ];
+
+  # Tailscale's system policies, read from its defaults domain. Its Sparkle
+  # updater stays off so updates come through `brew upgrade --greedy`.
+  system.defaults.CustomUserPreferences."io.tailscale.ipn.macsys" = {
+    ApplyUpdates = "never";
+  };
 
   homebrew.brews = [
     # The Mac App Store CLI, for `mas search <name>` to find app IDs.
