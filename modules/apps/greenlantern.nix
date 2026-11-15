@@ -13,9 +13,13 @@ in
 {
   environment.etc."ssh/greenlantern.pub".text = publicKey + "\n";
 
+  # `greenlantern` is a shortcut for the home network address. The Tailscale
+  # name is matched by wildcard so the tailnet's name stays out of this repo.
   environment.etc."ssh/ssh_config.d/200-greenlantern.conf".text = ''
-    Host greenlantern greenlantern.local
+    Host greenlantern
       HostName greenlantern.local
+
+    Host greenlantern greenlantern.local greenlantern.*.ts.net
       User alex
       IdentityFile /etc/ssh/greenlantern.pub
       IdentitiesOnly yes
