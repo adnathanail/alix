@@ -16,6 +16,7 @@
     ./eduroam.nix   # UvA eduroam Wi-Fi profile (username + CAs from nix-private)
     ./rex.nix       # Rex Beta (direct-download package)
     ./linux-builder.nix # aarch64-linux builder VM, for building NixOS systems
+    ./greenlantern.nix  # SSH settings for the Green Lantern Pi
   ];
 
   # Home Manager modules

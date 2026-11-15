@@ -131,6 +131,7 @@ macOS settings (`modules/core/macos.nix`)
 - Helix (`hx`, modal terminal editor)
 - poppler (PDF tools: `pdftotext`, `pdftoppm`, `pdfinfo`, etc. for Claude)
 - Linux builder (an aarch64-linux NixOS VM that builds Linux derivations, e.g. NixOS systems for a Raspberry Pi; runs as a launchd daemon, see `modules/apps/linux-builder.nix`)
+- Green Lantern SSH settings (`ssh greenlantern` logs into the Raspberry Pi home automation server with its own 1Password key; see `modules/apps/greenlantern.nix`)
 
 ### Fonts
 
