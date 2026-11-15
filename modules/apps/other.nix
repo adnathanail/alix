@@ -88,6 +88,8 @@
     # links to the download page; turn it off in Preferences → LibreOffice →
     # Online Update.
     "libreoffice"
+    # Writes OS images (any .img, compressed or not) to SD cards and USB drives.
+    "raspberry-pi-imager"
   ];
 
   homebrew.brews = [
