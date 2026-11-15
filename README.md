@@ -129,6 +129,7 @@ macOS settings (`modules/core/macos.nix`)
 - mysql (client only, from `mariadb.client` — `mysql`, `mysqldump`, `mysqladmin`; no server)
 - Helix (`hx`, modal terminal editor)
 - poppler (PDF tools: `pdftotext`, `pdftoppm`, `pdfinfo`, etc. for Claude)
+- Linux builder (an aarch64-linux NixOS VM that builds Linux derivations, e.g. NixOS systems for a Raspberry Pi; runs as a launchd daemon, see `modules/apps/linux-builder.nix`)
 
 ### Fonts
 

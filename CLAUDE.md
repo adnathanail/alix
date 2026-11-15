@@ -40,6 +40,7 @@ living at `~/.config/nix-darwin/`.
 | `modules/apps/mailmate.nix` | everything MailMate: the cask, the provision-once activation step for the account config (from nix-private), and its Dock/menu-bar counters (unread must stay the only menu-bar one — Hammerspoon reads it) |
 | `modules/apps/microsoft.nix` | everything Microsoft Office: the Outlook cask, Word/Excel/PowerPoint `masApps`, and the Office/Outlook/AutoUpdate prefs |
 | `modules/apps/appdev.nix`, `modules/apps/macapps.nix` | darwin modules, each adding to `homebrew.masApps` (they merge, along with `microsoft.nix`'s and `other.nix`'s); deliberately independent of each other |
+| `modules/apps/linux-builder.nix` | the aarch64-linux builder VM (`pkgs.darwin.linux-builder`): its launchd daemon, the `linux-builder` SSH host entry, and `/etc/nix/machines` — see *`nix.enable = false`* below |
 | `modules/apps/rocq.nix`, `modules/apps/eleventy.nix`, `modules/apps/go.nix`, `modules/apps/fresh.nix`, `modules/apps/fermioniq.nix`, `modules/apps/nx/nx.nix`, `modules/apps/vite-plus.nix`, `modules/apps/pycharm/pycharm.nix`, `modules/apps/qbittorrent/qbittorrent.nix`, `modules/apps/uvtools.nix` | optional HM feature modules, imported by `modules/apps/default.nix` — comment out a line to drop the feature |
 | `modules/apps/nx/package.json`, `package-lock.json` | the npm wrapper project `nx.nix` builds from |
 | `modules/apps/qbittorrent/` | qBittorrent: `qbittorrent.nix` (HM module) installs it and declares settings; `qbittorrent-apply.py` sets just those keys in the app-owned `~/.config/qBittorrent/qBittorrent.ini` on every `ns`, stopping (SIGTERM) and reopening a running qBittorrent around the write |
@@ -75,6 +76,9 @@ those too collides (`error: Unexpected files in /etc`).
 - All `nix.*` options (`nix.settings.*`, Linux builder, …) are therefore **unavailable**. Extra
   Nix settings (substituters, trusted-users, caches) go in `/etc/nix/nix.custom.conf`, which the
   Lix-generated `nix.conf` already `!include`s.
+- The Linux builder is therefore set up by hand in `modules/apps/linux-builder.nix`: a copy of
+  nix-darwin's `nix.linux-builder` launchd daemon, registered with the daemon through
+  `/etc/nix/machines` (Lix's default `builders` file) rather than `nix.buildMachines`.
 - Flakes + `nix-command` are already enabled globally by the installer.
 
 ### Stable pins: nixpkgs 26.05, HM `release-26.05`, nix-darwin `nix-darwin-26.05`
