@@ -113,6 +113,7 @@ macOS settings (`modules/core/macos.nix`)
 - prek
 - ShellCheck (shell script linter)
 - FFmpeg (audio/video conversion)
+- Glow (`nixpkgs-unstable`; renders Markdown in the terminal, `glow` on the command line)
 - [uv tools](./modules/apps/uvtools.nix)
 - pnpm (Node package manager)
 - nx (Nx monorepo CLI)

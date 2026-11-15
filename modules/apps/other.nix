@@ -35,6 +35,9 @@
       pkgs.helix          # `hx`, modal terminal editor
       pkgs.shellcheck     # shell script linter
       pkgs.ffmpeg         # audio/video conversion
+      # Renders Markdown in the terminal; from unstable because stable is a
+      # major version behind (2.x).
+      pkgs.unstable.glow
       # Markdown notes. Its in-app updater swaps in a newer app.asar under
       # ~/Library/Application Support/obsidian, bypassing the Nix pin; turn
       # off Settings → General → Automatic updates.
