@@ -1,6 +1,6 @@
 { pkgs, ... }:
 let
-  version = "24.0.4";
+  version = "24.0.6";
   # Wrapper "project" alongside this file pins nx as a dependency;
   # buildNpmPackage reads its package-lock.json to fetch every transitive
   # dep as a fixed-output derivation. Bump: edit ./package.json, rerun
@@ -15,7 +15,7 @@ let
       root = ./.;
       fileset = pkgs.lib.fileset.unions [ ./package.json ./package-lock.json ];
     };
-    npmDepsHash = "sha256-25vyNBXjGSlOlA/AEGKJGpxIituMxAfgEe2GzC04nzU=";
+    npmDepsHash = "sha256-MzN82ECmWpNCdcS5AljJKS3vfkiDzFLqHk9braiqWlE=";
     dontNpmBuild = true;
     nativeBuildInputs = [ pkgs.makeWrapper ];
     installPhase = ''
