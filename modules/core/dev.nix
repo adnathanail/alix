@@ -166,8 +166,33 @@
     # prints them in well under a tenth of a second, so each new shell asks
     # it, which keeps them in step with GitButler updates. Runs after Home
     # Manager's compinit, which the generated script's `compdef` needs.
+    #
+    # The generated script completes subcommands and flags but offers file
+    # names for branch arguments, so `_but` is wrapped: `but unapply` offers
+    # the applied branches and `but apply` the unapplied ones, both read from
+    # `but branch list --json`. Everything else goes to the generated
+    # function, kept as `_but_generated`.
     programs.zsh.initContent = ''
-      (( $+commands[but] )) && eval "$(but completions zsh)"
+      if (( $+commands[but] )); then
+        eval "$(but completions zsh)"
+        functions[_but_generated]=$functions[_but]
+        _but_branch_names() {
+          local expl
+          local -a names
+          names=(''${(f)"$(but branch list --json --no-ahead --no-check 2>/dev/null \
+            | ${pkgs.jq}/bin/jq -r "$1")"})
+          _wanted branches expl branch compadd -a names
+        }
+        _but() {
+          if (( CURRENT > 2 )) && [[ $words[CURRENT] != -* ]]; then
+            case $words[2] in
+              unapply) _but_branch_names '.appliedStacks[].heads[].name'; return ;;
+              apply) _but_branch_names '.branches[].name'; return ;;
+            esac
+          fi
+          _but_generated "$@"
+        }
+      fi
     '';
 
     # Programs GitButler's `but tui` can open files in. User-defined entries
