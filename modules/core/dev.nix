@@ -135,14 +135,15 @@
           accent = "Teal";
           corners = "Sharp";
           ligatures = true;
-          # Side-by-side diffs.
-          split = true;
+          # Unified diffs (true = side-by-side).
+          split = false;
           # Commit messages shown in the diff.
           messages_in_diff = true;
           hide_terminal_overview = true;
           open_branch_on_click = true;
-          # "Start commits with nothing checked".
-          composer_starts_unchecked = true;
+          # "Start commits with nothing checked", off: new commits start
+          # with every change checked.
+          composer_starts_unchecked = false;
           # Font family names; JetBrains Mono is installed by
           # modules/apps/other.nix.
           diff_font = "JetBrains Mono";
