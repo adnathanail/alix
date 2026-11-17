@@ -161,6 +161,15 @@
         fi
       '';
 
+    # Tab completion for `but`. The CLI comes with the GitButler cask, outside
+    # the Nix store, so its completions can't be generated at build time; it
+    # prints them in well under a tenth of a second, so each new shell asks
+    # it, which keeps them in step with GitButler updates. Runs after Home
+    # Manager's compinit, which the generated script's `compdef` needs.
+    programs.zsh.initContent = ''
+      (( $+commands[but] )) && eval "$(but completions zsh)"
+    '';
+
     # Programs GitButler's `but tui` can open files in. User-defined entries
     # come before the built-ins, in this order, so the first is what `o`
     # (open in default program) uses; `O` offers the full list. This is
