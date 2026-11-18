@@ -10,7 +10,8 @@ Manager and read-only, so make shell config changes in `programs.zsh` in
 
 ## Git
 
-- **Do not commit without asking.**
+Do not commit without asking. Once you have been told to commit, you may continue to do so for the session until told to stop committing.
+
 - **Do not add attributions to yourself in commit messages.**
 - Some repositories are managed with GitButler. In those, use the `but` CLI rather than git write
   commands, whichever branch is checked out: with a single branch applied, GitButler checks that
