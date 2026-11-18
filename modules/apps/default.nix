@@ -13,6 +13,7 @@
     ./microsoft.nix # Outlook, Word, Excel, PowerPoint
     ./macapps.nix   # Mac App Store apps (iMovie, Reeder, …)
     ./clonager.nix  # clonager CLI + its config (from nix-private)
+    ./lmao.nix      # lmao: Lunch Money transaction review TUI
     ./eduroam.nix   # UvA eduroam Wi-Fi profile (username + CAs from nix-private)
     ./rex.nix       # Rex Beta (direct-download package)
     ./linux-builder.nix # aarch64-linux builder VM, for building NixOS systems

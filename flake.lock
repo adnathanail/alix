@@ -111,6 +111,27 @@
         "type": "github"
       }
     },
+    "lmao": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795020374,
+        "narHash": "sha256-ff+OEhhJ41tEH9R2/6gLXIY8fyQY2nGAIuCOPmIb8gs=",
+        "owner": "adnathanail",
+        "repo": "lmao",
+        "rev": "a497ffc30c255d805fed4f7c853b02baa6efeed7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "adnathanail",
+        "ref": "v0.1.0",
+        "repo": "lmao",
+        "type": "github"
+      }
+    },
     "nix-darwin": {
       "inputs": {
         "nixpkgs": [
@@ -205,6 +226,7 @@
         "home-manager": "home-manager",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
+        "lmao": "lmao",
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
         "nixpkgs": "nixpkgs",
