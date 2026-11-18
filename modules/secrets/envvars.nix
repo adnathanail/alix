@@ -21,6 +21,11 @@
     owner = username;
     mode = "0400";
   };
+  age.secrets.lunchmoney-token = {
+    file = ./agefiles/lunchmoney-token.age;
+    owner = username;
+    mode = "0400";
+  };
 
   # After agenix decrypts to /run/agenix/*, materialise the secrets we want
   # in the shell as a plain env file at ~/.config/nix-secrets.env (sourced
@@ -42,6 +47,7 @@
       }
       write NPM_FONT_AWESOME_TOKEN    /run/agenix/npm-font-awesome-token
       write NPM_GITHUB_PACKAGES_TOKEN /run/agenix/npm-github-packages-token
+      write LUNCHMONEY_TOKEN          /run/agenix/lunchmoney-token
     } > "$tmp"
     install -m 600 -o ${username} -g staff "$tmp" "$envfile"
     rm -f "$tmp"

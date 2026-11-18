@@ -9,6 +9,7 @@ let
 in {
   "agefiles/npm-font-awesome-token.age".publicKeys = [ alex ];
   "agefiles/npm-github-packages-token.age".publicKeys = [ alex ];
+  "agefiles/lunchmoney-token.age".publicKeys = [ alex ];
 
   # SketchyBar code-signing identity (cert + private key, .p12) - see modules/interface/signing.nix (also signs aerospace-swipe)
   "agefiles/alix-local-signing-identity.age".publicKeys = [ alex ];
