@@ -135,6 +135,11 @@
         { key = "cmd+8"; command = "workbench.action.openEditorAtIndex8"; }
         { key = "cmd+9"; command = "workbench.action.openEditorAtIndex9"; }
         { key = "cmd+0"; command = "workbench.action.lastEditorInGroup"; }
+        # PyCharm's macOS shortcuts: Cmd+Shift+O finds a file by name (Go to
+        # File), Cmd+Shift+A finds a command (Find Action). Cmd+Shift+O
+        # replaces VS Code's Go to Symbol in Editor, still on Cmd+P then @.
+        { key = "cmd+shift+o"; command = "workbench.action.quickOpen"; }
+        { key = "cmd+shift+a"; command = "workbench.action.showCommands"; }
       ];
     };
   };
