@@ -38,6 +38,9 @@
       # Renders Markdown in the terminal; from unstable because stable is a
       # major version behind (2.x).
       pkgs.unstable.glow
+      # `ls` replacement; the maintained fork of exa, which is unmaintained
+      # and no longer in nixpkgs. Takes the same flags.
+      pkgs.eza
       # Markdown notes. Its in-app updater swaps in a newer app.asar under
       # ~/Library/Application Support/obsidian, bypassing the Nix pin; turn
       # off Settings → General → Automatic updates.
