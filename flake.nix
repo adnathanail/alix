@@ -39,7 +39,7 @@
     agenix.inputs.nixpkgs.follows = "nixpkgs";
 
     # clonager: my git-clone tracker.
-    clonager.url = "github:adnathanail/clonager/v0.7.0";
+    clonager.url = "github:adnathanail/clonager/v0.8.0";
     clonager.inputs.nixpkgs.follows = "nixpkgs";
 
     # lmao: reviews Lunch Money transactions in the terminal.

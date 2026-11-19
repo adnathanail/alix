@@ -208,7 +208,7 @@ Modules reference these files by **absolute path as strings**, never as Nix path
 read at runtime: nothing is copied into the (world-readable) store, nothing is pinned in
 `flake.lock`, and edits apply without a rebuild. Use it via `mkOutOfStoreSymlink` (a string
 `configFile` does this for clonager) or an activation script that copies from it (MailMate). This
-suits configs an app rewrites itself — `clonager discover` edits its file in place. Never
+suits configs an app rewrites itself — `cg config discover` edits its file in place. Never
 `import` or `readFile` from it: eval would then depend on an unpinned path outside the flake,
 which pure evaluation rejects anyway.
 

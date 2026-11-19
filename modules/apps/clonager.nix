@@ -3,7 +3,7 @@
 #
 # Its config lists every repo URL, so it lives in the private nix-private
 # checkout (clonager/config.yaml) rather than in this public repo. It's
-# linked to where it is, not copied into the store, so `clonager discover`
+# linked to where it is, not copied into the store, so `cg config discover`
 # edits it in place and changes apply immediately; commit them in
 # nix-private.
 #
@@ -20,19 +20,17 @@ in
     programs.clonager = {
       enable = true;
       # Strings, so the installed config is a symlink to the checkout and
-      # `clonager discover` writes straight to it.
+      # `cg config discover` writes straight to it.
       configFile = configPath;
       configSource = configPath;
-      # Where a bare `clonager discover` looks.
+      # Where a bare `cg config discover` looks.
       discoverPaths = [ "~/Documents" "~/.config/nix-darwin" "~/.config/nix-private" ];
       # Cmd-clicking a repo's name opens it in VS Code, not Finder.
       openIn = "vscode";
-      # `clonager browse` starts with the most recently changed repos first,
+      # `cg browse` starts with the most recently changed repos first,
       # showing repo names without the folders above them.
       browseSort = "recent";
       browseHideFolders = true;
     };
-
-    programs.zsh.shellAliases.cs = "clonager status";
   };
 }

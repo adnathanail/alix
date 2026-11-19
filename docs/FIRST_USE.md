@@ -14,7 +14,7 @@ Record every repo's local branches in clonager's config, so step 4 can recreate 
 cg config airlift
 ```
 
-- It refuses until the laptop is tidy (everything committed and pushed, nothing for `cg prune --forge` to do)
+- It refuses until the laptop is tidy (everything committed and pushed, nothing for `cg prune` to do)
 
 Commit and push the config change in `~/.config/nix-private`.
 

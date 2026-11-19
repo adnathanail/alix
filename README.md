@@ -121,7 +121,7 @@ macOS settings (`modules/core/macos.nix`)
 - pnpm (Node package manager)
 - nx (Nx monorepo CLI)
 - Vite+ (`vp`, `vpr`, `vpx` — VoidZero's web toolchain CLI; prebuilt binary; commands run through `vp` use each project's pinned Node.js version, while plain `node` stays Nix's)
-- [clonager](https://github.com/adnathanail/clonager) (tracks the git clones on this laptop; config in `~/.config/nix-private/clonager/config.yaml`, which `clonager discover` edits in place; `cs` = `clonager status`; cmd-clicking a repo name opens it in VS Code; `clonager browse` starts sorted by most recent change, with folders hidden)
+- [clonager](https://github.com/adnathanail/clonager) (tracks the git clones on this laptop; config in `~/.config/nix-private/clonager/config.yaml`, which `cg config discover` edits in place; run as `cg`; cmd-clicking a repo name opens it in VS Code; `cg browse` starts sorted by most recent change, with folders hidden)
 - [lmao](https://github.com/adnathanail/lmao) (reviews unreviewed Lunch Money transactions in the terminal; reads its token from the `lunchmoney-token` secret)
 - gh (GitHub) — `git_protocol: ssh`
 - doctl (DigitalOcean)
